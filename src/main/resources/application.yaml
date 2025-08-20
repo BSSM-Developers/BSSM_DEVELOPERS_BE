@@ -3,7 +3,18 @@ spring:
     include: env
 
   application:
-    name=bssm_dev
+    name: bssm_dev
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bssm_dev
+    username: root
+    password: kdoornega0128
 
-
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true

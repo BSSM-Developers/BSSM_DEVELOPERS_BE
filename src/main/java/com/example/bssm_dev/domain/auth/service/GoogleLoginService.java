@@ -1,5 +1,7 @@
 package com.example.bssm_dev.domain.auth.service;
 
+import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
+import com.example.bssm_dev.domain.auth.dto.response.GoogleTokenResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
 import com.example.bssm_dev.domain.auth.dto.response.TokenResponse;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
@@ -8,10 +10,12 @@ import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.service.UserLoginService;
 import com.example.bssm_dev.global.config.properties.GoogleOauthProperties;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
+import com.example.bssm_dev.global.feign.GoogleTokenFeign;
 import com.example.bssm_dev.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -19,15 +23,18 @@ import java.util.UUID;
 public class GoogleLoginService {
     private final GoogleOauthProperties googleOauthProperties;
     private final GoogleResourceAccessFeign googleResourceAccessFeign;
+    private final GoogleTokenFeign googleTokenFeign;
+
     private final EmailValidator emailValidator;
     private final UserLoginService userLoginService;
     private final JwtProvider jwtProvider;
 
 
+
     private static final String baseUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     private static final String scope = "email profile";
 
-    public String getUrl() {
+    public GoogleLoginUrlResponse getUrl() {
         String state = UUID.randomUUID().toString();
         String url = baseUrl + "?" +
                 "client_id=" + googleOauthProperties.getClientId() +
@@ -37,12 +44,22 @@ public class GoogleLoginService {
                 "&access_type=offline" +
                 "&prompt=consent" +
                 "&state=" + state;
-        return url;
 
+        return new GoogleLoginUrlResponse(url);
     }
 
     public String registerOrLogin(String code, String state) {
-        String authorizationCode = "Bearer " + code;
+
+        Map<String, String> body = Map.of(
+                "code", code,
+                "client_id", googleOauthProperties.getClientId(),
+                "client_secret", googleOauthProperties.getSecretKey(),
+                "redirect_uri", googleOauthProperties.getRedirectUri(),
+                "grant_type", "authorization_code"
+        );
+        GoogleTokenResponse tokenResponse = googleTokenFeign.getToken(body);
+
+        String authorizationCode = "Bearer " + tokenResponse.access_token();
         GoogleUserResponse googleUser = googleResourceAccessFeign.accessGoogle(authorizationCode);
         emailValidator.isBssmEmail(googleUser.email());
 
