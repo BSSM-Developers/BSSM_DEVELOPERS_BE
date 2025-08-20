@@ -1,0 +1,11 @@
+google:
+  client-id: 586164535148-cjcsulggfm0mbedc811gpp6civftfhgl.apps.googleusercontent.com
+  secret-key: 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
+  redirect-uri: http://localhost:8000/auth/google/callback
+
+jwt:
+  accessExp: 3600
+  refreshExp: 604800
+  secretKey: admnjadsknadaksdaksdaldamsdmkadmk
+  header: Authorization
+  prefix: Bearer

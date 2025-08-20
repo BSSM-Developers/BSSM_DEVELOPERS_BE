@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    include: env
+
+  application:
+    name=bssm_dev
+
+
+
