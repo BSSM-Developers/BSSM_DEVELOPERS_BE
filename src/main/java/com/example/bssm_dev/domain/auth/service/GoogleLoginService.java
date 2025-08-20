@@ -41,7 +41,7 @@ public class GoogleLoginService {
 
     }
 
-    public TokenResponse registerOrLogin(String code, String state) {
+    public String registerOrLogin(String code, String state) {
         String authorizationCode = "Bearer " + code;
         GoogleUserResponse googleUser = googleResourceAccessFeign.accessGoogle(authorizationCode);
         emailValidator.isBssmEmail(googleUser.email());
@@ -53,9 +53,9 @@ public class GoogleLoginService {
         String email = userLoginResponse.email();
         String role = userLoginResponse.role();
         // jwt 발급 후 리다이렉트
-        String accessToken = jwtProvider.generateAccessToken(userId, email, role);
+
         String refreshToken = jwtProvider.generateRefreshToken(userId, email, role);
 
-        return new TokenResponse(accessToken, refreshToken);
+        return refreshToken;
     }
 }

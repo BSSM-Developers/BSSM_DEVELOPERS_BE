@@ -8,7 +8,8 @@ public class CookieUtil {
         Cookie cookie = new Cookie(k, v);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(7 * 24 * 60 * 60)
+//        cookie.setSecure(true); // 배포 시에 주석 해제
+        cookie.setMaxAge(7 * 24 * 60 * 60);
         return cookie;
     }
 }

@@ -29,12 +29,8 @@ public class GoogleLoginController {
 
     @GetMapping("/callback")
     public void googleLoginCallback(@RequestParam("code") String code, @RequestParam("state") String state, HttpServletResponse response) throws IOException {
-        TokenResponse tokenResponse = googleLoginService.registerOrLogin(code, state);
+        String refreshToken = googleLoginService.registerOrLogin(code, state);
 
-        String accessToken = tokenResponse.accessToken();
-        response.setHeader("Authorization", "Bearer " + accessToken);
-
-        String refreshToken = tokenResponse.refreshToken();
         Cookie cookie = CookieUtil.bake("refreshToken", refreshToken);
         response.addCookie(cookie);
 
