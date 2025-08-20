@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.user.service;
 
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
+import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.mapper.UserMapper;
 import com.example.bssm_dev.domain.user.model.User;
 import com.example.bssm_dev.domain.user.repository.UserRepository;
@@ -15,13 +16,16 @@ public class UserLoginService {
     private final UserMapper userMapper;
 
     @Transactional
-    public void registerIfNotExists(UserRequest userRequest) {
+    public UserLoginResponse registerIfNotExists(UserRequest userRequest) {
         String email = userRequest.email();
 
-        boolean existsUser = userRepository.existsByEmail(email);
-        if (!existsUser) {
-            User user = userMapper.toUser(userRequest);
-            userRepository.save(user);
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = userMapper.toUser(userRequest);
+                    return userRepository.save(newUser);
+                });
+
+        UserLoginResponse userLoginResponse = userMapper.toUserLoginResponse(user);
+        return userLoginResponse;
     }
 }

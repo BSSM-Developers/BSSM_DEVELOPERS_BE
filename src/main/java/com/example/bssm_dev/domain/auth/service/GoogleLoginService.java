@@ -1,8 +1,10 @@
 package com.example.bssm_dev.domain.auth.service;
 
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
+import com.example.bssm_dev.domain.auth.dto.response.TokenResponse;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
+import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.service.UserLoginService;
 import com.example.bssm_dev.global.config.properties.GoogleOauthProperties;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
@@ -39,16 +41,21 @@ public class GoogleLoginService {
 
     }
 
-    public void registerOrLogin(String code, String state) {
+    public TokenResponse registerOrLogin(String code, String state) {
         String authorizationCode = "Bearer " + code;
         GoogleUserResponse googleUser = googleResourceAccessFeign.accessGoogle(authorizationCode);
         emailValidator.isBssmEmail(googleUser.email());
 
         // user id와 role 받아야함
-        userLoginService.registerIfNotExists(UserRequest.fromGoogleUser(googleUser));
+        UserLoginResponse userLoginResponse = userLoginService.registerIfNotExists(UserRequest.fromGoogleUser(googleUser));
 
+        Long userId = userLoginResponse.userId();
+        String email = userLoginResponse.email();
+        String role = userLoginResponse.role();
         // jwt 발급 후 리다이렉트
-        String accessToken = jwtProvider.generateAccessToken();
-        String refreshToken = jwtProvider.generateRefreshToken();
+        String accessToken = jwtProvider.generateAccessToken(userId, email, role);
+        String refreshToken = jwtProvider.generateRefreshToken(userId, email, role);
+
+        return new TokenResponse(accessToken, refreshToken);
     }
 }

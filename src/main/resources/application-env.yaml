@@ -9,3 +9,7 @@ jwt:
   secretKey: admnjadsknadaksdaksdaldamsdmkadmk
   header: Authorization
   prefix: Bearer
+
+
+client:
+  url:  http://localhost:3000
