@@ -3,7 +3,7 @@ package com.example.bssm_dev.global.error;
 
 import com.example.bssm_dev.global.error.exception.ErrorCode;
 import com.example.bssm_dev.global.error.exception.GlobalException;
-import com.example.bssm_dev.global.util.HttpUtil;
+import com.example.bssm_dev.common.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

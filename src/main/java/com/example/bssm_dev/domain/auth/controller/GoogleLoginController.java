@@ -1,13 +1,13 @@
 package com.example.bssm_dev.domain.auth.controller;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
-import com.example.bssm_dev.domain.auth.dto.response.TokenResponse;
 import com.example.bssm_dev.domain.auth.service.GoogleLoginService;
 import com.example.bssm_dev.global.config.properties.ClientProperties;
-import com.example.bssm_dev.global.util.CookieUtil;
-import com.example.bssm_dev.global.util.HttpUtil;
+import com.example.bssm_dev.common.util.CookieUtil;
+import com.example.bssm_dev.common.util.HttpUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,19 +22,22 @@ public class GoogleLoginController {
     private final ClientProperties clientProperties;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<GoogleLoginUrlResponse>> showGoogleLoginUrl() {
-        GoogleLoginUrlResponse url = googleLoginService.getUrl();
+    public ResponseEntity<ResponseDto<GoogleLoginUrlResponse>> showGoogleLoginUrl(HttpSession session) {
+        GoogleLoginUrlResponse url = googleLoginService.getUrl(session);
         ResponseDto<GoogleLoginUrlResponse> responseDto = HttpUtil.success("Get google login url", url);
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/callback")
-    public void googleLoginCallback(@RequestParam("code") String code, @RequestParam("state") String state, HttpServletResponse response) throws IOException {
-        String refreshToken = googleLoginService.registerOrLogin(code, state);
+    public void googleLoginCallback(@RequestParam("code") String code, HttpServletResponse response, HttpSession session) throws IOException {
+        String codeVerifier = (String) session.getAttribute("GOOGLE_CODE_VERIFIER");
+        session.removeAttribute("GOOGLE_CODE_VERIFIER");
+
+        String refreshToken = googleLoginService.registerOrLogin(code, codeVerifier);
 
         Cookie cookie = CookieUtil.bake("refreshToken", refreshToken);
         response.addCookie(cookie);
 
-        response.sendRedirect(clientProperties.getUrl() + state);
+        response.sendRedirect(clientProperties.getUrl());
     }
 }

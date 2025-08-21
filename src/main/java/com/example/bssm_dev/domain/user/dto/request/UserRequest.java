@@ -8,6 +8,6 @@ public record UserRequest (
         String profile
 ) {
     public static UserRequest fromGoogleUser(GoogleUserResponse googleUser) {
-        return new UserRequest(googleUser.name(), googleUser.email(), googleUser.profile());
+        return new UserRequest(googleUser.picture(), googleUser.email(), googleUser.profile());
     }
 }

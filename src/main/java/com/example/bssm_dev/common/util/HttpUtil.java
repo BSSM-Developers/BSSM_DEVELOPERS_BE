@@ -1,4 +1,4 @@
-package com.example.bssm_dev.global.util;
+package com.example.bssm_dev.common.util;
 
 
 import com.example.bssm_dev.common.dto.ResponseDto;
@@ -17,4 +17,6 @@ public class HttpUtil {
     public static ErrorResponse fail(int statusCode, String message) {
         return new ErrorResponse(statusCode, message);
     }
+
+    private HttpUtil() {}
 }

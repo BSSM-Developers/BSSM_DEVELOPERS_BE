@@ -19,6 +19,10 @@ public class UserMapper {
     }
 
     public UserLoginResponse toUserLoginResponse(User user) {
-        return new  UserLoginResponse(user.getUserId(), user.getEmail(), user.getRole().toString());
+        return UserLoginResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .role(String.valueOf(user.getRole()))
+                .build();
     }
 }

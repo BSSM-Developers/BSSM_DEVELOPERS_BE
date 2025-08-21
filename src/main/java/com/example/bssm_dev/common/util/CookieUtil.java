@@ -1,4 +1,4 @@
-package com.example.bssm_dev.global.util;
+package com.example.bssm_dev.common.util;
 
 import jakarta.servlet.http.Cookie;
 
@@ -12,4 +12,6 @@ public class CookieUtil {
         cookie.setMaxAge(7 * 24 * 60 * 60);
         return cookie;
     }
+
+    private CookieUtil() {}
 }
