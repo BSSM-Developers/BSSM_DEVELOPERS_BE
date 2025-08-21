@@ -27,10 +27,5 @@ public final class PkceUtil {
         }
     }
 
-    public static String enc(String v) {
-        System.out.println(v);
-        return URLEncoder.encode(v, StandardCharsets.UTF_8);
-    }
-
     private PkceUtil() {}
 }
