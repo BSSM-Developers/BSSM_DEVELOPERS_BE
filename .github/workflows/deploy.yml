@@ -14,13 +14,13 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: [ self-hosted, bdv, prod ]   
+    runs-on: [ self-hosted ]   
 
     env:
       CTID:     ${{ vars.CTID }}        
-      SVC:      ${{ vars.SVC }}         # 예: bdv (systemd 유닛명)
+      SVC:      ${{ vars.SVC }}         
       APP_DIR:  ${{ vars.APP_DIR }}     
-      JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   # 최종 실행 파일명
+      JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
 
     steps:
       - uses: actions/checkout@v4
