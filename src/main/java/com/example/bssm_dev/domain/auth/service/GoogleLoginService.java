@@ -39,7 +39,6 @@ public class GoogleLoginService {
         return new GoogleLoginUrlResponse(url);
     }
 
-
     public String registerOrLogin(String code, String codeVerifier) {;
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
