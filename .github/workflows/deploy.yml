@@ -61,28 +61,30 @@ jobs:
 
       - name: Deploy inside CT & restart
         run: |
-          sudo /usr/sbin/pct exec "$CTID" -- bash -lc "
-            set -euo pipefail
-            APP_DIR='${APP_DIR}'
-            JAR_NAME='${JAR_NAME}'
-            SRC=\"/tmp/\${JAR_NAME}\"
-            DST=\"\${APP_DIR}/\${JAR_NAME}\"
-
-            install -d -m 755 \"\${APP_DIR}\"
-            # 백업(선택): 직전 JAR 보관
-            if [ -f \"\${DST}\" ]; then
-              cp -f \"\${DST}\" \"\${DST}.bak\" || true
-            fi
-
-            # 원자적 교체
-            cp \"\${SRC}\" \"\${DST}.tmp\"
-            mv -f \"\${DST}.tmp\" \"\${DST}\"
-            rm -f \"\${SRC}\"
-
-            # 실행 계정에 맞게 조정 (예: bssm-dev)
-            chown bssm-dev:bssm-dev \"\${DST}\"
-            chmod 640 \"\${DST}\"
-
-            systemctl daemon-reload
-            systemctl restart \"${SVC}.service\"
+          sudo /usr/sbin/pct exec "$CTID" -- bash -lc <<'EOF'
+          set -euo pipefail
           
+          APP_DIR='${APP_DIR}'
+          JAR_NAME='${JAR_NAME}'
+          SRC="/tmp/$JAR_NAME"
+          DST="$APP_DIR/$JAR_NAME"
+          
+          install -d -m 755 "$APP_DIR"
+          
+          # 백업(선택)
+          if [ -f "$DST" ]; then
+            cp -f "$DST" "$DST.bak" || true
+          fi
+          
+          # 원자적 교체
+          cp "$SRC" "$DST.tmp"
+          mv -f "$DST.tmp" "$DST"
+          rm -f "$SRC"
+          
+          # 실행 계정에 맞게 조정
+          chown bssm-dev:bssm-dev "$DST"
+          chmod 640 "$DST"
+          
+          systemctl daemon-reload
+          systemctl restart "${SVC}.service"
+          EOF
