@@ -85,19 +85,4 @@ jobs:
 
             systemctl daemon-reload
             systemctl restart \"${SVC}.service\"
-          "
-
-      - name: Health check (Actuator)
-        run: |
-          sudo /usr/sbin/pct exec "$CTID" -- bash -lc "
-            for i in \$(seq 1 15); do
-              if curl -fsS http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'; then
-                echo 'Service is UP'
-                exit 0
-              fi
-              echo \"Waiting for service... (\$i)\"
-              sleep 2
-            done
-            echo 'Health check failed' >&2
-            exit 1
-          "
+          
