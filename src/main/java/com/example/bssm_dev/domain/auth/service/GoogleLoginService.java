@@ -67,31 +67,35 @@ public class GoogleLoginService {
         } else {
             // 일반 구글 계정인 경우
             String userEmail = googleUser.email();
-            boolean isUserExists = userQueryService.isUserExists(userEmail);
+            return handleGoogleLogin(userEmail, googleUser);
+        }
+    }
 
-            if (isUserExists) {
-                // 회원가입 되어있다면 로그인 성공
-                UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(userEmail);
+    private String handleGoogleLogin(String userEmail, GoogleUserResponse googleUser) {
+        boolean isUserExists = userQueryService.isUserExists(userEmail);
 
-                Long userId = userLoginResponse.userId();
-                String email = userLoginResponse.email();
-                String role = userLoginResponse.role();
+        if (isUserExists) {
+            // 회원가입 되어있다면 로그인 성공
+            UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(userEmail);
 
-                return jwtProvider.generateRefreshToken(userId, email, role);
-            } else {
-                // 회원가입이 안되어있다면 회원가입 신청
-                SignupRequest signupRequest =
-                    new SignupRequest(
-                        googleUser.picture(),
-                        googleUser.email(),
-                        googleUser.profile()
-                    );
+            Long userId = userLoginResponse.userId();
+            String email = userLoginResponse.email();
+            String role = userLoginResponse.role();
 
-                signupRequestService.createSignupRequest(signupRequest);
+            return jwtProvider.generateRefreshToken(userId, email, role);
+        } else {
+            // 회원가입이 안되어있다면 회원가입 신청
+            SignupRequest signupRequest =
+                new SignupRequest(
+                    googleUser.picture(),
+                    googleUser.email(),
+                    googleUser.profile()
+                );
 
-                // 회원가입 신청 완료 후 적절한 처리 필요 (예: 특별한 토큰이나 리다이렉트)
-                return null; // 임시로 null 반환
-            }
+            signupRequestService.createSignupRequest(signupRequest);
+
+            // 회원가입 신청 완료 후 적절한 처리 필요 (예: 특별한 토큰이나 리다이렉트)
+            return null;
         }
     }
 }
