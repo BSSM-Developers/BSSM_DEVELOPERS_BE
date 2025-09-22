@@ -5,10 +5,12 @@ import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleTokenResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
+import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
 import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.service.UserLoginService;
 import com.example.bssm_dev.domain.signup.service.SignupRequestService;
+import com.example.bssm_dev.domain.user.service.UserQueryService;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
 import com.example.bssm_dev.global.feign.GoogleTokenFeign;
 import com.example.bssm_dev.global.jwt.JwtProvider;
@@ -24,9 +26,11 @@ public class GoogleLoginService {
     private final GoogleTokenFeign googleTokenFeign;
     
     private final UrlBuilder urlBuilder;
-
     private final EmailValidator emailValidator;
+
     private final UserLoginService userLoginService;
+    private final UserQueryService userQueryService;
+
     private final SignupRequestService signupRequestService;
     private final JwtProvider jwtProvider;
     
@@ -63,11 +67,11 @@ public class GoogleLoginService {
         } else {
             // 일반 구글 계정인 경우
             String userEmail = googleUser.email();
-            boolean isUserExists = userLoginService.isUserExists(userEmail);
+            boolean isUserExists = userQueryService.isUserExists(userEmail);
 
             if (isUserExists) {
                 // 회원가입 되어있다면 로그인 성공
-                UserLoginResponse userLoginResponse = userLoginService.getUserByEmail(userEmail);
+                UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(userEmail);
 
                 Long userId = userLoginResponse.userId();
                 String email = userLoginResponse.email();
@@ -76,8 +80,8 @@ public class GoogleLoginService {
                 return jwtProvider.generateRefreshToken(userId, email, role);
             } else {
                 // 회원가입이 안되어있다면 회원가입 신청
-                com.example.bssm_dev.domain.signup.dto.request.SignupRequest signupRequest =
-                    new com.example.bssm_dev.domain.signup.dto.request.SignupRequest(
+                SignupRequest signupRequest =
+                    new SignupRequest(
                         googleUser.picture(),
                         googleUser.email(),
                         googleUser.profile()
