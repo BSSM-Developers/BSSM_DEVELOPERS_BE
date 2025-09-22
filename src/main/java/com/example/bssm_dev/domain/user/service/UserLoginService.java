@@ -28,4 +28,15 @@ public class UserLoginService {
         UserLoginResponse userLoginResponse = userMapper.toUserLoginResponse(user);
         return userLoginResponse;
     }
+
+    public boolean isUserExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public UserLoginResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userMapper.toUserLoginResponse(user);
+    }
 }

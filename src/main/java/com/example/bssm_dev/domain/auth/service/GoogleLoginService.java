@@ -8,6 +8,7 @@ import com.example.bssm_dev.domain.auth.validator.EmailValidator;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
 import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.service.UserLoginService;
+import com.example.bssm_dev.domain.signup.service.SignupRequestService;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
 import com.example.bssm_dev.global.feign.GoogleTokenFeign;
 import com.example.bssm_dev.global.jwt.JwtProvider;
@@ -26,6 +27,7 @@ public class GoogleLoginService {
 
     private final EmailValidator emailValidator;
     private final UserLoginService userLoginService;
+    private final SignupRequestService signupRequestService;
     private final JwtProvider jwtProvider;
     
     public GoogleLoginUrlResponse getUrl(HttpSession session) {
@@ -39,25 +41,53 @@ public class GoogleLoginService {
         return new GoogleLoginUrlResponse(url);
     }
 
-    public String registerOrLogin(String code, String codeVerifier) {;
+    public String registerOrLogin(String code, String codeVerifier) {
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
         GoogleTokenResponse tokenResponse = googleTokenFeign.getToken(body);
 
         String authorizationCode = "Bearer " + tokenResponse.access_token();
         GoogleUserResponse googleUser = googleResourceAccessFeign.accessGoogle(authorizationCode);
-        emailValidator.isBssmEmail(googleUser.email());
 
-        // user id와 role 받아야함
-        UserLoginResponse userLoginResponse = userLoginService.registerIfNotExists(UserRequest.fromGoogleUser(googleUser));
+        boolean isBssmEmail = emailValidator.isBssmEmail(googleUser.email());
 
-        Long userId = userLoginResponse.userId();
-        String email = userLoginResponse.email();
-        String role = userLoginResponse.role();
-        // jwt 발급 후 리다이렉트
+        if (isBssmEmail) {
+            // BSSM 계정이면 바로 회원가입 & 로그인
+            UserLoginResponse userLoginResponse = userLoginService.registerIfNotExists(UserRequest.fromGoogleUser(googleUser));
 
-        String refreshToken = jwtProvider.generateRefreshToken(userId, email, role);
+            Long userId = userLoginResponse.userId();
+            String email = userLoginResponse.email();
+            String role = userLoginResponse.role();
 
-        return refreshToken;
+            return jwtProvider.generateRefreshToken(userId, email, role);
+        } else {
+            // 일반 구글 계정인 경우
+            String userEmail = googleUser.email();
+            boolean isUserExists = userLoginService.isUserExists(userEmail);
+
+            if (isUserExists) {
+                // 회원가입 되어있다면 로그인 성공
+                UserLoginResponse userLoginResponse = userLoginService.getUserByEmail(userEmail);
+
+                Long userId = userLoginResponse.userId();
+                String email = userLoginResponse.email();
+                String role = userLoginResponse.role();
+
+                return jwtProvider.generateRefreshToken(userId, email, role);
+            } else {
+                // 회원가입이 안되어있다면 회원가입 신청
+                com.example.bssm_dev.domain.signup.dto.request.SignupRequest signupRequest =
+                    new com.example.bssm_dev.domain.signup.dto.request.SignupRequest(
+                        googleUser.picture(),
+                        googleUser.email(),
+                        googleUser.profile()
+                    );
+
+                signupRequestService.createSignupRequest(signupRequest);
+
+                // 회원가입 신청 완료 후 적절한 처리 필요 (예: 특별한 토큰이나 리다이렉트)
+                return null; // 임시로 null 반환
+            }
+        }
     }
 }
