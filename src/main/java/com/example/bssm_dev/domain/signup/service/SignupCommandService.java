@@ -29,12 +29,10 @@ public class SignupCommandService {
     public String createSignupRequest(SignupRequest signupRequestDto) {
         boolean isSignupRequestExists = signupRequestRepository.existsByEmail(signupRequestDto.email());
 
-        if (isSignupRequestExists) {
-            throw SignupRequestAlreadyExistsException.raise();
+        if (!isSignupRequestExists) {
+            SignupForm signupRequest = signupRequestMapper.toSignupRequest(signupRequestDto);
+            signupRequestRepository.save(signupRequest);
         }
-
-        SignupForm signupRequest = signupRequestMapper.toSignupRequest(signupRequestDto);
-        signupRequestRepository.save(signupRequest);
 
         String token = UUID.randomUUID().toString();
         SignupToken signupToken = SignupToken.of(token, signupRequestDto.email());
