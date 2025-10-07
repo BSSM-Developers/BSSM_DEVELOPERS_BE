@@ -14,7 +14,7 @@ public class UrlBuilder {
     private static final String SCOPE = "email profile";
     private final GoogleOauthProperties googleOauthProperties;
 
-    public String getGoogleLoginUrl(String codeChallenge) {
+    public String getGoogleLoginUrl(String codeChallenge, String state) {
         String redirectUri = googleOauthProperties.getRedirectUri();
         String clientId = googleOauthProperties.getClientId();
 
@@ -26,6 +26,7 @@ public class UrlBuilder {
                 .queryParam("scope", SCOPE)
                 .queryParam("code_challenge", codeChallenge)
                 .queryParam("code_challenge_method", "S256")
+                .queryParam("state", state)
                 .toUriString();
         return url;
     }
