@@ -7,7 +7,6 @@ import com.example.bssm_dev.common.util.CookieUtil;
 import com.example.bssm_dev.common.util.HttpUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,18 +21,19 @@ public class GoogleLoginController {
     private final ClientProperties clientProperties;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<GoogleLoginUrlResponse>> showGoogleLoginUrl(HttpSession session) {
-        GoogleLoginUrlResponse url = googleLoginService.getUrl(session);
+    public ResponseEntity<ResponseDto<GoogleLoginUrlResponse>> showGoogleLoginUrl() {
+        GoogleLoginUrlResponse url = googleLoginService.getUrl();
         ResponseDto<GoogleLoginUrlResponse> responseDto = HttpUtil.success("Get google login url", url);
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/callback")
-    public void googleLoginCallback(@RequestParam("code") String code, HttpServletResponse response, HttpSession session) throws IOException {
-        String codeVerifier = (String) session.getAttribute("GOOGLE_CODE_VERIFIER");
-        session.removeAttribute("GOOGLE_CODE_VERIFIER");
-
-        String refreshToken = googleLoginService.registerOrLogin(code, codeVerifier);
+    public void googleLoginCallback(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state,
+            HttpServletResponse response
+    ) throws IOException {
+        String refreshToken = googleLoginService.registerOrLogin(code, state);
 
         Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
         response.addCookie(cookie);

@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class AuthController {
         httpServletResponse.addCookie(refreshTokenCookie);
 
         AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse.accessToken());
-        ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("토큰 재발급 성공", accessTokenResponse);
+        ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("reissue success", accessTokenResponse);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -42,7 +43,7 @@ public class AuthController {
             @CookieValue("refresh_token") String refreshToken
     ) {
         authService.logout(refreshToken);
-        ResponseDto<Void> responseDto = HttpUtil.success("로그아웃 성공");
+        ResponseDto<Void> responseDto = HttpUtil.success("logout success");
         return ResponseEntity.ok(responseDto);
     }
 }

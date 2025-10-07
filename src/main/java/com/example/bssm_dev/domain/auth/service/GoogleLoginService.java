@@ -4,6 +4,9 @@ import com.example.bssm_dev.domain.auth.component.UrlBuilder;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleTokenResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
+import com.example.bssm_dev.domain.auth.exception.InvalidStateParameterException;
+import com.example.bssm_dev.domain.auth.model.GoogleCodeVerifier;
+import com.example.bssm_dev.domain.auth.repository.GoogleCodeVerifierRepository;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
 import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
@@ -15,16 +18,17 @@ import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
 import com.example.bssm_dev.global.feign.GoogleTokenFeign;
 import com.example.bssm_dev.global.jwt.JwtProvider;
 import com.example.bssm_dev.domain.auth.util.PkceUtil;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class GoogleLoginService {
     private final GoogleResourceAccessFeign googleResourceAccessFeign;
     private final GoogleTokenFeign googleTokenFeign;
-    
+
     private final UrlBuilder urlBuilder;
     private final EmailValidator emailValidator;
 
@@ -33,19 +37,28 @@ public class GoogleLoginService {
 
     private final SignupRequestService signupRequestService;
     private final JwtProvider jwtProvider;
-    
-    public GoogleLoginUrlResponse getUrl(HttpSession session) {
+    private final GoogleCodeVerifierRepository googleCodeVerifierRepository;
+
+    public GoogleLoginUrlResponse getUrl() {
+        String state = UUID.randomUUID().toString();
         String codeVerifier = PkceUtil.generateCodeVerifier();
         String codeChallenge = PkceUtil.codeChallengeS256(codeVerifier);
 
-        session.setAttribute("GOOGLE_CODE_VERIFIER", codeVerifier);
-        
-        String url = urlBuilder.getGoogleLoginUrl(codeChallenge);
+        GoogleCodeVerifier googleCodeVerifier = GoogleCodeVerifier.of(state, codeVerifier);
+        googleCodeVerifierRepository.save(googleCodeVerifier);
+
+        String url = urlBuilder.getGoogleLoginUrl(codeChallenge, state);
 
         return new GoogleLoginUrlResponse(url);
     }
 
-    public String registerOrLogin(String code, String codeVerifier) {
+    public String registerOrLogin(String code, String state) {
+        GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
+                .orElseThrow(InvalidStateParameterException::raise);
+
+        String codeVerifier = googleCodeVerifier.getCodeVerifier();
+        googleCodeVerifierRepository.delete(googleCodeVerifier);
+
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
         GoogleTokenResponse tokenResponse = googleTokenFeign.getToken(body);
