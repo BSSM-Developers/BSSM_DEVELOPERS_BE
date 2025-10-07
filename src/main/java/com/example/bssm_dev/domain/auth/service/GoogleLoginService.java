@@ -66,6 +66,29 @@ public class GoogleLoginService {
         String authorizationCode = "Bearer " + tokenResponse.access_token();
         GoogleUserResponse googleUser = googleResourceAccessFeign.accessGoogle(authorizationCode);
 
+        String userEmail = googleUser.email();
+        boolean isUserExists = userQueryService.isUserExists(userEmail);
+
+        if (isUserExists) {
+            // 이미 회원가입 되어있으면 로그인
+            return loginUser(userEmail);
+        } else {
+            // 회원가입 안되어있으면 회원가입부터
+            return registerUser(googleUser);
+        }
+    }
+
+    private String loginUser(String email) {
+        UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(email);
+
+        Long userId = userLoginResponse.userId();
+        String userEmail = userLoginResponse.email();
+        String role = userLoginResponse.role();
+
+        return jwtProvider.generateRefreshToken(userId, userEmail, role);
+    }
+
+    private String registerUser(GoogleUserResponse googleUser) {
         boolean isBssmEmail = emailValidator.isBssmEmail(googleUser.email());
 
         if (isBssmEmail) {
@@ -78,32 +101,12 @@ public class GoogleLoginService {
 
             return jwtProvider.generateRefreshToken(userId, email, role);
         } else {
-            // 일반 구글 계정인 경우
-            String userEmail = googleUser.email();
-            return handleGoogleLogin(userEmail, googleUser);
-        }
-    }
-
-    private String handleGoogleLogin(String userEmail, GoogleUserResponse googleUser) {
-        boolean isUserExists = userQueryService.isUserExists(userEmail);
-
-        if (isUserExists) {
-            // 회원가입 되어있다면 로그인 성공
-            UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(userEmail);
-
-            Long userId = userLoginResponse.userId();
-            String email = userLoginResponse.email();
-            String role = userLoginResponse.role();
-
-            return jwtProvider.generateRefreshToken(userId, email, role);
-        } else {
-            // 회원가입이 안되어있다면 회원가입 신청
-            SignupRequest signupRequest =
-                new SignupRequest(
-                    googleUser.picture(),
+            // 일반 구글 계정이면 회원가입 신청
+            SignupRequest signupRequest = new SignupRequest(
+                    googleUser.name(),
                     googleUser.email(),
-                    googleUser.profile()
-                );
+                    googleUser.picture()
+            );
 
             signupRequestService.createSignupRequest(signupRequest);
 
