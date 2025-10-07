@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.auth.controller;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
+import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
 import com.example.bssm_dev.domain.auth.service.GoogleLoginService;
 import com.example.bssm_dev.global.config.properties.ClientProperties;
 import com.example.bssm_dev.common.util.CookieUtil;
@@ -33,16 +34,17 @@ public class GoogleLoginController {
             @RequestParam("state") String state,
             HttpServletResponse response
     ) throws IOException {
-        String refreshToken = googleLoginService.registerOrLogin(code, state);
+        LoginResult result = googleLoginService.registerOrLogin(code, state);
 
-        if ("signup_request".equals(refreshToken)) {
-            // refresh token이 signup_request이면 일반 구글 계정 회원가입 신청
-            response.sendRedirect(clientProperties.getSignupSuccessUrl());
+        switch (result) {
+            case LoginResult.LoginSuccess(String refreshToken) -> {
+                Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
+                response.addCookie(cookie);
+                response.sendRedirect(clientProperties.getLoginSuccessUrl());
+            }
+            case LoginResult.SignupRequired() -> {
+                response.sendRedirect(clientProperties.getSignupSuccessUrl());
+            }
         }
-
-        Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
-        response.addCookie(cookie);
-
-        response.sendRedirect(clientProperties.getLoginSuccessUrl());
     }
 }

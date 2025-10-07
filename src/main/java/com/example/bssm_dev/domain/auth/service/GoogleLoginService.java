@@ -4,6 +4,7 @@ import com.example.bssm_dev.domain.auth.component.UrlBuilder;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleTokenResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
+import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
 import com.example.bssm_dev.domain.auth.exception.InvalidStateParameterException;
 import com.example.bssm_dev.domain.auth.model.GoogleCodeVerifier;
 import com.example.bssm_dev.domain.auth.repository.GoogleCodeVerifierRepository;
@@ -52,7 +53,7 @@ public class GoogleLoginService {
         return new GoogleLoginUrlResponse(url);
     }
 
-    public String registerOrLogin(String code, String state) {
+    public LoginResult registerOrLogin(String code, String state) {
         GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
                 .orElseThrow(InvalidStateParameterException::raise);
 
@@ -78,17 +79,18 @@ public class GoogleLoginService {
         }
     }
 
-    private String loginUser(String email) {
+    private LoginResult loginUser(String email) {
         UserLoginResponse userLoginResponse = userQueryService.getUserByEmail(email);
 
         Long userId = userLoginResponse.userId();
         String userEmail = userLoginResponse.email();
         String role = userLoginResponse.role();
 
-        return jwtProvider.generateRefreshToken(userId, userEmail, role);
+        String refreshToken = jwtProvider.generateRefreshToken(userId, userEmail, role);
+        return new LoginResult.LoginSuccess(refreshToken);
     }
 
-    private String registerUser(GoogleUserResponse googleUser) {
+    private LoginResult registerUser(GoogleUserResponse googleUser) {
         boolean isBssmEmail = emailValidator.isBssmEmail(googleUser.email());
 
         if (isBssmEmail) {
@@ -99,7 +101,8 @@ public class GoogleLoginService {
             String email = userLoginResponse.email();
             String role = userLoginResponse.role();
 
-            return jwtProvider.generateRefreshToken(userId, email, role);
+            String refreshToken = jwtProvider.generateRefreshToken(userId, email, role);
+            return new LoginResult.LoginSuccess(refreshToken);
         } else {
             // 일반 구글 계정이면 회원가입 신청
             SignupRequest signupRequest = new SignupRequest(
@@ -110,8 +113,7 @@ public class GoogleLoginService {
 
             signupRequestService.createSignupRequest(signupRequest);
 
-            // 회원가입 신청 완료 후 적절한 처리 필요
-            return "signup_request";
+            return new LoginResult.SignupRequired();
         }
     }
 }
