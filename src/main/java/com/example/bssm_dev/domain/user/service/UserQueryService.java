@@ -20,7 +20,7 @@ public class UserQueryService {
 
     public UserLoginResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(com.example.bssm_dev.domain.user.exception.UserNotFoundException::raise);
 
         return userMapper.toUserLoginResponse(user);
     }

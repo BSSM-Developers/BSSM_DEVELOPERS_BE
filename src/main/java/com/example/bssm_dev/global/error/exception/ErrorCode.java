@@ -13,7 +13,8 @@ public enum ErrorCode {
     EXPIRED_TOKEN(401, "만료된 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(401, "리프레시 토큰을 찾을 수 없습니다."),
     INVALID_STATE_PARAMETER(400, "유효하지 않은 state 파라미터입니다."),
-    SIGNUP_REQUEST_NOT_FOUND(404, "회원가입 신청을 찾을 수 없습니다.")
+    SIGNUP_REQUEST_NOT_FOUND(404, "회원가입 신청을 찾을 수 없습니다."),
+    USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다.")
     ;
 
     private final int statusCode;
