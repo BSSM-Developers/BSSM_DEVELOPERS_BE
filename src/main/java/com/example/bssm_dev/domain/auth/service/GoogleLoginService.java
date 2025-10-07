@@ -13,7 +13,7 @@ import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
 import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.service.UserLoginService;
-import com.example.bssm_dev.domain.signup.service.SignupRequestService;
+import com.example.bssm_dev.domain.signup.service.SignupCommandService;
 import com.example.bssm_dev.domain.user.service.UserQueryService;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
 import com.example.bssm_dev.global.feign.GoogleTokenFeign;
@@ -36,7 +36,7 @@ public class GoogleLoginService {
     private final UserLoginService userLoginService;
     private final UserQueryService userQueryService;
 
-    private final SignupRequestService signupRequestService;
+    private final SignupCommandService signupCommandService;
     private final JwtProvider jwtProvider;
     private final GoogleCodeVerifierRepository googleCodeVerifierRepository;
 
@@ -111,9 +111,9 @@ public class GoogleLoginService {
                     googleUser.picture()
             );
 
-            signupRequestService.createSignupRequest(signupRequest);
+            String signupToken = signupCommandService.createSignupRequest(signupRequest);
 
-            return new LoginResult.SignupRequired();
+            return new LoginResult.SignupRequired(signupToken);
         }
     }
 }

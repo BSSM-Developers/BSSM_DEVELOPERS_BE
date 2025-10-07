@@ -42,7 +42,9 @@ public class GoogleLoginController {
                 response.addCookie(cookie);
                 response.sendRedirect(clientProperties.getLoginSuccessUrl());
             }
-            case LoginResult.SignupRequired() -> {
+            case LoginResult.SignupRequired(String signupToken) -> {
+                Cookie cookie = CookieUtil.bake("signup_token", signupToken);
+                response.addCookie(cookie);
                 response.sendRedirect(clientProperties.getSignupSuccessUrl());
             }
         }
