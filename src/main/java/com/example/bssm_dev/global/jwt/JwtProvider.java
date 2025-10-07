@@ -1,5 +1,7 @@
 package com.example.bssm_dev.global.jwt;
 
+import com.example.bssm_dev.domain.auth.model.RefreshToken;
+import com.example.bssm_dev.domain.auth.repository.RefreshTokenRepository;
 import com.example.bssm_dev.global.config.properties.JwtProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,13 +16,16 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private static final String ACCESS_TOEKN = "ACCESS_TOKEN";
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(Long userId, String email, String role) {
         return generateToken(userId, email, role, jwtProperties.getAccessExp(), ACCESS_TOEKN);
     }
 
     public String generateRefreshToken(Long userId, String email, String role) {
-        return generateToken(userId, email, role, jwtProperties.getRefreshExp(), REFRESH_TOKEN);
+        String token = generateToken(userId, email, role, jwtProperties.getRefreshExp(), REFRESH_TOKEN);
+        RefreshToken refreshToken = new RefreshToken(token, email);
+        refreshTokenRepository.save(refreshToken);
     }
 
 
