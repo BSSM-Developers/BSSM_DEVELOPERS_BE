@@ -2,7 +2,7 @@ package com.example.bssm_dev.domain.signup.service;
 
 import com.example.bssm_dev.domain.auth.exception.SignupRequestAlreadyExistsException;
 import com.example.bssm_dev.domain.signup.mapper.SignupRequestMapper;
-import com.example.bssm_dev.domain.signup.model.SignupRequest;
+import com.example.bssm_dev.domain.signup.model.SignupForm;
 import com.example.bssm_dev.domain.signup.repository.SignupRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class SignupRequestService {
             throw SignupRequestAlreadyExistsException.raise();
         }
 
-        SignupRequest signupRequest = signupRequestMapper.toSignupRequest(signupRequestDto);
+        SignupForm signupRequest = signupRequestMapper.toSignupRequest(signupRequestDto);
         signupRequestRepository.save(signupRequest);
     }
 }

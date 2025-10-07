@@ -1,10 +1,7 @@
 package com.example.bssm_dev.domain.user.model;
 
 import com.example.bssm_dev.domain.user.model.type.UserRole;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +16,7 @@ public class User {
     private String name;
     private String email;
     private String profile;
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     public User(String email, String profile, String name, UserRole role) {

@@ -35,7 +35,7 @@ public class GoogleLoginController {
 
         String refreshToken = googleLoginService.registerOrLogin(code, codeVerifier);
 
-        Cookie cookie = CookieUtil.bake("refreshToken", refreshToken);
+        Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
         response.addCookie(cookie);
 
         response.sendRedirect(clientProperties.getUrl());
