@@ -33,7 +33,7 @@ public class AuthController {
         httpServletResponse.addCookie(refreshTokenCookie);
 
         AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse.accessToken());
-        ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("", accessTokenResponse)
+        ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("토큰 재발급 성공", accessTokenResponse);
         return ResponseEntity.ok(responseDto);
     }
 
