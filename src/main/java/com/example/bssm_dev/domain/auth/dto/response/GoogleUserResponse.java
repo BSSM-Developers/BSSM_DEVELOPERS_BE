@@ -2,9 +2,9 @@ package com.example.bssm_dev.domain.auth.dto.response;
 
 
 public record GoogleUserResponse (
-        String name,
+        String picture,
         String email,
-        String picture
+        String name
 ) {
 
 }
