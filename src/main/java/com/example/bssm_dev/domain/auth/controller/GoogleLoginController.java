@@ -35,9 +35,14 @@ public class GoogleLoginController {
     ) throws IOException {
         String refreshToken = googleLoginService.registerOrLogin(code, state);
 
+        if ("signup_request".equals(refreshToken)) {
+            // refresh token이 signup_request이면 일반 구글 계정 회원가입 신청
+            response.sendRedirect(clientProperties.getSignupSuccessUrl());
+        }
+
         Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
         response.addCookie(cookie);
 
-        response.sendRedirect(clientProperties.getUrl());
+        response.sendRedirect(clientProperties.getLoginSuccessUrl());
     }
 }

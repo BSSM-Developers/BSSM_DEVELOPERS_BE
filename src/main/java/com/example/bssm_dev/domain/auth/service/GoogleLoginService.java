@@ -110,8 +110,8 @@ public class GoogleLoginService {
 
             signupRequestService.createSignupRequest(signupRequest);
 
-            // 회원가입 신청 완료 후 적절한 처리 필요 (예: 특별한 토큰이나 리다이렉트)
-            return null;
+            // 회원가입 신청 완료 후 적절한 처리 필요
+            return "signup_request";
         }
     }
 }
