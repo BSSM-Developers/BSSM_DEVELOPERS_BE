@@ -32,4 +32,8 @@ public class SignupForm {
                 .state(SignUpFormState.PENDING)
                 .build();
     }
+
+    public void updatePurpose(String purpose) {
+        this.purpose = purpose;
+    }
 }

@@ -19,7 +19,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    public User(String email, String profile, String name, UserRole role) {
+    public User(String email, String name, String profile, UserRole role) {
         this.email = email;
         this.name = name;
         this.profile = profile;

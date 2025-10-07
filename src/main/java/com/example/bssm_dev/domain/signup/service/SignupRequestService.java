@@ -1,6 +1,8 @@
 package com.example.bssm_dev.domain.signup.service;
 
 import com.example.bssm_dev.domain.auth.exception.SignupRequestAlreadyExistsException;
+import com.example.bssm_dev.domain.signup.dto.request.UpdatePurposeRequest;
+import com.example.bssm_dev.domain.signup.exception.SignupRequestNotFoundException;
 import com.example.bssm_dev.domain.signup.mapper.SignupRequestMapper;
 import com.example.bssm_dev.domain.signup.model.SignupForm;
 import com.example.bssm_dev.domain.signup.repository.SignupRequestRepository;
@@ -25,5 +27,13 @@ public class SignupRequestService {
 
         SignupForm signupRequest = signupRequestMapper.toSignupRequest(signupRequestDto);
         signupRequestRepository.save(signupRequest);
+    }
+
+    @Transactional
+    public void updatePurpose(Long signupRequestId, UpdatePurposeRequest request) {
+        SignupForm signupForm = signupRequestRepository.findById(signupRequestId)
+                .orElseThrow(SignupRequestNotFoundException::raise);
+
+        signupForm.updatePurpose(request.purpose());
     }
 }
