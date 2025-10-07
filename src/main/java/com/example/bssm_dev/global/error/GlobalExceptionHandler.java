@@ -5,6 +5,7 @@ import com.example.bssm_dev.global.error.exception.ErrorCode;
 import com.example.bssm_dev.global.error.exception.GlobalException;
 import com.example.bssm_dev.common.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,13 +14,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
-    public ErrorResponse globalExceptionHanlder(GlobalException e) {
+    public ResponseEntity<ErrorResponse> globalExceptionHanlder(GlobalException e) {
         ErrorCode errorCode = e.getErrorCode();
         int statusCode = errorCode.getStatusCode();
         String errorMessage = errorCode.getErrorMessage();
         log.error("stauts code {}, error message : {}", statusCode, errorMessage);
         ErrorResponse errorResponse = HttpUtil.fail(statusCode, errorMessage);
-        return errorResponse;
+        return ResponseEntity
+                .status(statusCode)
+                .body(errorResponse);
     }
 
 }
