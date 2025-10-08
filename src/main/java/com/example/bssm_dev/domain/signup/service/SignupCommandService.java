@@ -57,4 +57,18 @@ public class SignupCommandService {
 
         signupForm.updatePurpose(request.purpose());
     }
+
+    public void approveSignupRequest(Long signupRequestId) {
+        SignupForm signupForm = signupRequestRepository.findById(signupRequestId)
+                .orElseThrow(SignupRequestNotFoundException::raise);
+
+        signupForm.approve();
+    }
+
+    public void rejectSignupRequest(Long signupRequestId) {
+        SignupForm signupForm = signupRequestRepository.findById(signupRequestId)
+                .orElseThrow(SignupRequestNotFoundException::raise);
+
+        signupForm.reject();
+    }
 }

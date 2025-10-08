@@ -24,4 +24,22 @@ public class SignUpCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("successfully update purpose");
         return ResponseEntity.ok(responseDto);
     }
+
+    @PatchMapping("/{signupRequestId}/approve")
+    public ResponseEntity<ResponseDto<Void>> approveSignupRequest(
+            @PathVariable Long signupRequestId
+    ) {
+        signupCommandService.approveSignupRequest(signupRequestId);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully approved signup request");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{signupRequestId}/reject")
+    public ResponseEntity<ResponseDto<Void>> rejectSignupRequest(
+            @PathVariable Long signupRequestId
+    ) {
+        signupCommandService.rejectSignupRequest(signupRequestId);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully rejected signup request");
+        return ResponseEntity.ok(responseDto);
+    }
 }
