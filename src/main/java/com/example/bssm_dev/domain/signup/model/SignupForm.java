@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class SignupForm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long signupRequestId;
+    private Long signupFormId;
 
     private String name;
     private String email;

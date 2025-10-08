@@ -18,7 +18,7 @@ public class SignupRequestMapper {
 
     public SignupResponse toSignupResponse(SignupForm signupForm) {
         return new SignupResponse(
-                signupForm.getSignupRequestId(),
+                signupForm.getSignupFormId(),
                 signupForm.getName(),
                 signupForm.getEmail(),
                 signupForm.getProfile(),
