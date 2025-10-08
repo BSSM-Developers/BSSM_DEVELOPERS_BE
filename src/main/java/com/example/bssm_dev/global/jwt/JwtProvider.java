@@ -39,7 +39,7 @@ public class JwtProvider {
                 .setSubject(strUserId)
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + exp))
+                .expiration(new Date(now.getTime() + exp * 1000))
                 .claim("typ", type)
                 .claim("email", email)
                 .claim("role", role)
@@ -47,6 +47,8 @@ public class JwtProvider {
     }
 
     public Claims getClaims(String token) {
+        String secretKey = jwtProperties.getSecretKey();
+        System.out.println("[JWT DEBUG] Secret key loaded: " + (secretKey != null ? secretKey.substring(0, Math.min(10, secretKey.length())) + "... (length: " + secretKey.length() + ")" : "NULL"));
         return Jwts.parser()
                 .setSigningKey(jwtProperties.getSecretKey())
                 .build()

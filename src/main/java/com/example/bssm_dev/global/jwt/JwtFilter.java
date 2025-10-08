@@ -38,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String userId = claims.getSubject();
                 String email = claims.get("email", String.class);
                 String role = claims.get("role", String.class);
+                System.out.println("[JWT DEBUG] Role from token: " + role);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userId,
@@ -47,9 +48,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (ExpiredJwtException e) {
-                throw ExpiredTokenException.raise();
+                System.out.println("[JWT DEBUG] Token expired: " + e.getMessage());
+                handleException(response, 401, "만료된 토큰입니다.");
+                return;
             } catch (JwtException e) {
-                throw InvalidTokenException.raise();
+                System.out.println("[JWT DEBUG] Invalid token: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                handleException(response, 401, "유효하지 않은 토큰입니다.");
+                return;
             }
         }
 
@@ -60,9 +65,23 @@ public class JwtFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader(jwtProperties.getHeader());
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getPrefix())) {
-            return bearerToken.substring(jwtProperties.getPrefix().length());
+            return bearerToken.substring(jwtProperties.getPrefix().length()).trim();
         }
 
         return null;
+    }
+
+
+    private void handleException(HttpServletResponse response, int statusCode, String message) throws IOException {
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        String jsonResponse = String.format(
+                "{\"statusCode\": %d, \"message\": \"%s\"}",
+                statusCode, message
+        );
+        
+        response.getWriter().write(jsonResponse);
     }
 }
