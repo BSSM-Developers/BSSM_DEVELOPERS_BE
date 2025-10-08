@@ -27,9 +27,10 @@ public class SignUpQueryController {
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<SignupResponse>>> getSignupRequests(
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String state
     ) {
-        CursorPage<SignupResponse> signupRequests = signupQueryService.getSignupRequests(cursor, size);
+        CursorPage<SignupResponse> signupRequests = signupQueryService.getSignupRequests(cursor, size, state);
         ResponseDto<CursorPage<SignupResponse>> responseDto = HttpUtil.success("Get signup requests", signupRequests);
         return ResponseEntity.ok(responseDto);
     }

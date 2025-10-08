@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.signup.repository;
 
 import com.example.bssm_dev.domain.signup.model.SignupForm;
+import com.example.bssm_dev.domain.signup.model.type.SignUpFormState;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,7 @@ public interface SignupRequestRepository extends JpaRepository<SignupForm, Long>
     
     Slice<SignupForm> findBySignupFormIdLessThanOrderBySignupFormIdDesc(Long cursor, Pageable pageable);
     Slice<SignupForm> findAllByOrderBySignupFormIdDesc(Pageable pageable);
+    
+    Slice<SignupForm> findByStateAndSignupFormIdLessThanOrderBySignupFormIdDesc(SignUpFormState state, Long cursor, Pageable pageable);
+    Slice<SignupForm> findByStateOrderBySignupFormIdDesc(SignUpFormState state, Pageable pageable);
 }

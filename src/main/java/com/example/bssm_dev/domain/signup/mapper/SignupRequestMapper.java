@@ -3,7 +3,10 @@ package com.example.bssm_dev.domain.signup.mapper;
 import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.signup.dto.response.SignupResponse;
 import com.example.bssm_dev.domain.signup.model.SignupForm;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class SignupRequestMapper {
@@ -25,5 +28,11 @@ public class SignupRequestMapper {
                 signupForm.getPurpose(),
                 signupForm.getState()
         );
+    }
+
+    public List<SignupResponse> mapToResponseList(Slice<SignupForm> slice) {
+        return slice.getContent().stream()
+                .map(this::toSignupResponse)
+                .toList();
     }
 }
