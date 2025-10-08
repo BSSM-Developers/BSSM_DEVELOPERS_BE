@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class SignupForm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long signupRequestId;
+    private Long signupFormId;
 
     private String name;
     private String email;
@@ -35,5 +35,13 @@ public class SignupForm {
 
     public void updatePurpose(String purpose) {
         this.purpose = purpose;
+    }
+
+    public void approve() {
+        this.state = SignUpFormState.APPROVED;
+    }
+
+    public void reject() {
+        this.state = SignUpFormState.REJECTED;
     }
 }

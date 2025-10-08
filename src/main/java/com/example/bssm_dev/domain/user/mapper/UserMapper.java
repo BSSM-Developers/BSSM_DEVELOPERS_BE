@@ -13,7 +13,7 @@ public class UserMapper {
         String email = userRequest.email();
         String name = userRequest.name();
         String profile = userRequest.profile();
-        UserRole role = UserRole.USER;
+        UserRole role = UserRole.ROLE_USER;
 
         return User.of(email, name, profile, role);
     }
