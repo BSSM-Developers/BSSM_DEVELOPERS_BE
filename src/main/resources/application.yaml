@@ -9,9 +9,3 @@ spring:
       hibernate:
         format_sql: true
         show_sql: false  # dev에서만 true
-
-jwt:
-  accessExp: 3600
-  refreshExp: 604800
-  header: Authorization
-  prefix: Bearer

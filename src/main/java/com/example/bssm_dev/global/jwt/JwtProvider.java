@@ -1,6 +1,9 @@
 package com.example.bssm_dev.global.jwt;
 
+import com.example.bssm_dev.domain.auth.model.RefreshToken;
+import com.example.bssm_dev.domain.auth.repository.RefreshTokenRepository;
 import com.example.bssm_dev.global.config.properties.JwtProperties;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +17,17 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private static final String ACCESS_TOEKN = "ACCESS_TOKEN";
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(Long userId, String email, String role) {
         return generateToken(userId, email, role, jwtProperties.getAccessExp(), ACCESS_TOEKN);
     }
 
     public String generateRefreshToken(Long userId, String email, String role) {
-        return generateToken(userId, email, role, jwtProperties.getRefreshExp(), REFRESH_TOKEN);
+        String token = generateToken(userId, email, role, jwtProperties.getRefreshExp(), REFRESH_TOKEN);
+        RefreshToken refreshToken = new RefreshToken(token, userId, email, role);
+        refreshTokenRepository.save(refreshToken);
+        return token;
     }
 
 
@@ -32,10 +39,24 @@ public class JwtProvider {
                 .setSubject(strUserId)
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + exp))
+                .expiration(new Date(now.getTime() + exp * 1000))
                 .claim("typ", type)
                 .claim("email", email)
                 .claim("role", role)
                 .compact();
+    }
+
+    public Claims getClaims(String token) {
+        String secretKey = jwtProperties.getSecretKey();
+        System.out.println("[JWT DEBUG] Secret key loaded: " + (secretKey != null ? secretKey.substring(0, Math.min(10, secretKey.length())) + "... (length: " + secretKey.length() + ")" : "NULL"));
+        return Jwts.parser()
+                .setSigningKey(jwtProperties.getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getTokenType(String token) {
+        return getClaims(token).get("typ", String.class);
     }
 }
