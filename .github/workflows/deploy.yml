@@ -32,12 +32,13 @@ jobs:
           : "${APP_DIR:?APP_DIR is empty}"
           : "${JAR_NAME:?JAR_NAME is empty}"
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: gradle
+
 
       - name: Build (Gradle bootJar)
         run: |
