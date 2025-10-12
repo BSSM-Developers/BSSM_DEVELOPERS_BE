@@ -36,17 +36,31 @@ public class Docs {
     @Column(nullable = false)
     private DocsType type;
 
+    private String domain;
+
+    private String repositoryUrl;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean autoApproval;
+
     @OneToMany(mappedBy = "docs", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     @Builder.Default
     private List<DocsSection> sections = new ArrayList<>();
 
-    public static Docs of(User creator, String title, String description, DocsType type) {
+    public void addSectionList(List<DocsSection> sectionList) {
+        this.sections.addAll(sectionList);
+    }
+
+    public static Docs of(User creator, String title, String description, DocsType type, String domain, String repositoryUrl, Boolean autoApproval) {
         return Docs.builder()
                 .creator(creator)
                 .title(title)
                 .description(description)
                 .type(type)
+                .domain(domain)
+                .repositoryUrl(repositoryUrl)
+                .autoApproval(autoApproval != null ? autoApproval : false)
                 .build();
     }
 }

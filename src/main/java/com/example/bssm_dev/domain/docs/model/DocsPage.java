@@ -32,6 +32,10 @@ public class DocsPage {
     @OneToOne(mappedBy = "docsPage", cascade = CascadeType.ALL, orphanRemoval = true)
     private ApiPage apiPage;
 
+    public void setApiPage(ApiPage apiPage) {
+        this.apiPage = apiPage;
+    }
+
     public static DocsPage of(DocsSection docsSection, String title, String description, Long order) {
         return DocsPage.builder()
                 .docsSection(docsSection)
