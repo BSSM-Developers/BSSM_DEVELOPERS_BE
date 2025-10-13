@@ -31,11 +31,14 @@ public class DocsMapper {
         );
 
         if (request.docsSections() != null) {
+            List<DocsSection> sectionList = new ArrayList<>();
             for (int i = 0; i < request.docsSections().size(); i++) {
                 CreateDocsSectionRequest sectionRequest = request.docsSections().get(i);
                 DocsSection section = toSectionEntity(sectionRequest, docs, creator, (long) i);
-                docs.addSection(section);
+                sectionList.add(section);
             }
+
+            docs.addSectionList(sectionList);
         }
 
         return docs;
@@ -49,11 +52,13 @@ public class DocsMapper {
         );
 
         if (request.docsPages() != null) {
+            List<DocsPage> pageList = new ArrayList<>();
             for (int i = 0; i < request.docsPages().size(); i++) {
                 CreateDocsPageRequest pageRequest = request.docsPages().get(i);
                 DocsPage page = toPageEntity(pageRequest, section, creator, (long) i);
-                section.addPage(page);
+                pageList.add(page);
             }
+            section.addPageList(pageList);
         }
         return section;
     }

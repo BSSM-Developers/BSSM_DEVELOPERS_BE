@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +32,13 @@ public class DocsSection {
 
     @OneToMany(mappedBy = "docsSection", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @BatchSize(size = 100)
     private List<DocsPage> pages = new ArrayList<>();
 
-    public void addPage(DocsPage page) {
-        this.pages.add(page);
+    public void addPageList(List<DocsPage> page) {
+        this.pages.addAll(page);
     }
+
 
     public static DocsSection of(Docs docs, String title, Long order) {
         return DocsSection.builder()
