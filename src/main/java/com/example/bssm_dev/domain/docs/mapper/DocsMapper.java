@@ -4,12 +4,12 @@ import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
-import com.example.bssm_dev.domain.docs.dto.response.DocsResponse;
 import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.policy.ApiPolicy;
 import com.example.bssm_dev.domain.user.model.User;
 import org.springframework.stereotype.Component;
 
@@ -29,12 +29,13 @@ public class DocsMapper {
                 request.repositoryUrl(),
                 request.autoApproval()
         );
-
-        if (request.docsSections() != null) {
+        boolean hasDocsSection = request.docsSections() != null;
+        if (hasDocsSection) {
             List<DocsSection> sectionList = new ArrayList<>();
+
             for (int i = 0; i < request.docsSections().size(); i++) {
                 CreateDocsSectionRequest sectionRequest = request.docsSections().get(i);
-                DocsSection section = toSectionEntity(sectionRequest, docs, creator, (long) i);
+                DocsSection section = toSectionEntity(sectionRequest, docs, creator, i);
                 sectionList.add(section);
             }
 
@@ -44,14 +45,14 @@ public class DocsMapper {
         return docs;
     }
 
-    private DocsSection toSectionEntity(CreateDocsSectionRequest request, Docs docs, User creator, Long order) {
+    private DocsSection toSectionEntity(CreateDocsSectionRequest request, Docs docs, User creator, int order) {
         DocsSection section = DocsSection.of(
                 docs,
                 request.docsSectionTitle(),
                 order
         );
-
-        if (request.docsPages() != null) {
+        boolean hasDocsPage = request.docsPages() != null;
+        if (hasDocsPage) {
             List<DocsPage> pageList = new ArrayList<>();
             for (int i = 0; i < request.docsPages().size(); i++) {
                 CreateDocsPageRequest pageRequest = request.docsPages().get(i);
@@ -71,35 +72,21 @@ public class DocsMapper {
                 order
         );
 
-        // If type is "api", create Api and ApiPage entities
-        if ("api".equalsIgnoreCase(request.type()) && request.method() != null && request.endpoint() != null) {
+        if (ApiPolicy.canBeApiPage(request)) {
             Api api = Api.of(
                     creator,
                     request.endpoint(),
                     request.method(),
-                    request.docsPageTitle(), // docsPageTitle becomes api name
+                    request.docsPageTitle(),
                     section.getDocs().getDomain(),
                     section.getDocs().getRepositoryUrl(),
                     section.getDocs().getAutoApproval()
             );
 
             ApiPage apiPage = ApiPage.of(page, api);
-            page.setApiPage(apiPage);
+            page.apiPage(apiPage);
         }
 
         return page;
-    }
-
-
-
-    public DocsResponse toResponse(Docs docs) {
-        return new DocsResponse(
-                docs.getDocsId(),
-                docs.getTitle(),
-                docs.getDescription(),
-                docs.getDomain(),
-                docs.getRepositoryUrl(),
-                docs.getAutoApproval()
-        );
     }
 }

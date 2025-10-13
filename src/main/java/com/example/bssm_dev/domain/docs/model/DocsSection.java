@@ -28,7 +28,7 @@ public class DocsSection {
     private String title;
 
     @Column(name = "`order`")
-    private Long order;
+    private int order;
 
     @OneToMany(mappedBy = "docsSection", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -40,7 +40,7 @@ public class DocsSection {
     }
 
 
-    public static DocsSection of(Docs docs, String title, Long order) {
+    public static DocsSection of(Docs docs, String title, int order) {
         return DocsSection.builder()
                 .docs(docs)
                 .title(title)

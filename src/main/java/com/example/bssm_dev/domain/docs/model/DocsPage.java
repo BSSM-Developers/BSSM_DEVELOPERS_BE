@@ -32,7 +32,7 @@ public class DocsPage {
     @OneToOne(mappedBy = "docsPage", cascade = CascadeType.ALL, orphanRemoval = true)
     private ApiPage apiPage;
 
-    public void setApiPage(ApiPage apiPage) {
+    public void apiPage(ApiPage apiPage) {
         this.apiPage = apiPage;
     }
 
@@ -43,5 +43,9 @@ public class DocsPage {
                 .description(description)
                 .order(order)
                 .build();
+    }
+
+    public boolean isApiPage() {
+        return this.apiPage != null;
     }
 }

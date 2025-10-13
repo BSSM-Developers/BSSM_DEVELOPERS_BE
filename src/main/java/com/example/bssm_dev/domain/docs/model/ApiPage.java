@@ -25,10 +25,15 @@ public class ApiPage {
     @JoinColumn(name = "api_id", nullable = false)
     private Api api;
 
+
     public static ApiPage of(DocsPage docsPage, Api api) {
         return ApiPage.builder()
                 .docsPage(docsPage)
                 .api(api)
                 .build();
+    }
+
+    public Long getApiID() {
+        return this.api.getApiId();
     }
 }
