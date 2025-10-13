@@ -24,7 +24,7 @@ public class DocsMapper {
                 creator,
                 request.docsTitle(),
                 request.docsDescription(),
-                DocsType.CUSTOMIZE,
+                DocsType.ORIGINAL,
                 request.domain(),
                 request.repositoryUrl(),
                 request.autoApproval()
