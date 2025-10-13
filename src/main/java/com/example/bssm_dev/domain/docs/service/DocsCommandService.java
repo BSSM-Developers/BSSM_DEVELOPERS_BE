@@ -24,10 +24,8 @@ public class DocsCommandService {
     private final DocsMapper docsMapper;
 
     @Transactional
-    public DocsResponse createDocs(CreateDocsRequest request, User creator) {
+    public void createDocs(CreateDocsRequest request, User creator) {
         Docs docs = docsMapper.toEntity(request, creator);
         Docs savedDocs = docsRepository.save(docs);
-
-        return docsMapper.toResponse(savedDocs);
     }
 }

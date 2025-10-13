@@ -21,12 +21,12 @@ public class DocsCommandController {
     private final DocsCommandService docsService;
 
     @PostMapping
-    public ResponseEntity<ResponseDto<DocsResponse>> createDocs(
+    public ResponseEntity<ResponseDto<Void>> createDocs(
             @RequestBody CreateDocsRequest request,
             @CurrentUser User user
     ) {
-        DocsResponse response = docsService.createDocs(request, user);
-        ResponseDto<DocsResponse> responseDto = HttpUtil.success("Successfully created docs", response);
+        docsService.createDocs(request, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully created docs");
         return ResponseEntity.ok(responseDto);
     }
 }
