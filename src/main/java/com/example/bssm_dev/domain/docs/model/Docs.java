@@ -52,6 +52,10 @@ public class Docs {
         this.sections.addAll(sectionList);
     }
 
+    public void addSection(DocsSection section) {
+        this.sections.add(section);
+    }
+
     public static Docs of(User creator, String title, String description, DocsType type, String domain, String repositoryUrl, Boolean autoApproval) {
         return Docs.builder()
                 .creator(creator)

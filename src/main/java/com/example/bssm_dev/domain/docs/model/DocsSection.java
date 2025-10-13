@@ -33,6 +33,10 @@ public class DocsSection {
     @Builder.Default
     private List<DocsPage> pages = new ArrayList<>();
 
+    public void addPage(DocsPage page) {
+        this.pages.add(page);
+    }
+
     public static DocsSection of(Docs docs, String title, Long order) {
         return DocsSection.builder()
                 .docs(docs)

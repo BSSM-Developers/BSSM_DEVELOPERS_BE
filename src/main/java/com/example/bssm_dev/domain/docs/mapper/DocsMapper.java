@@ -30,16 +30,13 @@ public class DocsMapper {
                 request.autoApproval()
         );
 
-        List<DocsSection> sections = new ArrayList<>();
         if (request.docsSections() != null) {
             for (int i = 0; i < request.docsSections().size(); i++) {
                 CreateDocsSectionRequest sectionRequest = request.docsSections().get(i);
                 DocsSection section = toSectionEntity(sectionRequest, docs, creator, (long) i);
-                sections.add(section);
+                docs.addSection(section);
             }
         }
-
-        docs.addSectionList(sections);
 
         return docs;
     }
@@ -51,16 +48,13 @@ public class DocsMapper {
                 order
         );
 
-        List<DocsPage> pages = new ArrayList<>();
         if (request.docsPages() != null) {
             for (int i = 0; i < request.docsPages().size(); i++) {
                 CreateDocsPageRequest pageRequest = request.docsPages().get(i);
                 DocsPage page = toPageEntity(pageRequest, section, creator, (long) i);
-                pages.add(page);
+                section.addPage(page);
             }
         }
-
-        section.getPages().addAll(pages);
         return section;
     }
 
