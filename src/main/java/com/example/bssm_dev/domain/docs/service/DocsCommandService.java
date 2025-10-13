@@ -22,20 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocsCommandService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;
-    private final UserRepository userRepository;
 
     @Transactional
     public DocsResponse createDocs(CreateDocsRequest request, User creator) {
-        log.info(creator.toString());
-        log.info("user id : {}", creator.getUserId());
-        log.info("user name : {}", creator.getName());
-        log.info("user email : {}", creator.getEmail());
-        // Fetch user from DB to ensure it's in persistent state
-        User persistentCreator = userRepository.findById(creator.getUserId())
-                .orElseThrow(UserNotFoundException::raise);
-
-
-        Docs docs = docsMapper.toEntity(request, persistentCreator);
+        Docs docs = docsMapper.toEntity(request, creator);
         Docs savedDocs = docsRepository.save(docs);
 
         return docsMapper.toResponse(savedDocs);
