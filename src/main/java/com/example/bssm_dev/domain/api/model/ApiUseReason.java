@@ -26,18 +26,25 @@ public class ApiUseReason {
     @JoinColumn(name = "api_id", nullable = false)
     private Api api;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "api_token_id", nullable = false)
+    private ApiToken apiToken;
+
     @Column(nullable = false)
     private String apiUseReason;
+
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApiUseState apiUseState;
 
-    public static ApiUseReason of(User writer, Api api, String apiUseReason, ApiUseState apiUseState) {
+    public static ApiUseReason of(User writer, Api api, ApiToken apiToken, String apiUseReason, ApiUseState apiUseState) {
         return ApiUseReason.builder()
                 .writer(writer)
                 .apiUseReason(apiUseReason)
                 .api(api)
+                .apiToken(apiToken)
                 .apiUseState(apiUseState)
                 .build();
     }

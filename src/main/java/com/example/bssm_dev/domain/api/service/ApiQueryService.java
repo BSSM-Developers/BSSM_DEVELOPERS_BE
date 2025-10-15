@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class ApiQueryService {
     private final ApiRepository apiRepository;
 
-    public Api findApiById(Long apiId) {
+    public Api findById(Long apiId) {
         return apiRepository.findById(apiId)
                 .orElseThrow(ApiNotFoundException::raise);
     }

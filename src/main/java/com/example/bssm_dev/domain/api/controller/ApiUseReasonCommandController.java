@@ -14,16 +14,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/use-reason")
+@RequestMapping("/api/{apiTokenId}/use-reason")
 public class ApiUseReasonCommandController {
     private final ApiUseReasonCommandService apiUseReasonCommandService;
 
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> createApiUseReason(
             @Valid @RequestBody CreateApiUseReasonRequest request,
-            @CurrentUser User user
+            @CurrentUser User user,
+            @PathVariable("apiTokenId") Long apiTokenId
     ) {
-         apiUseReasonCommandService.createApiUseReason(request, user);
+         apiUseReasonCommandService.createApiUseReason(request, user, apiTokenId);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully created API use reason");
         return ResponseEntity.ok(responseDto);
     }

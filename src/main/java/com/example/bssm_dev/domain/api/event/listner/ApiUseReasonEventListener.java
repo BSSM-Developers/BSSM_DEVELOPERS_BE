@@ -1,7 +1,8 @@
 package com.example.bssm_dev.domain.api.event.listner;
 
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
-import com.example.bssm_dev.domain.api.service.ApiUsageService;
+import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.api.service.ApiUsageCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -13,24 +14,25 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class ApiUseReasonEventListener {
-    private final ApiUsageService apiUsageService;
+    private final ApiUsageCommandService apiUsageService;
 
     @EventListener
     @Transactional
     @Async
     public void handleApiUseReasonCreated(ApiUseReasonCreatedEvent event) {
-        log.info("API 사용 신청 생성 이벤트 수신: apiUseReasonId={}, apiId={}, userId={}, autoApproval={}",
-                event.getApiUseReasonId(), event.getApiId(), event.getUserId(), event.getAutoApproval());
+        Api api = event.getApi();
 
-        boolean isAutoApproval = event.getAutoApproval() != null && event.getAutoApproval();
+        Boolean apiAutoApproval = api.getAutoApproval();
+        boolean isAutoApproval = apiAutoApproval != null && apiAutoApproval;
+
         if (isAutoApproval) {
-            log.info("자동 승인 처리 중: apiUseReasonId={}", event.getApiUseReasonId());
+            log.info("자동 승인 처리 중");
             apiUsageService.createApiUsage(
-                    event.getApiUseReasonId(),
-                    event.getApiId(),
-                    event.getUserId()
+                    api,
+                    event.getCurrentApiToken(),
+                    event.getApiUseReason()
             );
-            log.info("자동 승인 완료: apiUseReasonId={}", event.getApiUseReasonId());
+            log.info("자동 승인 완료");
         }
     }
 }

@@ -29,4 +29,13 @@ public class User {
     public static User of(String email, String name, String profile, UserRole role) {
         return new User(email, name, profile, role);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return userId.equals(user.userId);
+    }
 }
+
