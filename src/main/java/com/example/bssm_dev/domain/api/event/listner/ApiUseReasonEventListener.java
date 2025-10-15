@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.event.listner;
 
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.service.command.ApiUsageCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +28,13 @@ public class ApiUseReasonEventListener {
 
         if (isAutoApproval) {
             log.info("자동 승인 처리 중");
+            ApiUseReason apiUseReason = event.getApiUseReason();
             apiUsageCommandService.createApiUsage(
                     api,
                     event.getCurrentApiToken(),
-                    event.getApiUseReason()
+                    apiUseReason
             );
+            apiUseReason.approved();
             log.info("자동 승인 완료");
         }
     }

@@ -48,4 +48,8 @@ public class ApiUseReason {
                 .apiUseState(apiUseState)
                 .build();
     }
+
+    public void approved() {
+        this.apiUseState = ApiUseState.APPROVED;
+    }
 }
