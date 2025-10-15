@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class ApiUseReasonEventListener {
-    private final ApiUsageCommandService apiUsageService;
+    private final ApiUsageCommandService apiUsageCommandService;
 
     @EventListener
     @Transactional
@@ -27,7 +27,7 @@ public class ApiUseReasonEventListener {
 
         if (isAutoApproval) {
             log.info("자동 승인 처리 중");
-            apiUsageService.createApiUsage(
+            apiUsageCommandService.createApiUsage(
                     api,
                     event.getCurrentApiToken(),
                     event.getApiUseReason()

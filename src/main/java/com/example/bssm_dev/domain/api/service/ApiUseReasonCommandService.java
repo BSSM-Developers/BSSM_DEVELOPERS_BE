@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.service;
 
 import com.example.bssm_dev.domain.api.dto.request.CreateApiUseReasonRequest;
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiUseReasonMapper;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
@@ -30,7 +31,7 @@ public class ApiUseReasonCommandService {
 
         boolean equalsUser = user.equals(apiToken.getUser());
         if (!equalsUser) {
-            // 예외 발생
+            throw UnauthorizedApiTokenAccessException.raise();
         }
 
         ApiUseReason apiUseReason = apiUseReasonMapper.toApiUserReason(request, user, api, apiToken);
