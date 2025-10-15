@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/me").permitAll()
                         .requestMatchers("/signup/*/purpose").permitAll()
                         .requestMatchers("/signup/**").hasRole("ADMIN")
+                        .requestMatchers("/docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

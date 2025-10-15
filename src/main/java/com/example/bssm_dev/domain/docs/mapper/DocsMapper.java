@@ -1,6 +1,8 @@
 package com.example.bssm_dev.domain.docs.mapper;
 
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.docs.dto.response.*;
+import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
@@ -8,13 +10,16 @@ import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
+import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.type.DocsType;
 import com.example.bssm_dev.domain.docs.policy.ApiPolicy;
 import com.example.bssm_dev.domain.user.model.User;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class DocsMapper {
@@ -88,5 +93,157 @@ public class DocsMapper {
         }
 
         return page;
+    }
+    public List<DocsListResponse> toListResponse(Slice<Docs> docsSlice) {
+        return docsSlice.getContent().stream()
+                .map(this::toListResponse)
+                .toList();
+    }
+
+    public DocsListResponse toListResponse(Docs docs) {
+        return new DocsListResponse(
+                docs.getDocsId(),
+                docs.getTitle(),
+                docs.getDescription(),
+                docs.getType().name(),
+                docs.getDomain(),
+                docs.getRepositoryUrl(),
+                docs.getAutoApproval()
+        );
+    }
+
+    public DocsDetailResponse toDetailResponse(Docs docs) {
+        List<DocsSectionResponse> sectionResponses = docs.getSections().stream()
+                .map(this::toSectionResponse)
+                .toList();
+
+        return new DocsDetailResponse(
+                docs.getDocsId(),
+                docs.getTitle(),
+                docs.getDescription(),
+                docs.getType().name(),
+                docs.getDomain(),
+                docs.getRepositoryUrl(),
+                docs.getAutoApproval(),
+                sectionResponses
+        );
+    }
+
+    private DocsSectionResponse toSectionResponse(DocsSection section) {
+        List<DocsPageResponse> pageResponses = section.getPages().stream()
+                .map(this::toPageResponse)
+                .toList();
+
+        return new DocsSectionResponse(
+                section.getDocsSectionId(),
+                section.getTitle(),
+                section.getOrder(),
+                pageResponses
+        );
+    }
+
+    private DocsPageResponse toPageResponse(DocsPage page) {
+        ApiDetailResponse apiDetail = null;
+        String type = "MARKDOWN";
+        
+        if (page.isApiPage()) {
+            apiDetail = toApiDetailResponse(page.getApiPage());
+            type = "API";
+        }
+
+        return new DocsPageResponse(
+                page.getDocsPageId(),
+                page.getTitle(),
+                page.getDescription(),
+                page.getOrder(),
+                type,
+                apiDetail
+        );
+    }
+
+    private ApiDetailResponse toApiDetailResponse(ApiPage apiPage) {
+        Api api = apiPage.getApi();
+        return new ApiDetailResponse(
+                api.getApiId(),
+                api.getEndpoint(),
+                api.getMethod(),
+                api.getName(),
+                api.getDomain(),
+                api.getRepositoryUrl(),
+                null
+        );
+    }
+
+    public DocsDetailResponse enrichWithApiDocuments(DocsDetailResponse response, Map<Long, ApiDocument> apiDocumentMap) {
+        List<DocsSectionResponse> enrichedSections = response.sections().stream()
+                .map(section -> new DocsSectionResponse(
+                        section.docsSectionId(),
+                        section.title(),
+                        section.order(),
+
+                        section.pages().stream()
+                                .map(page -> enrichPageWithApiDocument(page, apiDocumentMap))
+                                .toList()
+                ))
+                .toList();
+
+        return new DocsDetailResponse(
+                response.docsId(),
+                response.title(),
+                response.description(),
+                response.type(),
+                response.domain(),
+                response.repositoryUrl(),
+                response.autoApproval(),
+                enrichedSections
+        );
+    }
+
+    private DocsPageResponse enrichPageWithApiDocument(DocsPageResponse page, Map<Long, ApiDocument> apiDocumentMap) {
+        if (page.apiDetail() == null) {
+            return page;
+        }
+
+        ApiDocument apiDocument = apiDocumentMap.get(page.apiDetail().apiId());
+        if (apiDocument == null) {
+            return page;
+        }
+
+        ApiDetailResponse.ApiDocumentResponse documentResponse = new ApiDetailResponse.ApiDocumentResponse(
+                new ApiDetailResponse.RequestInfoResponse(
+                        apiDocument.getRequest().getApplicationType(),
+                        apiDocument.getRequest().getHeader(),
+                        apiDocument.getRequest().getPathParams(),
+                        apiDocument.getRequest().getQueryParams(),
+                        apiDocument.getRequest().getBody(),
+                        apiDocument.getRequest().getCookie()
+                ),
+                new ApiDetailResponse.ResponseInfoResponse(
+                        apiDocument.getResponse().getApplicationType(),
+                        apiDocument.getResponse().getHeader(),
+                        apiDocument.getResponse().getStatusCode(),
+                        apiDocument.getResponse().getBody(),
+                        apiDocument.getResponse().getCookie()
+                )
+        );
+
+        ApiDetailResponse enrichedApiDetail = new ApiDetailResponse(
+                page.apiDetail().apiId(),
+                page.apiDetail().endpoint(),
+                page.apiDetail().method(),
+                page.apiDetail().name(),
+                page.apiDetail().domain(),
+                page.apiDetail().repositoryUrl(),
+                documentResponse
+        );
+
+        return new DocsPageResponse(
+                page.docsPageId(),
+                page.title(),
+                page.description(),
+                page.order(),
+                page.type(),
+                enrichedApiDetail
+        );
     }
 }

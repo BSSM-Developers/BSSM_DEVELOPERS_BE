@@ -7,7 +7,6 @@ import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
