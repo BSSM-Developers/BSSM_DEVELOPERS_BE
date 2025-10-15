@@ -30,4 +30,8 @@ public class ApiToken {
                 .secretKey(secretKey)
                 .build();
     }
+
+    public void changeSecretKey(String secretKey) {
+
+    }
 }
