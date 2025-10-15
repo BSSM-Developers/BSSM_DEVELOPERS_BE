@@ -11,12 +11,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ApiDocumentService {
+public class ApiDocumentCommandService {
     private final ApiDocumentRepository apiDocumentRepository;
     private final ApiDocumentMapper apiDocumentMapper;
 
     public void saveApiDocuments(List<ApiDocumentData> apiDocuments) {
         List<ApiDocument> documents = apiDocumentMapper.toApiDocumentList(apiDocuments);
         apiDocumentRepository.saveAll(documents);
+    }
+
+    public void deleteAll(List<Long> apiIds) {
+        apiDocumentRepository.deleteAll(
+                apiDocumentRepository.findByApiIdIn(apiIds)
+        );
     }
 }

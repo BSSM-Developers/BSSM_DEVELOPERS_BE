@@ -7,7 +7,6 @@ import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.Docs;
-import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +25,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class DocsQueryService {
     private final DocsRepository docsRepository;
-    private final ApiDocumentRepository apiDocumentRepository;
     private final DocsMapper docsMapper;
     private final DocsExtractor docsExtractor;
+    private final ApiDocumentQueryService apiDocumentQueryService;
 
     public CursorPage<DocsListResponse> getAllDocs(Long cursor, Integer size) {
         
@@ -51,15 +50,10 @@ public class DocsQueryService {
         List<Long> apiIds = docsExtractor.extractApiIds(docs);
         boolean apiIdsEmpty = apiIds.isEmpty();
         if (!apiIdsEmpty) {
-            Map<Long, ApiDocument> apiDocumentMap = findApiDocumentsByApiIds(apiIds);
+            Map<Long, ApiDocument> apiDocumentMap = apiDocumentQueryService.findApiDocumentsByApiIds(apiIds);
             response = docsMapper.enrichWithApiDocuments(response, apiDocumentMap);
         }
 
         return response;
-    }
-
-    private Map<Long, ApiDocument> findApiDocumentsByApiIds(List<Long> apiIds) {
-        return apiDocumentRepository.findByApiIdIn(apiIds).stream()
-                .collect(Collectors.toMap(ApiDocument::getApiId, doc -> doc));
     }
 }

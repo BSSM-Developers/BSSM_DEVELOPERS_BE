@@ -8,7 +8,6 @@ import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.event.DocsCreatedEvent;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
-import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.user.model.User;
 
@@ -22,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DocsCommandService {
     private final DocsRepository docsRepository;
-    private final ApiDocumentRepository apiDocumentRepository;
     private final DocsMapper docsMapper;
     private final DocsExtractor docsExtractor;
     private final ApplicationEventPublisher eventPublisher;
+    private final ApiDocumentCommandService apiDocumentCommandService;
 
     @Transactional
     public void createDocs(CreateDocsRequest request, User creator) {
@@ -49,9 +48,7 @@ public class DocsCommandService {
         // MongoDB의 ApiDocument도 함께 삭제
         List<Long> apiIds = docsExtractor.extractApiIds(docs);
         if (!apiIds.isEmpty()) {
-            apiDocumentRepository.deleteAll(
-                apiDocumentRepository.findByApiIdIn(apiIds)
-            );
+            apiDocumentCommandService.deleteAll(apiIds);
         }
         
         docsRepository.delete(docs);
