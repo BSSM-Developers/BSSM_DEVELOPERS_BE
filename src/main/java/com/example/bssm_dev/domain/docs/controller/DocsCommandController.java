@@ -7,6 +7,7 @@ import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.response.DocsResponse;
 import com.example.bssm_dev.domain.docs.service.DocsCommandService;
 import com.example.bssm_dev.domain.user.model.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class DocsCommandController {
 
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> createDocs(
-            @RequestBody CreateDocsRequest request,
+            @Valid @RequestBody CreateDocsRequest request,
             @CurrentUser User user
     ) {
         docsService.createDocs(request, user);
