@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.api.service;
+package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.mapper.ApiUsageMapper;
 import com.example.bssm_dev.domain.api.model.Api;

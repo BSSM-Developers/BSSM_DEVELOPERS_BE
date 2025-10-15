@@ -1,11 +1,10 @@
-package com.example.bssm_dev.domain.api.controller;
+package com.example.bssm_dev.domain.api.controller.command;
 
 import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.request.CreateApiUseReasonRequest;
-import com.example.bssm_dev.domain.api.dto.response.ApiUseReasonResponse;
-import com.example.bssm_dev.domain.api.service.ApiUseReasonCommandService;
+import com.example.bssm_dev.domain.api.service.command.ApiUseReasonCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

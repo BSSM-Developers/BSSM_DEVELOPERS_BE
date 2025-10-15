@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.api.service;
+package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.request.CreateApiUseReasonRequest;
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
@@ -8,6 +8,8 @@ import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.repository.ApiUseReasonRepository;
+import com.example.bssm_dev.domain.api.service.query.ApiQueryService;
+import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

@@ -2,7 +2,7 @@ package com.example.bssm_dev.domain.api.event.listner;
 
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
 import com.example.bssm_dev.domain.api.model.Api;
-import com.example.bssm_dev.domain.api.service.ApiUsageCommandService;
+import com.example.bssm_dev.domain.api.service.command.ApiUsageCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

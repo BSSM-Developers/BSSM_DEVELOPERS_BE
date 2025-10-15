@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.api.service;
+package com.example.bssm_dev.domain.api.service.query;
 
 import com.example.bssm_dev.domain.api.exception.ApiNotFoundException;
 import com.example.bssm_dev.domain.api.model.Api;
