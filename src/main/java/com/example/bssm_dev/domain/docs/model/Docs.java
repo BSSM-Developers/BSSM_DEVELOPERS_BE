@@ -45,6 +45,7 @@ public class Docs {
 
     @OneToMany(mappedBy = "docs", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
+    @OrderBy("order asc")
     @Builder.Default
     private List<DocsSection> sections = new ArrayList<>();
 
