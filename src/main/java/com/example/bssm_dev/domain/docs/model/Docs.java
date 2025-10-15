@@ -63,4 +63,9 @@ public class Docs {
                 .autoApproval(autoApproval != null ? autoApproval : false)
                 .build();
     }
+
+    public boolean isMyDocs(User user) {
+        Long creatorId = this.creator.getUserId();
+        return creatorId.equals(user.getUserId());
+    }
 }
