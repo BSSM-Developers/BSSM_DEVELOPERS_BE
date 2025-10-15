@@ -22,6 +22,10 @@ public class ApiUseReason {
     @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "api_id", nullable = false)
+    private Api api;
+
     @Column(nullable = false)
     private String apiUseReason;
 
@@ -29,10 +33,11 @@ public class ApiUseReason {
     @Column(nullable = false)
     private ApiUseState apiUseState;
 
-    public static ApiUseReason of(User writer, String apiUseReason, ApiUseState apiUseState) {
+    public static ApiUseReason of(User writer, Api api, String apiUseReason, ApiUseState apiUseState) {
         return ApiUseReason.builder()
                 .writer(writer)
                 .apiUseReason(apiUseReason)
+                .api(api)
                 .apiUseState(apiUseState)
                 .build();
     }

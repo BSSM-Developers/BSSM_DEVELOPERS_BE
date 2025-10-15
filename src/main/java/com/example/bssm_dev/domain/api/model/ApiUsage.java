@@ -17,6 +17,16 @@ public class ApiUsage {
     private ApiUsageId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("apiTokenId")
+    @JoinColumn(name = "api_token_id", nullable = false)
+    private ApiToken apiToken;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("apiId")
+    @JoinColumn(name = "api_id", nullable = false)
+    private Api api;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "api_use_reason_id", nullable = false)
     private ApiUseReason apiUseReason;
 
@@ -28,7 +38,9 @@ public class ApiUsage {
 
     public static ApiUsage of(ApiToken apiToken, Api api, ApiUseReason apiUseReason, String name, String endpoint) {
         return ApiUsage.builder()
-                .id(new ApiUsageId(apiToken, api))
+                .id(new ApiUsageId(apiToken.getApiTokenId(), api.getApiId()))
+                .apiToken(apiToken)
+                .api(api)
                 .apiUseReason(apiUseReason)
                 .name(name)
                 .endpoint(endpoint)

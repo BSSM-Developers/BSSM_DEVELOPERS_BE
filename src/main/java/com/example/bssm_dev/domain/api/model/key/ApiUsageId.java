@@ -1,37 +1,19 @@
 package com.example.bssm_dev.domain.api.model.key;
 
-import com.example.bssm_dev.domain.api.model.Api;
-import com.example.bssm_dev.domain.api.model.ApiToken;
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @Embeddable
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@EqualsAndHashCode
 public class ApiUsageId implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "api_token_id")
-    private ApiToken apiToken;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "api_id")
-    private Api api;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ApiUsageId)) return false;
-        ApiUsageId that = (ApiUsageId) o;
-        return Objects.equals(apiToken, that.apiToken)
-                && Objects.equals(api, that.api);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(apiToken, api);
-    }
+    private Long apiTokenId;
+    private Long apiId;
 }
