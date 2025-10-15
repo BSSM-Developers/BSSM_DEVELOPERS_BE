@@ -26,7 +26,6 @@ public class User {
         this.role = role;
     }
 
-
     public static User of(String email, String name, String profile, UserRole role) {
         return new User(email, name, profile, role);
     }

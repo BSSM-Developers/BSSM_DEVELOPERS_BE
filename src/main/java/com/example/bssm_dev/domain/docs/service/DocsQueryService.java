@@ -1,0 +1,65 @@
+package com.example.bssm_dev.domain.docs.service;
+
+import com.example.bssm_dev.common.dto.CursorPage;
+import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
+import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
+import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
+import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
+import com.example.bssm_dev.domain.docs.model.ApiDocument;
+import com.example.bssm_dev.domain.docs.model.Docs;
+import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
+import com.example.bssm_dev.domain.docs.repository.DocsRepository;
+import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DocsQueryService {
+    private final DocsRepository docsRepository;
+    private final ApiDocumentRepository apiDocumentRepository;
+    private final DocsMapper docsMapper;
+    private final DocsExtractor docsExtractor;
+
+    public CursorPage<DocsListResponse> getAllDocs(Long cursor, Integer size) {
+        
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(cursor, pageable);
+        
+        List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
+        
+        return new CursorPage<>(docsListResponse, docsSlice.hasNext());
+    }
+
+    public DocsDetailResponse getDocsDetail(Long docsId) {
+        Docs docs = docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+
+        DocsDetailResponse response = docsMapper.toDetailResponse(docs);
+
+        // API 문서 정보를 MongoDB에서 가져와서 추가
+        List<Long> apiIds = docsExtractor.extractApiIds(docs);
+        boolean apiIdsEmpty = apiIds.isEmpty();
+        if (!apiIdsEmpty) {
+            Map<Long, ApiDocument> apiDocumentMap = findApiDocumentsByApiIds(apiIds);
+            response = docsMapper.enrichWithApiDocuments(response, apiDocumentMap);
+        }
+
+        return response;
+    }
+
+    private Map<Long, ApiDocument> findApiDocumentsByApiIds(List<Long> apiIds) {
+        return apiDocumentRepository.findByApiIdIn(apiIds).stream()
+                .collect(Collectors.toMap(ApiDocument::getApiId, doc -> doc));
+    }
+}

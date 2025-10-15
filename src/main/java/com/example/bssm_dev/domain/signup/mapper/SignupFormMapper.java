@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SignupRequestMapper {
+public class SignupFormMapper {
 
     public SignupForm toSignupRequest(SignupRequest signupRequestDto) {
         return SignupForm.of(
