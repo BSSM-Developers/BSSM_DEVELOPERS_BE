@@ -21,15 +21,13 @@ public class ApiTokenCommandService {
     private final ApiTokenMapper apiTokenMapper;
     private final ApiTokenQueryService apiTokenQueryService;
 
-    public ApiTokenResponse createApiToken(User user) {
+    public ApiToken createApiToken(User user) {
         String secretKey = generateSecretKey();
-        ApiToken apiToken = apiTokenMapper.toApiToken(user, secretKey);
-        apiTokenRepository.save(apiToken);
-        ApiTokenResponse apiTokenResponse = apiTokenMapper.toResponse(apiToken);
-        return apiTokenResponse;
+        ApiToken apiToken = ApiToken.of(user, secretKey);
+        return apiTokenRepository.save(apiToken);
     }
 
-    public ApiTokenResponse reGenerateSecretKey(User user, Long tokenId) {
+    public ApiToken reGenerateSecretKey(User user, Long tokenId) {
         ApiToken apiToken = apiTokenQueryService.findById(tokenId);
 
         boolean equalsUser = user.equals(apiToken.getUser());
@@ -39,6 +37,7 @@ public class ApiTokenCommandService {
 
         String secretKey = generateSecretKey();
         apiToken.changeSecretKey(secretKey);
+        return apiToken;
     }
 
     private String generateSecretKey() {
