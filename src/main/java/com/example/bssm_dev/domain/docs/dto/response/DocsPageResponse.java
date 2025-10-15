@@ -8,4 +8,7 @@ public record DocsPageResponse(
         String type,
         ApiDetailResponse apiDetail
 ) {
+    public Long apiId() {
+        return this.apiDetail.apiId();
+    }
 }

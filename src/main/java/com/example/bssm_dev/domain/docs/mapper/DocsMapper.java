@@ -12,6 +12,7 @@ import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.PageType;
 import com.example.bssm_dev.domain.docs.policy.ApiPolicy;
 import com.example.bssm_dev.domain.user.model.User;
 import org.springframework.data.domain.Slice;
@@ -144,11 +145,11 @@ public class DocsMapper {
 
     private DocsPageResponse toPageResponse(DocsPage page) {
         ApiDetailResponse apiDetail = null;
-        String type = "MARKDOWN";
+        PageType pageType = PageType.MARKDOWN;
         
         if (page.isApiPage()) {
             apiDetail = toApiDetailResponse(page.getApiPage());
-            type = "API";
+            pageType = PageType.API;
         }
 
         return new DocsPageResponse(
@@ -156,7 +157,7 @@ public class DocsMapper {
                 page.getTitle(),
                 page.getDescription(),
                 page.getOrder(),
-                type,
+                pageType.toString(),
                 apiDetail
         );
     }
@@ -204,36 +205,40 @@ public class DocsMapper {
             return page;
         }
 
-        ApiDocument apiDocument = apiDocumentMap.get(page.apiDetail().apiId());
+        ApiDocument apiDocument = apiDocumentMap.get(page.apiId());
         if (apiDocument == null) {
             return page;
         }
 
+        ApiDocument.RequestInfo request = apiDocument.getRequest();
+        ApiDocument.ResponseInfo response = apiDocument.getResponse();
+
         ApiDetailResponse.ApiDocumentResponse documentResponse = new ApiDetailResponse.ApiDocumentResponse(
                 new ApiDetailResponse.RequestInfoResponse(
-                        apiDocument.getRequest().getApplicationType(),
-                        apiDocument.getRequest().getHeader(),
-                        apiDocument.getRequest().getPathParams(),
-                        apiDocument.getRequest().getQueryParams(),
-                        apiDocument.getRequest().getBody(),
-                        apiDocument.getRequest().getCookie()
+                        request.getApplicationType(),
+                        request.getHeader(),
+                        request.getPathParams(),
+                        request.getQueryParams(),
+                        request.getBody(),
+                        request.getCookie()
                 ),
                 new ApiDetailResponse.ResponseInfoResponse(
-                        apiDocument.getResponse().getApplicationType(),
-                        apiDocument.getResponse().getHeader(),
-                        apiDocument.getResponse().getStatusCode(),
-                        apiDocument.getResponse().getBody(),
-                        apiDocument.getResponse().getCookie()
+                        response.getApplicationType(),
+                        response.getHeader(),
+                        response.getStatusCode(),
+                        response.getBody(),
+                        response.getCookie()
                 )
         );
+        ApiDetailResponse pageApiDetail = page.apiDetail();
 
         ApiDetailResponse enrichedApiDetail = new ApiDetailResponse(
-                page.apiDetail().apiId(),
-                page.apiDetail().endpoint(),
-                page.apiDetail().method(),
-                page.apiDetail().name(),
-                page.apiDetail().domain(),
-                page.apiDetail().repositoryUrl(),
+                pageApiDetail.apiId(),
+                pageApiDetail.endpoint(),
+                pageApiDetail.method(),
+                pageApiDetail.name(),
+                pageApiDetail.domain(),
+                pageApiDetail.repositoryUrl(),
                 documentResponse
         );
 
