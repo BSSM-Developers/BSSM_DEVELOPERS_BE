@@ -58,8 +58,6 @@ public class ApiUseReasonCommandService {
         ApiUseReason apiUseReason = apiUseReasonRepository.findById(apiUseReasonId)
                 .orElseThrow(ApiUseReasonNotFoundException::raise);
 
-
-
         Api api = apiUseReason.getApi();
 
         User creator = api.getCreator();
@@ -70,6 +68,20 @@ public class ApiUseReasonCommandService {
 
         apiUsageCommandService.save(apiToken, api, apiUseReason);
         apiUseReason.approved();
+    }
+
+
+    public void rejectApiUseReason(Long apiUseReasonId, User currentUser) {
+        ApiUseReason apiUseReason = apiUseReasonRepository.findById(apiUseReasonId)
+                .orElseThrow(ApiUseReasonNotFoundException::raise);
+
+        Api api = apiUseReason.getApi();
+
+        User creator = api.getCreator();
+        boolean equalsUser = creator.equals(currentUser);
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
+
+        apiUseReason.rejected();
     }
 
 }

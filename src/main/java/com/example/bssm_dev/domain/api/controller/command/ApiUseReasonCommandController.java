@@ -38,4 +38,15 @@ public class ApiUseReasonCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully approved API use reason");
         return ResponseEntity.ok(responseDto);
     }
+
+
+    @PatchMapping("/{apiUseReasonId}/reject")
+    public ResponseEntity<ResponseDto<Void>> rejectApiUseReason(
+            @PathVariable Long apiUseReasonId,
+            @CurrentUser User user
+    ) {
+        apiUseReasonCommandService.rejectApiUseReason(apiUseReasonId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully rejected API use reason");
+        return ResponseEntity.ok(responseDto);
+    }
 }

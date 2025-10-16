@@ -52,4 +52,12 @@ public class ApiUseReason {
     public void approved() {
         this.apiUseState = ApiUseState.APPROVED;
     }
+
+
+    public void rejected() {
+        this.apiUseState = ApiUseState.REJECTED;
+    }
+
+
+    }
 }
