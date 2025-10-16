@@ -23,4 +23,8 @@ public class ApiUsageCommandService {
         apiUsageRepository.save(apiUsage);
     }
 
+    public void save(ApiToken apiToken, Api api, ApiUseReason apiUseReason) {
+        ApiUsage apiUsage = apiUsageMapper.toApiUsage(apiToken, api, apiUseReason);
+        apiUsageRepository.save(apiUsage);
+    }
 }

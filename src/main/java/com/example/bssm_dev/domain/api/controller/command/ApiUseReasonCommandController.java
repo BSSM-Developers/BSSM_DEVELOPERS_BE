@@ -27,4 +27,15 @@ public class ApiUseReasonCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully created API use reason");
         return ResponseEntity.ok(responseDto);
     }
+
+
+    @PatchMapping("/{apiUseReasonId}/approve")
+    public ResponseEntity<ResponseDto<Void>> approveApiUseReason(
+            @PathVariable Long apiUseReasonId,
+            @CurrentUser User user
+    ) {
+        apiUseReasonCommandService.approveApiUseReason(apiUseReasonId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully approved API use reason");
+        return ResponseEntity.ok(responseDto);
+    }
 }

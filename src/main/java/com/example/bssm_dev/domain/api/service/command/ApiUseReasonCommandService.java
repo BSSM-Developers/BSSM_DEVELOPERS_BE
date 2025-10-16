@@ -8,6 +8,9 @@ import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.repository.ApiUseReasonRepository;
+import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
+import com.example.bssm_dev.domain.api.model.ApiUsage;
+import com.example.bssm_dev.domain.api.exception.ApiUseReasonNotFoundException;
 import com.example.bssm_dev.domain.api.service.query.ApiQueryService;
 import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.user.model.User;
@@ -22,21 +25,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class ApiUseReasonCommandService {
     private final ApiUseReasonRepository apiUseReasonRepository;
     private final ApiUseReasonMapper apiUseReasonMapper;
+
     private final ApplicationEventPublisher eventPublisher;
+
     private final ApiQueryService apiQueryService;
     private final ApiTokenQueryService apiTokenQueryService;
+    private final ApiUsageCommandService apiUsageCommandService;
 
 
-    public void createApiUseReason(CreateApiUseReasonRequest request, User user, Long apiTokenId) {
+    public void createApiUseReason(CreateApiUseReasonRequest request, User currentUser, Long apiTokenId) {
         Api api = apiQueryService.findById(request.apiId());
         ApiToken apiToken = apiTokenQueryService.findById(apiTokenId);
 
-        boolean equalsUser = user.equals(apiToken.getUser());
-        if (!equalsUser) {
-            throw UnauthorizedApiTokenAccessException.raise();
-        }
+        boolean equalsUser = currentUser.equals(apiToken.getUser());
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
-        ApiUseReason apiUseReason = apiUseReasonMapper.toApiUserReason(request, user, api, apiToken);
+
+        ApiUseReason apiUseReason = apiUseReasonMapper.toApiUserReason(request, currentUser, api, apiToken);
         ApiUseReason savedApiUseReason = apiUseReasonRepository.save(apiUseReason);
 
         // 이벤트 발행
@@ -46,6 +51,25 @@ public class ApiUseReasonCommandService {
                 apiToken
             )
         );
+    }
+
+
+    public void approveApiUseReason(Long apiUseReasonId, User currentUser) {
+        ApiUseReason apiUseReason = apiUseReasonRepository.findById(apiUseReasonId)
+                .orElseThrow(ApiUseReasonNotFoundException::raise);
+
+
+
+        Api api = apiUseReason.getApi();
+
+        User creator = api.getCreator();
+        boolean eqaulsUser = creator.equals(currentUser);
+        if (!eqaulsUser) throw UnauthorizedApiTokenAccessException.raise();
+
+        ApiToken apiToken = apiUseReason.getApiToken();
+
+        apiUsageCommandService.save(apiToken, api, apiUseReason);
+        apiUseReason.approved();
     }
 
 }
