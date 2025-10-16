@@ -1,11 +1,9 @@
 package com.example.bssm_dev.domain.api.service.command;
 
-import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
+import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
-import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
-import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +16,6 @@ import java.util.UUID;
 @Transactional
 public class ApiTokenCommandService {
     private final ApiTokenRepository apiTokenRepository;
-    private final ApiTokenMapper apiTokenMapper;
-    private final ApiTokenQueryService apiTokenQueryService;
 
     public ApiToken createApiToken(User user) {
         String secretKey = generateSecretKey();
@@ -28,7 +24,8 @@ public class ApiTokenCommandService {
     }
 
     public ApiToken reGenerateSecretKey(User user, Long tokenId) {
-        ApiToken apiToken = apiTokenQueryService.findById(tokenId);
+        ApiToken apiToken = apiTokenRepository.findById(tokenId)
+                .orElseThrow(ApiTokenNotFoundException::raise);
 
         boolean equalsUser = user.equals(apiToken.getUser());
         if (!equalsUser) {
