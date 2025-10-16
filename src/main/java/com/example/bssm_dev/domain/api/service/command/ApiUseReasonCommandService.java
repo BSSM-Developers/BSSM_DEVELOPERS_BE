@@ -11,6 +11,7 @@ import com.example.bssm_dev.domain.api.repository.ApiUseReasonRepository;
 import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
 import com.example.bssm_dev.domain.api.exception.ApiUseReasonNotFoundException;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedApiUseReasonAccessException;
 import com.example.bssm_dev.domain.api.service.query.ApiQueryService;
 import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.user.model.User;
@@ -62,7 +63,7 @@ public class ApiUseReasonCommandService {
 
         User creator = api.getCreator();
         boolean eqaulsUser = creator.equals(currentUser);
-        if (!eqaulsUser) throw UnauthorizedApiTokenAccessException.raise();
+        if (!eqaulsUser) throw UnauthorizedApiUseReasonAccessException.raise();
 
         ApiToken apiToken = apiUseReason.getApiToken();
 
@@ -79,7 +80,7 @@ public class ApiUseReasonCommandService {
 
         User creator = api.getCreator();
         boolean equalsUser = creator.equals(currentUser);
-        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
+        if (!equalsUser) throw UnauthorizedApiUseReasonAccessException.raise();
 
         apiUseReason.rejected();
     }

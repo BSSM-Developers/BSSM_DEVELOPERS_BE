@@ -57,7 +57,4 @@ public class ApiUseReason {
     public void rejected() {
         this.apiUseState = ApiUseState.REJECTED;
     }
-
-
-    }
 }
