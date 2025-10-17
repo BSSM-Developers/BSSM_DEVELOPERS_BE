@@ -1,7 +1,10 @@
 package com.example.bssm_dev.domain.api.model;
 
+import com.example.bssm_dev.domain.api.exception.InvalidSecretKeyException;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +35,11 @@ public class ApiToken {
     }
 
     public void changeSecretKey(String secretKey) {
+    }
 
+    public void validateSecretKey(String secretKey) {
+        boolean equalsSecretKey = this.secretKey.equals(secretKey);
+        if (!equalsSecretKey)
+            throw InvalidSecretKeyException.raise();
     }
 }

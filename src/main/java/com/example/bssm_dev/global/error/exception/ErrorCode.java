@@ -22,6 +22,7 @@ public enum ErrorCode {
     UNAUTHORIZED_DOCS_ACCESS(403, "해당 문서에 접근할 권한이 없습니다."),
     API_NOT_FOUND(404, "API를 찾을 수 없습니다."),
     API_TOKEN_NOT_FOUND(404, "API 토큰을 찾을 수 없습니다."),
+    INVALID_SECRET_KEY(401, "유효하지 않은 시크릿 키입니다."),
     API_USE_REASON_NOT_FOUND(404, "API 사용 신청을 찾을 수 없습니다."),
     UNAUTHORIZED_API_TOKEN_ACCESS(403, "해당 API 토큰에 접근할 권한이 없습니다."),
     UNAUTHORIZED_API_USE_REASON_ACCESS(403, "해당 API 사용 신청에 접근할 권한이 없습니다."),
