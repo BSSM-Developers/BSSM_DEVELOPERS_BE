@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.request.ApiUsageEndpointUpdateRequest;
+import com.example.bssm_dev.domain.api.dto.request.ApiUsageNameUpdateRequest;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiUsageMapper;
 import com.example.bssm_dev.domain.api.model.Api;
@@ -12,6 +13,7 @@ import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
 import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.api.exception.ApiUsageNotFoundException;
 import com.example.bssm_dev.domain.user.model.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,24 @@ public class ApiUsageCommandService {
 
 
         String endpoint = apiUsageEndpointUpdateRequest.endpoint();
+        
         apiUsage.updateEndpoint(endpoint);
+    }
+
+    public void changeName(Long apiId, Long apiTokenId, User currentUser, @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest) {
+        ApiUsageId apiUsageId = ApiUsageId.create(apiId, apiTokenId);
+
+        ApiUsage apiUsage = apiUsageRepository.findById(apiUsageId)
+                .orElseThrow(ApiUsageNotFoundException::raise);
+
+        ApiToken apiToken = apiTokenQueryService.findById(apiTokenId);
+
+        boolean equalsUser = currentUser.equals(apiToken.getUser());
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
+
+
+        String name = apiUsageNameUpdateRequest.name();
+
+        apiUsage.updateEndpoint(name);
     }
 }

@@ -4,6 +4,7 @@ import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.request.ApiUsageEndpointUpdateRequest;
+import com.example.bssm_dev.domain.api.dto.request.ApiUsageNameUpdateRequest;
 import com.example.bssm_dev.domain.api.service.command.ApiUsageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -29,6 +30,18 @@ public class ApiUsageCommandController {
     ) {
         apiUsageCommandService.changeEndpoint(apiId, apiTokenId, user, apiUsageEndpointUpdateRequest);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use endpoint");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/name")
+    public ResponseEntity<ResponseDto<Void>> changeName(
+            @PathVariable Long apiId,
+            @PathVariable Long apiTokenId,
+            @CurrentUser User user,
+            @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest
+    ) {
+        apiUsageCommandService.changeName(apiId, apiTokenId, user, apiUsageNameUpdateRequest);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use Name");
         return ResponseEntity.ok(responseDto);
     }
 }

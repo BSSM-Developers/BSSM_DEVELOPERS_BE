@@ -47,6 +47,10 @@ public class ApiUsage {
                 .build();
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     public void updateEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
