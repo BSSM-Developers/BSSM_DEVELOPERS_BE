@@ -46,4 +46,8 @@ public class ApiUsage {
                 .endpoint(endpoint)
                 .build();
     }
+
+    public void updateEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
 }

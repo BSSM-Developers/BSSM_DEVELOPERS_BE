@@ -16,4 +16,8 @@ import java.io.Serializable;
 public class ApiUsageId implements Serializable {
     private Long apiTokenId;
     private Long apiId;
+
+    public static ApiUsageId create(Long apiId, Long apiTokenId) {
+        return new ApiUsageId(apiId, apiTokenId);
+    }
 }
