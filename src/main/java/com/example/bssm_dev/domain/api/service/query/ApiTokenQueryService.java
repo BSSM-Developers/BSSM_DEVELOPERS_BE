@@ -29,7 +29,7 @@ public class ApiTokenQueryService {
     }
 
 
-    public ApiToken findByTokenUUID(String token) {
+    public ApiToken findByTokenClientId(String token) {
         return apiTokenRepository.findByTokenUUID(token)
                 .orElseThrow(ApiTokenNotFoundException::raise);
     }
