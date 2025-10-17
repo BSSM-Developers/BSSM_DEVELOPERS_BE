@@ -16,14 +16,17 @@ public class ApiTokenMapper {
         return new ApiTokenResponse(
                 apiToken.getApiTokenId(),
                 apiToken.getUser().getUserId(),
-                apiToken.getSecretKey()
+                apiToken.getSecretKey(),
+                apiToken.getApiTokenName(),
+                apiToken.getApiTokenUUID()
         );
     }
-    
+
     public SecretApiTokenResponse toSecretResponse(ApiToken apiToken) {
         return new SecretApiTokenResponse(
                 apiToken.getApiTokenId(),
-                apiToken.getSecretKey()
+                apiToken.getApiTokenName(),
+                apiToken.getApiTokenUUID()
         );
     }
 

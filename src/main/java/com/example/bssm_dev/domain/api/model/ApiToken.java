@@ -17,7 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApiToken {
     @Id
-    private String apiTokenId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long apiTokenId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -30,15 +31,21 @@ public class ApiToken {
     @Column(nullable = false)
     private String secretKey;
 
-    public static ApiToken of(User user, String secretKey) {
+    public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID) {
         return ApiToken.builder()
                 .user(user)
                 .secretKey(secretKey)
+                .apiTokenName(apiTokenName)
+                .apiTokenUUID(apiTokenUUID)
                 .build();
     }
 
     public void changeSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public void changeApiTokenName(String apiTokenName) {
+        this.apiTokenName = apiTokenName;
     }
 
     public void validateSecretKey(String secretKey) {

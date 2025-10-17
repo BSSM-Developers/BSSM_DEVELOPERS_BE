@@ -27,6 +27,12 @@ public class ApiTokenQueryService {
         return  apiTokenRepository.findById(apiTokenId)
                 .orElseThrow(ApiTokenNotFoundException::raise);
     }
+
+
+    public ApiToken findByTokenUUID(String token) {
+        return apiTokenRepository.findByApiTokenUUID(token)
+                .orElseThrow(ApiTokenNotFoundException::raise);
+    }
     
     public CursorPage<SecretApiTokenResponse> getAllApiTokens(User user, Long cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size);
