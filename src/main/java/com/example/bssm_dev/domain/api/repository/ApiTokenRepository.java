@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.lang.ScopedValue;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +16,6 @@ public interface ApiTokenRepository extends JpaRepository<ApiToken, Long> {
     @Query("SELECT at FROM ApiToken at WHERE at.user.userId = :userId AND at.apiTokenId < COALESCE(:cursor, 9223372036854775807) ORDER BY at.apiTokenId DESC")
     Slice<ApiToken> findAllByUserIdWithCursorOrderByApiTokenIdDesc(@Param("userId") Long userId, @Param("cursor") Long cursor, Pageable pageable);
 
+    @Query("SELECT at FROM ApiToken at WHERE at.apiTokenUUID = :token")
+    Optional<ApiToken> findByTokenUUID(String token);
 }

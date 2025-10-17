@@ -14,7 +14,7 @@ public class RestRequester implements Requester {
                 .build();
     }
 
-    public static Requester of(String domainUrl) {
+    public static RestRequester of(String domainUrl) {
         return new RestRequester(domainUrl);
     }
 
