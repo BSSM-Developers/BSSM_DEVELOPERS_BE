@@ -58,4 +58,8 @@ public class ApiUsage {
     public String getDomain() {
         return api.getDomain();
     }
+
+    public String getMethod() {
+        return this.api.getMethod();
+    }
 }

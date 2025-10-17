@@ -17,8 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApiToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long apiTokenId;
+    private String apiTokenId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

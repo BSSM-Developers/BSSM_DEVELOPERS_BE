@@ -14,40 +14,48 @@ public class RestRequester implements Requester {
                 .build();
     }
 
+    public static Requester of(String domainUrl) {
+        return new RestRequester(domainUrl);
+    }
+
     public Object request(String method, String endpoint) {
         MethodType methodType = MethodType.valueOf(method.toUpperCase());
         Object response = switch (methodType) {
-            case GET -> this.restClient.get();
-            case POST -> this.restClient.post();
-            case PUT -> this.restClient.put();
-            case PATCH -> this.restClient.patch();
-            case DELETE -> this.restClient.delete();
+            case GET -> get(endpoint);
+            case POST -> post(endpoint);
+            case PUT -> put(endpoint);
+            case PATCH -> patch(endpoint);
+            case DELETE -> delete(endpoint);
         };
         return response;
     }
 
     @Override
-    public Object get() {
+    public Object get(String endpoint) {
+        Object response = restClient.get()
+                .uri(endpoint)
+                .retrieve()
+                .body(Object.class);
+        return response;
+    }
+
+    @Override
+    public Object post(String endpoint) {
         return null;
     }
 
     @Override
-    public Object post() {
+    public Object put(String endpoint) {
         return null;
     }
 
     @Override
-    public Object put() {
+    public Object patch(String endpoint) {
         return null;
     }
 
     @Override
-    public Object patch() {
-        return null;
-    }
-
-    @Override
-    public Object delete() {
+    public Object delete(String endpoint) {
         return null;
     }
 }
