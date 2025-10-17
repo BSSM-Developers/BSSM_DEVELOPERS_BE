@@ -28,9 +28,7 @@ public class ApiTokenCommandService {
                 .orElseThrow(ApiTokenNotFoundException::raise);
 
         boolean equalsUser = user.equals(apiToken.getUser());
-        if (!equalsUser) {
-            throw UnauthorizedApiTokenAccessException.raise();
-        }
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
         String secretKey = generateSecretKey();
         apiToken.changeSecretKey(secretKey);
