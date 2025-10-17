@@ -5,16 +5,18 @@ import com.example.bssm_dev.domain.api.dto.response.ProxyResponse;
 import com.example.bssm_dev.domain.api.service.command.UseApiCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/use")
+@RequestMapping("/api/proxy")
+@Slf4j
 public class UseApiCommandController {
     private final UseApiCommandService useApiCommandService;
 
-    @PostMapping("/{endpoint}")
+    @PostMapping("/{endpoint:.+}")
     public ResponseEntity<ProxyResponse> useApi(
             @PathVariable String endpoint,
             @RequestHeader("bssm-dev-token")  String token,

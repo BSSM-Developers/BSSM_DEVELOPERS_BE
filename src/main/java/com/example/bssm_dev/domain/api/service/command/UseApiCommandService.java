@@ -20,9 +20,15 @@ public class UseApiCommandService {
         apiToken.validateSecretKey(secretKey);
 
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint);
+
+        Object response = request(endpoint, apiUsage);
+        return ProxyResponse.of(response);
+    }
+
+    private Object request(String endpoint, ApiUsage apiUsage) {
         String apiDomain = apiUsage.getDomain();
         RestRequester requester = RestRequester.of(apiDomain);
         Object response = requester.request(apiUsage.getMethod(), endpoint);
-        return ProxyResponse.of(response);
+        return response;
     }
 }
