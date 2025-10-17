@@ -35,6 +35,7 @@ public class ApiToken {
     }
 
     public void changeSecretKey(String secretKey) {
+        this.secretKey = secretKey;
     }
 
     public void validateSecretKey(String secretKey) {
