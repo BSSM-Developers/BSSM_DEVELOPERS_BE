@@ -19,9 +19,9 @@ public class UseApiCommandService {
     private final ApiTokenQueryService apiTokenQueryService;
     private final ApiUsageQueryService apiUsageQueryService;
 
-    public ProxyResponse execute(UseApiRequest useApiRequest, String token, String endpoint) {
+    public ProxyResponse execute(String secretKey, String token, String endpoint) {
         ApiToken apiToken = apiTokenQueryService.findById(token);
-        apiToken.validateSecretKey(useApiRequest.secretKey());
+        apiToken.validateSecretKey(secretKey);
 
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint);
         String apiDomain = apiUsage.getDomain();

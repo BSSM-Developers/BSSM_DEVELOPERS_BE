@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class UseApiCommandController {
     private final UseApiCommandService useApiCommandService;
 
-    @PostMapping("/{token}/{endpoint}")
-    public ResponseEntity<ProxyResponse> useApi(@Valid @RequestBody UseApiRequest useApiRequest, @PathVariable String token, @PathVariable String endpoint) {
-        ProxyResponse response = useApiCommandService.execute(useApiRequest, token, endpoint);
+    @PostMapping("/{endpoint}")
+    public ResponseEntity<ProxyResponse> useApi(
+            @PathVariable String endpoint,
+            @RequestHeader("bssm-dev-token")  String token,
+            @RequestHeader("bssm-dev-secret")  String secretKey
+    ) {
+        ProxyResponse response = useApiCommandService.execute(secretKey, token, endpoint);
         return ResponseEntity.ok(response);
     }
 }

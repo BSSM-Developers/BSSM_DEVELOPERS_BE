@@ -23,6 +23,10 @@ public class ApiToken {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private String apiTokenName;
+
+    private String apiTokenUUID;
+
     @Column(nullable = false)
     private String secretKey;
 
