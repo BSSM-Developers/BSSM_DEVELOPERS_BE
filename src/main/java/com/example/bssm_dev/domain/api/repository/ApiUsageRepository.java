@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.repository;
 
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
 import com.example.bssm_dev.domain.api.model.key.ApiUsageId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,5 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ApiUsageRepository extends JpaRepository<ApiUsage, ApiUsageId> {
-    ApiUsageId api(Api api);
+
+    ApiUsage findByApiTokenAndEndpoint(ApiToken apiToken, String endpoint);
+
 }

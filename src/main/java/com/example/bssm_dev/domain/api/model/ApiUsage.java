@@ -54,4 +54,8 @@ public class ApiUsage {
     public void updateEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
+
+    public String getDomain() {
+        return api.getDomain();
+    }
 }
