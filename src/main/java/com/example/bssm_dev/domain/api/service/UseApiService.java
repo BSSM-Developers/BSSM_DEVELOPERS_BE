@@ -8,12 +8,10 @@ import com.example.bssm_dev.domain.api.requester.impl.RestRequester;
 import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.api.service.query.ApiUsageQueryService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UseApiService {
     private final ApiTokenQueryService apiTokenQueryService;
     private final ApiUsageQueryService apiUsageQueryService;
@@ -84,7 +82,6 @@ public class UseApiService {
             case PATCH -> requester.patch(endpoint, body);
             case DELETE -> requester.delete(endpoint);
         };
-        log.info(response.toString());
         return response;
     }
 }

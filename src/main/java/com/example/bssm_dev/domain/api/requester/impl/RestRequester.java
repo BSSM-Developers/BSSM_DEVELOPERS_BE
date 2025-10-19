@@ -2,10 +2,12 @@ package com.example.bssm_dev.domain.api.requester.impl;
 
 import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.domain.api.requester.Requester;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 public class RestRequester implements Requester {
 
     private final RestClient restClient;
@@ -27,8 +29,10 @@ public class RestRequester implements Requester {
                     .uri(endpoint)
                     .retrieve()
                     .body(String.class);
+            log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(e.getMessage(), e);
             throw ExternalApiException.raise();
         }
     }
@@ -46,8 +50,10 @@ public class RestRequester implements Requester {
             Object response = requestSpec
                     .retrieve()
                     .body(String.class);
+            log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(e.getMessage(), e);
             throw ExternalApiException.raise();
         }
     }
@@ -65,8 +71,10 @@ public class RestRequester implements Requester {
             Object response = requestSpec
                     .retrieve()
                     .body(String.class);
+            log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(e.getMessage(), e);
             throw ExternalApiException.raise();
         }
     }
@@ -84,8 +92,10 @@ public class RestRequester implements Requester {
             Object response = requestSpec
                     .retrieve()
                     .body(String.class);
+            log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(e.getMessage(), e);
             throw ExternalApiException.raise();
         }
     }
@@ -97,8 +107,10 @@ public class RestRequester implements Requester {
                     .uri(endpoint)
                     .retrieve()
                     .body(String.class);
+            log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(e.getMessage(), e);
             throw ExternalApiException.raise();
         }
     }
