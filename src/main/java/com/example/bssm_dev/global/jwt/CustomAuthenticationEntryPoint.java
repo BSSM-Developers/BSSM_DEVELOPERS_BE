@@ -20,6 +20,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        String path = request.getServletPath();
+        
+        // /api/proxy/** 경로는 그냥 통과
+        if (path.startsWith("/api/proxy")) {
+            return;
+        }
+        
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

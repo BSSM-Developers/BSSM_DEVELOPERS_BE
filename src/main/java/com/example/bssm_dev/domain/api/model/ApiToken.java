@@ -27,7 +27,7 @@ public class ApiToken {
     @Column(nullable = false)
     private String apiTokenName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "api_token_uuid")
     private String apiTokenUUID;
 
     @Column(nullable = false)

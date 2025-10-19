@@ -33,8 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return path.startsWith("/api/proxy");
+        String path = request.getServletPath();
+        boolean shouldSkip = path.startsWith("/api/proxy");
+        System.out.println("[JWT DEBUG] shouldNotFilter - path: " + path + ", shouldSkip: " + shouldSkip);
+        return shouldSkip;
     }
 
     @Override

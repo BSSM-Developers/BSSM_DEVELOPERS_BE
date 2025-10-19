@@ -32,7 +32,7 @@ public class ApiTokenCommandController {
     }
 
     @PatchMapping("/{tokenId}/secret")
-    public ResponseEntity<ResponseDto<ApiTokenResponse>> updateApiToken(
+    public ResponseEntity<ResponseDto<ApiTokenResponse>> reGenerateSecretKeyOfApiToken(
             @CurrentUser User user,
             @PathVariable("tokenId") Long tokenId
     ) {

@@ -35,7 +35,7 @@ public class RestRequester implements Requester {
         Object response = restClient.get()
                 .uri(endpoint)
                 .retrieve()
-                .body(Object.class);
+                .body(String.class);
         return response;
     }
 
