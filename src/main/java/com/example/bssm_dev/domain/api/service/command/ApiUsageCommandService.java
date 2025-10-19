@@ -68,6 +68,6 @@ public class ApiUsageCommandService {
 
         String name = apiUsageNameUpdateRequest.name();
 
-        apiUsage.updateEndpoint(name);
+        apiUsage.updateName(name);
     }
 }
