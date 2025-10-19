@@ -72,12 +72,11 @@ public class UseApiController {
     public ResponseEntity<ProxyResponse> useApiByDelete(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
-            @RequestHeader("bssm-dev-secret") String secretKey,
-            @RequestBody(required = false) Object body
+            @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         String endpoint = extractEndpoint(request);
 
-        ProxyResponse response = useApiService.delete(secretKey, token, endpoint, body);
+        ProxyResponse response = useApiService.delete(secretKey, token, endpoint);
         return ResponseEntity.ok(response);
     }
 

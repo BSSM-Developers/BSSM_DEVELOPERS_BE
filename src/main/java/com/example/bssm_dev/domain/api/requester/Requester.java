@@ -5,5 +5,5 @@ public interface Requester {
     Object post(String endpoint, Object body);
     Object put(String endpoint, Object body);
     Object patch(String endpoint, Object body);
-    Object delete(String endpoint, Object body);
+    Object delete(String endpoint);
 }

@@ -1,7 +1,9 @@
 package com.example.bssm_dev.domain.api.requester.impl;
 
-import com.example.bssm_dev.domain.api.model.type.MethodType;
+import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.domain.api.requester.Requester;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 public class RestRequester implements Requester {
@@ -20,49 +22,84 @@ public class RestRequester implements Requester {
 
     @Override
     public Object get(String endpoint) {
-        Object response = restClient.get()
-                .uri(endpoint)
-                .retrieve()
-                .body(Object.class);
-        return response;
+        try {
+            Object response = restClient.get()
+                    .uri(endpoint)
+                    .retrieve()
+                    .body(String.class);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw ExternalApiException.raise();
+        }
     }
 
     @Override
     public Object post(String endpoint, Object body) {
-        Object response = restClient.post()
-                .uri(endpoint)
-                .body(body)
-                .retrieve()
-                .body(Object.class);
-        return response;
+        try {
+            var requestSpec = restClient.post()
+                    .uri(endpoint);
+            
+            if (body != null) {
+                requestSpec = requestSpec.body(body);
+            }
+            
+            Object response = requestSpec
+                    .retrieve()
+                    .body(String.class);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw ExternalApiException.raise();
+        }
     }
 
     @Override
     public Object put(String endpoint, Object body) {
-        Object response = restClient.put()
-                .uri(endpoint)
-                .body(body)
-                .retrieve()
-                .body(Object.class);
-        return response;
+        try {
+            var requestSpec = restClient.put()
+                    .uri(endpoint);
+            
+            if (body != null) {
+                requestSpec = requestSpec.body(body);
+            }
+            
+            Object response = requestSpec
+                    .retrieve()
+                    .body(String.class);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw ExternalApiException.raise();
+        }
     }
 
     @Override
     public Object patch(String endpoint, Object body) {
-        Object response = restClient.patch()
-                .uri(endpoint)
-                .body(body)
-                .retrieve()
-                .body(Object.class);
-        return response;
+        try {
+            var requestSpec = restClient.patch()
+                    .uri(endpoint);
+            
+            if (body != null) {
+                requestSpec = requestSpec.body(body);
+            }
+            
+            Object response = requestSpec
+                    .retrieve()
+                    .body(String.class);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw ExternalApiException.raise();
+        }
     }
 
     @Override
-    public Object delete(String endpoint, Object body) {
-        Object response = restClient.delete()
-                .uri(endpoint)
-                .retrieve()
-                .body(Object.class);
-        return response;
+    public Object delete(String endpoint) {
+        try {
+            Object response = restClient.delete()
+                    .uri(endpoint)
+                    .retrieve()
+                    .body(String.class);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw ExternalApiException.raise();
+        }
     }
 }

@@ -63,14 +63,14 @@ public class UseApiService {
         return ProxyResponse.of(response);
     }
 
-    public ProxyResponse delete(String secretKey, String token, String endpoint, Object body) {
+    public ProxyResponse delete(String secretKey, String token, String endpoint) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
         MethodType methodType = MethodType.DELETE;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage, methodType, body);
+        Object response = request(endpoint, apiUsage, methodType, null);
         return ProxyResponse.of(response);
     }
 
@@ -82,7 +82,7 @@ public class UseApiService {
             case POST -> requester.post(endpoint, body);
             case PUT -> requester.put(endpoint, body);
             case PATCH -> requester.patch(endpoint, body);
-            case DELETE -> requester.delete(endpoint, body);
+            case DELETE -> requester.delete(endpoint);
         };
         log.info(response.toString());
         return response;
