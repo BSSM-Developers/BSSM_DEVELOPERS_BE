@@ -18,44 +18,51 @@ public class RestRequester implements Requester {
         return new RestRequester(domainUrl);
     }
 
-    public Object request(String method, String endpoint) {
-        MethodType methodType = MethodType.valueOf(method.toUpperCase());
-        Object response = switch (methodType) {
-            case GET -> get(endpoint);
-            case POST -> post(endpoint);
-            case PUT -> put(endpoint);
-            case PATCH -> patch(endpoint);
-            case DELETE -> delete(endpoint);
-        };
-        return response;
-    }
-
     @Override
     public Object get(String endpoint) {
         Object response = restClient.get()
                 .uri(endpoint)
                 .retrieve()
-                .body(String.class);
+                .body(Object.class);
         return response;
     }
 
     @Override
-    public Object post(String endpoint) {
-        return null;
+    public Object post(String endpoint, Object body) {
+        Object response = restClient.post()
+                .uri(endpoint)
+                .body(body)
+                .retrieve()
+                .body(Object.class);
+        return response;
     }
 
     @Override
-    public Object put(String endpoint) {
-        return null;
+    public Object put(String endpoint, Object body) {
+        Object response = restClient.put()
+                .uri(endpoint)
+                .body(body)
+                .retrieve()
+                .body(Object.class);
+        return response;
     }
 
     @Override
-    public Object patch(String endpoint) {
-        return null;
+    public Object patch(String endpoint, Object body) {
+        Object response = restClient.patch()
+                .uri(endpoint)
+                .body(body)
+                .retrieve()
+                .body(Object.class);
+        return response;
     }
 
     @Override
-    public Object delete(String endpoint) {
-        return null;
+    public Object delete(String endpoint, Object body) {
+        Object response = restClient.delete()
+                .uri(endpoint)
+                .retrieve()
+                .body(Object.class);
+        return response;
     }
 }

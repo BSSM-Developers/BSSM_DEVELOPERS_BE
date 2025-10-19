@@ -22,57 +22,68 @@ public class UseApiService {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
-        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, MethodType.GET);
+        MethodType methodType = MethodType.GET;
+        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage);
+        Object response = request(endpoint, apiUsage, methodType, null);
         return ProxyResponse.of(response);
     }
 
 
-    public ProxyResponse post(String secretKey, String token, String endpoint) {
+    public ProxyResponse post(String secretKey, String token, String endpoint, Object body) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
-        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, MethodType.POST);
+        MethodType methodType = MethodType.POST;
+        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage);
+        Object response = request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
-    public ProxyResponse patch(String secretKey, String token, String endpoint) {
+    public ProxyResponse patch(String secretKey, String token, String endpoint, Object body) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
-        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, MethodType.PATCH);
+        MethodType methodType = MethodType.PATCH;
+        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage);
+        Object response = request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
-    public ProxyResponse put(String secretKey, String token, String endpoint) {
+    public ProxyResponse put(String secretKey, String token, String endpoint, Object body) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
-        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, MethodType.PUT);
+        MethodType methodType = MethodType.PUT;
+        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage);
+        Object response = request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
-    public ProxyResponse delete(String secretKey, String token, String endpoint) {
+    public ProxyResponse delete(String secretKey, String token, String endpoint, Object body) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
-        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, MethodType.DELETE);
+        MethodType methodType = MethodType.DELETE;
+        ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage);
+        Object response = request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
-    private Object request(String endpoint, ApiUsage apiUsage) {
+    private Object request(String endpoint, ApiUsage apiUsage, MethodType methodType, Object body) {
         String apiDomain = apiUsage.getDomain();
         RestRequester requester = RestRequester.of(apiDomain);
-        Object response = requester.request(apiUsage.getMethod(), endpoint);
+        Object response = switch (methodType) {
+            case GET -> requester.get(endpoint);
+            case POST -> requester.post(endpoint, body);
+            case PUT -> requester.put(endpoint, body);
+            case PATCH -> requester.patch(endpoint, body);
+            case DELETE -> requester.delete(endpoint, body);
+        };
         log.info(response.toString());
         return response;
     }
