@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.docs.service;
+package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
 import com.example.bssm_dev.domain.docs.mapper.ApiDocumentMapper;

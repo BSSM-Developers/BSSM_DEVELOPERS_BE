@@ -33,7 +33,7 @@ public class ApiUseReasonCommandController {
 
 
     /**
-     * 어드민 - API 사용 신청 승인
+     * API 사용 신청 승인
      */
     @PatchMapping("/{apiUseReasonId}/approve")
     public ResponseEntity<ResponseDto<Void>> approveApiUseReason(
@@ -47,7 +47,7 @@ public class ApiUseReasonCommandController {
 
 
     /**
-     * 어드민 - API 사용 신청 거절
+     * API 사용 신청 거절
      */
     @PatchMapping("/{apiUseReasonId}/reject")
     public ResponseEntity<ResponseDto<Void>> rejectApiUseReason(

@@ -1,5 +1,4 @@
 package com.example.bssm_dev.domain.api.mapper;
-
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
@@ -40,8 +39,4 @@ public class ApiTokenMapper {
                 apiUsageMapper.toSummaryListResponse(apiToken.getApiUsageList())
         );
     }
-
-
-
-
 }

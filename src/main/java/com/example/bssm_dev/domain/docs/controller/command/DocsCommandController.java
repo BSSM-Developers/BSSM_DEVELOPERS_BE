@@ -1,11 +1,11 @@
-package com.example.bssm_dev.domain.docs.controller;
+package com.example.bssm_dev.domain.docs.controller.command;
 
 import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
-import com.example.bssm_dev.domain.docs.dto.response.DocsResponse;
-import com.example.bssm_dev.domain.docs.service.DocsCommandService;
+import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.service.command.DocsCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +21,28 @@ public class DocsCommandController {
     /**
      * 오리지널 Docs 생성
      */
-    @PostMapping
-    public ResponseEntity<ResponseDto<Void>> createDocs(
-            @Valid @RequestBody CreateDocsRequest request,
+    @PostMapping("/original")
+    public ResponseEntity<ResponseDto<Void>> createOriginalDocs(
+            @Valid @RequestBody CreateOriginalDocsRequest request,
             @CurrentUser User user
     ) {
-        docsService.createDocs(request, user);
+        docsService.createOriginalDocs(request, user);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully created docs");
         return ResponseEntity.ok(responseDto);
     }
+
+    /**
+     * 커스텀 Docs 생성 (빈 독스)
+     */
+    @PostMapping("/custom")
+    public ResponseEntity<ResponseDto<Void>> createCustomDocs(
+            @RequestBody @Valid CreateCustomDocsRequest request,
+            @CurrentUser User user
+    ) {
+        docsService.createCustomDocs(request, user);
+        return null;
+    }
+
 
     /**
      * Docs 삭제

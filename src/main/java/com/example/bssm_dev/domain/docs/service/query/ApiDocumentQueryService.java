@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.docs.service;
+package com.example.bssm_dev.domain.docs.service.query;
 
 import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;

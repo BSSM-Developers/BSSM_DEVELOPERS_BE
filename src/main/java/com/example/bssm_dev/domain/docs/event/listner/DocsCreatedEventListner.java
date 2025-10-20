@@ -1,7 +1,7 @@
 package com.example.bssm_dev.domain.docs.event.listner;
 
 import com.example.bssm_dev.domain.docs.event.DocsCreatedEvent;
-import com.example.bssm_dev.domain.docs.service.ApiDocumentCommandService;
+import com.example.bssm_dev.domain.docs.service.command.ApiDocumentCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

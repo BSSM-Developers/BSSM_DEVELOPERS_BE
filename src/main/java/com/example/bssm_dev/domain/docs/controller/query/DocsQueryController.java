@@ -1,11 +1,11 @@
-package com.example.bssm_dev.domain.docs.controller;
+package com.example.bssm_dev.domain.docs.controller.query;
 
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
-import com.example.bssm_dev.domain.docs.service.DocsQueryService;
+import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

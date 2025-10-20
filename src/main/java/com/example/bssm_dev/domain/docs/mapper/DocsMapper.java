@@ -3,8 +3,9 @@ package com.example.bssm_dev.domain.docs.mapper;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
+import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
@@ -25,7 +26,7 @@ import java.util.Map;
 @Component
 public class DocsMapper {
 
-    public Docs toEntity(CreateDocsRequest request, User creator) {
+    public Docs toEntity(CreateOriginalDocsRequest request, User creator) {
         Docs docs = Docs.of(
                 creator,
                 request.docsTitle(),
@@ -68,6 +69,14 @@ public class DocsMapper {
             section.addPageList(pageList);
         }
         return section;
+    }
+
+    public DocsSection toSectionEntity(AddDocsSectionRequest request, Docs docs, User creator) {
+        return DocsSection.of(
+                docs,
+                request.docsSectionTitle(),
+                request.order()
+        );
     }
 
     private DocsPage toPageEntity(CreateDocsPageRequest request, DocsSection section, User creator, Long order) {

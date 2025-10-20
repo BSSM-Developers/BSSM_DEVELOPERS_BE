@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.docs.service;
+package com.example.bssm_dev.domain.docs.service.query;
 
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
