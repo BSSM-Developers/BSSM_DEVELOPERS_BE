@@ -67,7 +67,6 @@ public class UseApiService {
 
         MethodType methodType = MethodType.DELETE;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
-
         Object response = request(endpoint, apiUsage, methodType, null);
         return ProxyResponse.of(response);
     }

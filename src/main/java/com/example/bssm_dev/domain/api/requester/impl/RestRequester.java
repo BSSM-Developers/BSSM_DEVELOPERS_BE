@@ -28,7 +28,7 @@ public class RestRequester implements Requester {
             Object response = restClient.get()
                     .uri(endpoint)
                     .retrieve()
-                    .body(String.class);
+                    .body(Object.class);
             log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -48,7 +48,7 @@ public class RestRequester implements Requester {
             
             Object response = requestSpec
                     .retrieve()
-                    .body(String.class);
+                    .body(Object.class);
             log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -65,7 +65,6 @@ public class RestRequester implements Requester {
             
             if (body != null) requestSpec = requestSpec.body(body);
 
-            
             Object response = requestSpec
                     .retrieve()
                     .body(String.class);
@@ -85,7 +84,6 @@ public class RestRequester implements Requester {
             
             if (body != null) requestSpec = requestSpec.body(body);
 
-            
             Object response = requestSpec
                     .retrieve()
                     .body(String.class);

@@ -2,16 +2,14 @@ package com.example.bssm_dev.domain.api.model;
 
 import com.example.bssm_dev.domain.api.model.key.ApiUsageId;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
 @Getter
 @Builder
 @AllArgsConstructor
+@ToString
 public class ApiUsage {
     @EmbeddedId
     private ApiUsageId id;
