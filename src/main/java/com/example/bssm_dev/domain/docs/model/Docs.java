@@ -45,6 +45,7 @@ public class Docs {
 
     @OneToMany(mappedBy = "docs", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
+    @OrderBy("order asc")
     @Builder.Default
     private List<DocsSection> sections = new ArrayList<>();
 
@@ -62,5 +63,10 @@ public class Docs {
                 .repositoryUrl(repositoryUrl)
                 .autoApproval(autoApproval != null ? autoApproval : false)
                 .build();
+    }
+
+    public boolean isMyDocs(User user) {
+        Long creatorId = this.creator.getUserId();
+        return creatorId.equals(user.getUserId());
     }
 }

@@ -10,10 +10,7 @@ import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +25,16 @@ public class DocsCommandController {
     ) {
         docsService.createDocs(request, user);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully created docs");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/{docsId}")
+    public ResponseEntity<ResponseDto<Void>> deleteDocs(
+            @PathVariable Long docsId,
+            @CurrentUser User user
+    ) {
+        docsService.deleteDocs(docsId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs");
         return ResponseEntity.ok(responseDto);
     }
 }

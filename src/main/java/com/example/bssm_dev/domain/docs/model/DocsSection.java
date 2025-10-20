@@ -33,6 +33,7 @@ public class DocsSection {
     @OneToMany(mappedBy = "docsSection", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @BatchSize(size = 100)
+    @OrderBy("order asc")
     private List<DocsPage> pages = new ArrayList<>();
 
     public void addPageList(List<DocsPage> page) {
