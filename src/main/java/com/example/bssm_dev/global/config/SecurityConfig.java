@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**").hasRole("ADMIN")
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/api/proxy/**").permitAll()
+                        .requestMatchers("/api/healthy/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

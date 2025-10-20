@@ -1,9 +1,11 @@
 package com.example.bssm_dev.domain.api.executor;
 
+import com.example.bssm_dev.domain.api.dto.request.ApiHealthCheckRequest;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
 import com.example.bssm_dev.domain.api.model.type.MethodType;
 import com.example.bssm_dev.domain.api.requester.impl.RestRequester;
+import lombok.extern.slf4j.Slf4j;
 
 public class ApiRequestExecutor {
 
@@ -12,11 +14,12 @@ public class ApiRequestExecutor {
         return request(endpoint, apiDomain, methodType, body);
     }
 
-    public static Object request(Api api, Object body) {
-        String apiDomain = api.getDomain();
-        String endpoint = api.getEndpoint();
-        MethodType methodType = MethodType.valueOf(api.getMethod());
-        return request(endpoint, apiDomain, methodType, body);
+    public static Object request(ApiHealthCheckRequest apiHealthCheckRequest) {
+        String apiDomain = apiHealthCheckRequest.domain();
+        String endpoint = apiHealthCheckRequest.endpoint();
+
+        MethodType methodType = MethodType.valueOf(apiHealthCheckRequest.method());
+        return request(endpoint, apiDomain, methodType, apiHealthCheckRequest.body());
     }
 
     private static Object request(String endpoint, String apiDomain, MethodType methodType, Object body) {

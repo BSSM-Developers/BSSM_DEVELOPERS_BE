@@ -31,7 +31,7 @@ public class RestRequester implements Requester {
                     .body(Object.class);
             log.info("response : {}", response );
             return response;
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
         }
@@ -51,7 +51,7 @@ public class RestRequester implements Requester {
                     .body(Object.class);
             log.info("response : {}", response );
             return response;
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
         }
@@ -70,7 +70,7 @@ public class RestRequester implements Requester {
                     .body(String.class);
             log.info("response : {}", response );
             return response;
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
         }
@@ -89,7 +89,7 @@ public class RestRequester implements Requester {
                     .body(String.class);
             log.info("response : {}", response );
             return response;
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
         }
@@ -104,7 +104,7 @@ public class RestRequester implements Requester {
                     .body(String.class);
             log.info("response : {}", response );
             return response;
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
         }
