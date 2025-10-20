@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service;
 
 import com.example.bssm_dev.domain.api.dto.response.ProxyResponse;
+import com.example.bssm_dev.domain.api.executor.ApiRequestExecutor;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
 import com.example.bssm_dev.domain.api.model.type.MethodType;
@@ -9,6 +10,7 @@ import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.api.service.query.ApiUsageQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class UseApiService {
         MethodType methodType = MethodType.GET;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage, methodType, null);
+        Object response = ApiRequestExecutor.request(endpoint, apiUsage, methodType, null);
         return ProxyResponse.of(response);
     }
 
@@ -35,7 +37,7 @@ public class UseApiService {
         MethodType methodType = MethodType.POST;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage, methodType, body);
+        Object response = ApiRequestExecutor.request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
@@ -46,7 +48,7 @@ public class UseApiService {
         MethodType methodType = MethodType.PATCH;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage, methodType, body);
+        Object response = ApiRequestExecutor.request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
@@ -57,7 +59,7 @@ public class UseApiService {
         MethodType methodType = MethodType.PUT;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
 
-        Object response = request(endpoint, apiUsage, methodType, body);
+        Object response = ApiRequestExecutor.request(endpoint, apiUsage, methodType, body);
         return ProxyResponse.of(response);
     }
 
@@ -67,20 +69,7 @@ public class UseApiService {
 
         MethodType methodType = MethodType.DELETE;
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, endpoint, methodType);
-        Object response = request(endpoint, apiUsage, methodType, null);
+        Object response = ApiRequestExecutor.request(endpoint, apiUsage, methodType, null);
         return ProxyResponse.of(response);
-    }
-
-    private Object request(String endpoint, ApiUsage apiUsage, MethodType methodType, Object body) {
-        String apiDomain = apiUsage.getDomain();
-        RestRequester requester = RestRequester.of(apiDomain);
-        Object response = switch (methodType) {
-            case GET -> requester.get(endpoint);
-            case POST -> requester.post(endpoint, body);
-            case PUT -> requester.put(endpoint, body);
-            case PATCH -> requester.patch(endpoint, body);
-            case DELETE -> requester.delete(endpoint);
-        };
-        return response;
     }
 }

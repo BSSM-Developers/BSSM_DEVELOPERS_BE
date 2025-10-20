@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.mapper;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
+import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.user.model.User;
@@ -22,17 +23,14 @@ public class ApiTokenMapper {
         );
     }
 
-    public SecretApiTokenResponse toSecretResponse(ApiToken apiToken) {
+    public SecretApiTokenResponse toSecretResponse(ApiToken apiToken, List<ApiUsageSummaryResponse> registeredApis) {
         return new SecretApiTokenResponse(
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
-                apiToken.getApiTokenUUID()
+                apiToken.getApiTokenUUID(),
+                registeredApis
         );
     }
 
-    public List<SecretApiTokenResponse> toSecretListResponse(Slice<ApiToken> apiTokenSlice) {
-        return apiTokenSlice.getContent().stream()
-                .map(this::toSecretResponse)
-                .toList();
-    }
+
 }

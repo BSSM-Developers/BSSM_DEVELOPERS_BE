@@ -37,6 +37,13 @@ public interface ApiUsageRepository extends JpaRepository<ApiUsage, ApiUsageId> 
             @Param("cursor") Long cursor, 
             Pageable pageable
     );
+    
+    @Query("SELECT au FROM ApiUsage au " +
+           "JOIN FETCH au.api a " +
+           "JOIN FETCH au.apiUseReason aur " +
+           "WHERE au.apiToken = :apiToken")
+    List<ApiUsage> findAllByApiToken(@Param("apiToken") ApiToken apiToken);
 
 }
+
 

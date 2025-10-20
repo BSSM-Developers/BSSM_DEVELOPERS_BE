@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.mapper;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageResponse;
+import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
@@ -42,5 +43,22 @@ public class ApiUsageMapper {
                 .map(this::toResponse)
                 .toList();
     }
+    
+    public ApiUsageSummaryResponse toSummaryResponse(ApiUsage apiUsage) {
+        return new ApiUsageSummaryResponse(
+                apiUsage.getApi().getApiId(),
+                apiUsage.getName(),
+                apiUsage.getEndpoint(),
+                apiUsage.getApi().getMethod(),
+                apiUsage.getApiUseReason().getApiUseState().name()
+        );
+    }
+    
+    public List<ApiUsageSummaryResponse> toSummaryListResponse(List<ApiUsage> apiUsages) {
+        return apiUsages.stream()
+                .map(this::toSummaryResponse)
+                .toList();
+    }
 }
+
 
