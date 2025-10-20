@@ -69,4 +69,22 @@ public class Docs {
         Long creatorId = this.creator.getUserId();
         return creatorId.equals(user.getUserId());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof Long) {
+            return this.docsId.equals(o);
+        }
+        if (o instanceof Docs) {
+            Docs docs = (Docs) o;
+            return this.docsId.equals(docs.docsId);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return docsId != null ? docsId.hashCode() : 0;
+    }
 }

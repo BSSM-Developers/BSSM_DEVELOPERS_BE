@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 
+import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,12 +41,19 @@ public class DocsSection {
         this.pages.addAll(page);
     }
 
-
     public static DocsSection of(Docs docs, String title, int order) {
         return DocsSection.builder()
                 .docs(docs)
                 .title(title)
                 .order(order)
                 .build();
+    }
+
+    public boolean isMyDocs(User user) {
+        return this.docs.isMyDocs(user);
+    }
+
+    public boolean isSectionOfDocs(Long docsId) {
+        return this.docs.equals(docsId);
     }
 }

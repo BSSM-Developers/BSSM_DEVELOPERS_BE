@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.mapper;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
+import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
@@ -75,6 +76,15 @@ public class DocsMapper {
         return DocsSection.of(
                 docs,
                 request.docsSectionTitle(),
+                request.order()
+        );
+    }
+
+    public DocsPage toPageEntity(AddDocsPageRequest request, DocsSection section) {
+        return DocsPage.of(
+                section,
+                request.docsPageTitle(),
+                request.docsPageDescription(),
                 request.order()
         );
     }
