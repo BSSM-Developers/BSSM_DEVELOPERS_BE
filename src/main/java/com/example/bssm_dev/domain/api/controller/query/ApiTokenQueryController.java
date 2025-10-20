@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiTokenQueryController {
     private final ApiTokenQueryService apiTokenQueryService;
 
+    /**
+     * 사용자의 API Token 목록 조회
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<SecretApiTokenResponse>>> getApiTokenList(
             @CurrentUser User user,

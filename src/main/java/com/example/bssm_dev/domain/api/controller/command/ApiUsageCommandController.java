@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiUsageCommandController {
     private final ApiUsageCommandService apiUsageCommandService;
 
+    /**
+     * API Usage Endpoint 변경
+     */
     @PatchMapping("/endpoint")
     public ResponseEntity<ResponseDto<Void>> changeEndpoint(
             @PathVariable Long apiId,
@@ -33,6 +36,9 @@ public class ApiUsageCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * API Usage 이름 변경
+     */
     @PatchMapping("/name")
     public ResponseEntity<ResponseDto<Void>> changeName(
             @PathVariable Long apiId,

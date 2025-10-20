@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 public class ApiTokenCommandController {
     private final ApiTokenCommandService apiTokenCommandService;
 
+    /**
+     * API Token 생성
+     */
     @PostMapping
     public ResponseEntity<ResponseDto<ApiTokenResponse>> createApiToken(
             @CurrentUser User user,
@@ -31,6 +34,9 @@ public class ApiTokenCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * API Token Secret Key 재발급
+     */
     @PatchMapping("/{tokenId}/secret")
     public ResponseEntity<ResponseDto<ApiTokenResponse>> reGenerateSecretKeyOfApiToken(
             @CurrentUser User user,
@@ -41,6 +47,9 @@ public class ApiTokenCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * API Token 이름 변경
+     */
     @PatchMapping("/{tokenId}/name")
     public ResponseEntity<ResponseDto<ApiTokenResponse>> changeApiTokenName(
             @CurrentUser User user,

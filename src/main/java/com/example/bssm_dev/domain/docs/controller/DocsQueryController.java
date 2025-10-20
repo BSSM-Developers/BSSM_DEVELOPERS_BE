@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class DocsQueryController {
     private final DocsQueryService docsQueryService;
 
+    /**
+     * 문서 조회 by 커서 기반 페이지네이션
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getAllDocs(
             @RequestParam(required = false) Long cursor,
@@ -26,6 +29,9 @@ public class DocsQueryController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * 문서 상세 조회
+     */
     @GetMapping("/{docsId}")
     public ResponseEntity<ResponseDto<DocsDetailResponse>> getDocsDetail(@PathVariable Long docsId) {
         DocsDetailResponse response = docsQueryService.getDocsDetail(docsId);

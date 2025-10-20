@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 public class ApiUseReasonCommandController {
     private final ApiUseReasonCommandService apiUseReasonCommandService;
 
+    /**
+     * API 사용 신청 생성
+     */
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> createApiUseReason(
             @Valid @RequestBody CreateApiUseReasonRequest request,
@@ -29,6 +32,9 @@ public class ApiUseReasonCommandController {
     }
 
 
+    /**
+     * 어드민 - API 사용 신청 승인
+     */
     @PatchMapping("/{apiUseReasonId}/approve")
     public ResponseEntity<ResponseDto<Void>> approveApiUseReason(
             @PathVariable Long apiUseReasonId,
@@ -40,6 +46,9 @@ public class ApiUseReasonCommandController {
     }
 
 
+    /**
+     * 어드민 - API 사용 신청 거절
+     */
     @PatchMapping("/{apiUseReasonId}/reject")
     public ResponseEntity<ResponseDto<Void>> rejectApiUseReason(
             @PathVariable Long apiUseReasonId,

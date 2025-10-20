@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiUsageQueryController {
     private final ApiUsageQueryService apiUsageQueryService;
 
+    /**
+     * 사용자의 API Usage 목록 조회
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsageList(
             @CurrentUser User user,

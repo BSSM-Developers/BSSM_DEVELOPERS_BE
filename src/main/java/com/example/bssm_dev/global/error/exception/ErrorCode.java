@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_API_USE_REASON_STATE(400, "API 사용 신청 이유 상태 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: PENDING, APPROVED, REJECTED, ALL)")
     ;
 
+
     private final int statusCode;
     private final String errorMessage;
 }

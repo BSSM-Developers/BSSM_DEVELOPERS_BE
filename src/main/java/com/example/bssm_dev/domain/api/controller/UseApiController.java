@@ -18,6 +18,9 @@ public class UseApiController {
 
     private final UseApiService useApiService;
 
+    /**
+     * 외부 API GET 요청 프록시
+     */
     @GetMapping
     public ResponseEntity<ProxyResponse> useApiByGet(
             HttpServletRequest request,
@@ -30,6 +33,9 @@ public class UseApiController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 외부 API POST 요청 프록시
+     */
     @PostMapping
     public ResponseEntity<ProxyResponse> useApiByPost(
             HttpServletRequest request,
@@ -42,6 +48,9 @@ public class UseApiController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 외부 API PATCH 요청 프록시
+     */
     @PatchMapping
     public ResponseEntity<ProxyResponse> useApiByPatch(
             HttpServletRequest request,
@@ -55,6 +64,9 @@ public class UseApiController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 외부 API PUT 요청 프록시
+     */
     @PutMapping
     public ResponseEntity<ProxyResponse> useApiByPut(
             HttpServletRequest request,
@@ -68,6 +80,9 @@ public class UseApiController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 외부 API DELETE 요청 프록시
+     */
     @DeleteMapping
     public ResponseEntity<ProxyResponse> useApiByDelete(
             HttpServletRequest request,

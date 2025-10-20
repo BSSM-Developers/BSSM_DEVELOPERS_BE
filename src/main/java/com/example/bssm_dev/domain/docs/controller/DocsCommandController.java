@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 public class DocsCommandController {
     private final DocsCommandService docsService;
 
+    /**
+     * 오리지널 Docs 생성
+     */
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> createDocs(
             @Valid @RequestBody CreateDocsRequest request,
@@ -28,6 +31,9 @@ public class DocsCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * Docs 삭제
+     */
     @DeleteMapping("/{docsId}")
     public ResponseEntity<ResponseDto<Void>> deleteDocs(
             @PathVariable Long docsId,

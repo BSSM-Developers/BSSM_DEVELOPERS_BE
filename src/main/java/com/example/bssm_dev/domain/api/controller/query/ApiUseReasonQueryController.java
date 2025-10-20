@@ -21,7 +21,7 @@ public class ApiUseReasonQueryController {
     private final ApiUseReasonQueryService apiUseReasonQueryService;
 
     /**
-     * 사용자 본인의 API Use Reason 목록 조회
+     * 본인의 API Use Reason 목록 조회
      */
     @GetMapping("/me")
     public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getMyApiUseReasonList(
@@ -36,9 +36,6 @@ public class ApiUseReasonQueryController {
     
     /**
      * 어드민 - 모든 API Use Reason 조회 (상태별 필터링)
-     * @param cursor 커서 (이전 페이지의 마지막 ID)
-     * @param size 페이지 크기
-     * @param state 상태 필터 (PENDING, APPROVED, REJECTED, ALL)
      */
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonsByState(
