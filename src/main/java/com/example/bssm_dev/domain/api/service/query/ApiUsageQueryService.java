@@ -1,11 +1,18 @@
 package com.example.bssm_dev.domain.api.service.query;
 
+import com.example.bssm_dev.common.dto.CursorPage;
+import com.example.bssm_dev.domain.api.dto.response.ApiUsageResponse;
+import com.example.bssm_dev.domain.api.mapper.ApiUsageMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
 import com.example.bssm_dev.domain.api.model.type.MethodType;
 import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
 import com.example.bssm_dev.domain.api.exception.EndpointNotFoundException;
+import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
@@ -16,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ApiUsageQueryService {
     private final ApiUsageRepository apiUsageRepository;
+    private final ApiUsageMapper apiUsageMapper;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public ApiUsage findByTokenAndEndpoint(ApiToken apiToken, String endpoint, MethodType methodType) {
@@ -53,4 +61,19 @@ public class ApiUsageQueryService {
         }
         return endpoint;
     }
+    
+    public CursorPage<ApiUsageResponse> getAllApiUsages(User user, Long cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size);
+        
+        Slice<ApiUsage> apiUsageSlice = apiUsageRepository.findAllByUserIdWithCursor(
+                user.getUserId(),
+                cursor,
+                pageable
+        );
+        
+        List<ApiUsageResponse> responses = apiUsageMapper.toListResponse(apiUsageSlice);
+        
+        return new CursorPage<>(responses, apiUsageSlice.hasNext());
+    }
 }
+

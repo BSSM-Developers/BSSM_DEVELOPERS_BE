@@ -7,7 +7,10 @@ import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.model.type.ApiUseState;
 import com.example.bssm_dev.domain.user.model.User;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ApiUseReasonMapper {
@@ -30,4 +33,11 @@ public class ApiUseReasonMapper {
                 ApiUseState.PENDING
         );
     }
+    
+    public List<ApiUseReasonResponse> toListResponse(Slice<ApiUseReason> apiUseReasonSlice) {
+        return apiUseReasonSlice.getContent().stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }
+
