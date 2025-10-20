@@ -33,8 +33,6 @@ public class ApiUseReason {
     @Column(nullable = false)
     private String apiUseReason;
 
-
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApiUseState apiUseState;

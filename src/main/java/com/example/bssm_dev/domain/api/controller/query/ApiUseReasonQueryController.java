@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiUseReasonQueryController {
     private final ApiUseReasonQueryService apiUseReasonQueryService;
 
-    @GetMapping
-    public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonList(
+    /**
+     * 사용자 본인의 API Use Reason 목록 조회
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getMyApiUseReasonList(
             @CurrentUser User user,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
@@ -30,4 +33,22 @@ public class ApiUseReasonQueryController {
         ResponseDto<CursorPage<ApiUseReasonResponse>> responseDto = HttpUtil.success("Successfully retrieved API use reasons", response);
         return ResponseEntity.ok(responseDto);
     }
+    
+    /**
+     * 어드민 - 모든 API Use Reason 조회 (상태별 필터링)
+     * @param cursor 커서 (이전 페이지의 마지막 ID)
+     * @param size 페이지 크기
+     * @param state 상태 필터 (PENDING, APPROVED, REJECTED, ALL)
+     */
+    @GetMapping
+    public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonsByState(
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(required = false) String state
+    ) {
+        CursorPage<ApiUseReasonResponse> response = apiUseReasonQueryService.getApiUseReasonsByState(cursor, size, state);
+        ResponseDto<CursorPage<ApiUseReasonResponse>> responseDto = HttpUtil.success("Successfully retrieved API use reasons", response);
+        return ResponseEntity.ok(responseDto);
+    }
 }
+

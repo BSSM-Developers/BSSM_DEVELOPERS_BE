@@ -5,6 +5,7 @@ import com.example.bssm_dev.domain.api.dto.response.ApiUseReasonResponse;
 import com.example.bssm_dev.domain.api.exception.ApiUseReasonNotFoundException;
 import com.example.bssm_dev.domain.api.mapper.ApiUseReasonMapper;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
+import com.example.bssm_dev.domain.api.model.type.ApiUseState;
 import com.example.bssm_dev.domain.api.repository.ApiUseReasonRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +42,27 @@ public class ApiUseReasonQueryService {
         
         return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
     }
+
+    public CursorPage<ApiUseReasonResponse> getApiUseReasonsByState(Long cursor, Integer size, String stateParam) {
+        Pageable pageable = PageRequest.of(0, size);
+
+        ApiUseState state = ApiUseState.fromString(stateParam);
+        Slice<ApiUseReason> apiUseReasonSlice = fetchApiUseReasonSlice(state, cursor, pageable);
+
+        List<ApiUseReasonResponse> responses = apiUseReasonMapper.toListResponse(apiUseReasonSlice);
+        return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
+    }
+    
+    private Slice<ApiUseReason> fetchApiUseReasonSlice(
+            ApiUseState state,
+            Long cursor, 
+            Pageable pageable
+    ) {
+        return switch (state) {
+            case null -> apiUseReasonRepository.findAllWithCursor(cursor, pageable);
+            case PENDING, APPROVED, REJECTED -> apiUseReasonRepository.findByStateWithCursor(state, cursor, pageable);
+        };
+    }
 }
+
 

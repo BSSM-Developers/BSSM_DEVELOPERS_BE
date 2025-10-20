@@ -29,9 +29,11 @@ public enum ErrorCode {
     UNAUTHORIZED_API_TOKEN_ACCESS(403, "해당 API 토큰에 접근할 권한이 없습니다."),
     UNAUTHORIZED_API_USE_REASON_ACCESS(403, "해당 API 사용 신청에 접근할 권한이 없습니다."),
     API_USAGE_NOT_FOUND(404, "API 사용을 찾을 수 없습니다."),
-    UNAUTHORIZED_API_USAGE_ACCESS(403, "해당 API 사용에 접근할 권한이 없습니다.")
+    UNAUTHORIZED_API_USAGE_ACCESS(403, "해당 API 사용에 접근할 권한이 없습니다."),
+    INVALID_API_USE_REASON_STATE(400, "API 사용 신청 이유 상태 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: PENDING, APPROVED, REJECTED, ALL)")
     ;
 
     private final int statusCode;
     private final String errorMessage;
 }
+
