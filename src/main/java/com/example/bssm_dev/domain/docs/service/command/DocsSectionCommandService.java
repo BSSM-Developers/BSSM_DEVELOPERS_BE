@@ -27,11 +27,11 @@ public class DocsSectionCommandService {
                 .orElseThrow(DocsNotFoundException::raise);
 
         // 본인이 작성한 문서만 섹션 추가 가능
-        if (!docs.isMyDocs(user)) {
-            throw UnauthorizedDocsAccessException.raise();
-        }
+        boolean isMyDocs = !docs.isMyDocs(user);
+        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
 
-        // 섹션 생성 및 저장
+
+        // 빈 섹션 생성 및 저장
         DocsSection section = docsMapper.toSectionEntity(request, docs, user);
         docsSectionRepository.save(section);
     }
