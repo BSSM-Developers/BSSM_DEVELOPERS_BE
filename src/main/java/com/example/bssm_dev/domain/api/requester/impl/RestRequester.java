@@ -33,7 +33,7 @@ public class RestRequester implements Requester {
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(e.getMessage(), e);
-            throw ExternalApiException.raise();
+            throw ExternalApiException.raise(e.getMessage());
         }
     }
 
@@ -43,9 +43,8 @@ public class RestRequester implements Requester {
             var requestSpec = restClient.post()
                     .uri(endpoint);
             
-            if (body != null) {
-                requestSpec = requestSpec.body(body);
-            }
+            if (body != null) requestSpec = requestSpec.body(body);
+
             
             Object response = requestSpec
                     .retrieve()
@@ -54,7 +53,7 @@ public class RestRequester implements Requester {
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(e.getMessage(), e);
-            throw ExternalApiException.raise();
+            throw ExternalApiException.raise(e.getMessage());
         }
     }
 
@@ -64,9 +63,8 @@ public class RestRequester implements Requester {
             var requestSpec = restClient.put()
                     .uri(endpoint);
             
-            if (body != null) {
-                requestSpec = requestSpec.body(body);
-            }
+            if (body != null) requestSpec = requestSpec.body(body);
+
             
             Object response = requestSpec
                     .retrieve()
@@ -75,7 +73,7 @@ public class RestRequester implements Requester {
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(e.getMessage(), e);
-            throw ExternalApiException.raise();
+            throw ExternalApiException.raise(e.getMessage());
         }
     }
 
@@ -85,9 +83,8 @@ public class RestRequester implements Requester {
             var requestSpec = restClient.patch()
                     .uri(endpoint);
             
-            if (body != null) {
-                requestSpec = requestSpec.body(body);
-            }
+            if (body != null) requestSpec = requestSpec.body(body);
+
             
             Object response = requestSpec
                     .retrieve()
@@ -96,7 +93,7 @@ public class RestRequester implements Requester {
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(e.getMessage(), e);
-            throw ExternalApiException.raise();
+            throw ExternalApiException.raise(e.getMessage());
         }
     }
 
@@ -111,7 +108,7 @@ public class RestRequester implements Requester {
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(e.getMessage(), e);
-            throw ExternalApiException.raise();
+            throw ExternalApiException.raise(e.getMessage());
         }
     }
 }

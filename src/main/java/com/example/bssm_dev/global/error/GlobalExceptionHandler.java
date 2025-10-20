@@ -1,6 +1,8 @@
 package com.example.bssm_dev.global.error;
 
 
+import com.example.bssm_dev.domain.api.dto.response.ApiErrorResponse;
+import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.global.error.exception.ErrorCode;
 import com.example.bssm_dev.global.error.exception.GlobalException;
 import com.example.bssm_dev.common.util.HttpUtil;
@@ -22,6 +24,22 @@ public class GlobalExceptionHandler {
         String errorMessage = errorCode.getErrorMessage();
         log.error("stauts code {}, error message : {}", statusCode, errorMessage);
         ErrorResponse errorResponse = HttpUtil.fail(statusCode, errorMessage);
+        return ResponseEntity
+                .status(statusCode)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ApiErrorResponse> externalApiExceptionHanlder(ExternalApiException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        int statusCode = errorCode.getStatusCode();
+        String errorMessage = errorCode.getErrorMessage();
+        String cause = e.getErrorMsg();
+
+        log.error("stauts code {}, error message : {}", statusCode, errorMessage);
+        log.error("cause : {}", cause);
+
+        ApiErrorResponse errorResponse = HttpUtil.fail(statusCode, errorMessage, cause);
         return ResponseEntity
                 .status(statusCode)
                 .body(errorResponse);

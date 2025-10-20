@@ -2,6 +2,7 @@ package com.example.bssm_dev.common.util;
 
 
 import com.example.bssm_dev.common.dto.ResponseDto;
+import com.example.bssm_dev.domain.api.dto.response.ApiErrorResponse;
 import com.example.bssm_dev.global.error.ErrorResponse;
 
 public class HttpUtil {
@@ -16,6 +17,10 @@ public class HttpUtil {
 
     public static ErrorResponse fail(int statusCode, String message) {
         return new ErrorResponse(statusCode, message);
+    }
+
+    public static ApiErrorResponse fail(int statusCode, String message, String cause) {
+        return new ApiErrorResponse(statusCode, message, cause);
     }
 
     private HttpUtil() {}
