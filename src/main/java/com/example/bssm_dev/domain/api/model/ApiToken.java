@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.api.model;
 
+import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.exception.InvalidSecretKeyException;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
@@ -9,6 +10,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -32,6 +39,10 @@ public class ApiToken {
 
     @Column(nullable = false)
     private String secretKey;
+
+    @OneToMany(mappedBy = "apiToken")
+    @BatchSize(size = 30)
+    List<ApiUsage> apiUsageList = new ArrayList<>();
 
     public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID) {
         return ApiToken.builder()
