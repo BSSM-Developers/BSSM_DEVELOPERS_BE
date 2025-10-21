@@ -27,7 +27,7 @@ public class DocsSectionCommandService {
                 .orElseThrow(DocsNotFoundException::raise);
 
         // 본인이 작성한 문서만 섹션 추가 가능
-        boolean isMyDocs = !docs.isMyDocs(user);
+        boolean isMyDocs = docs.isMyDocs(user);
         if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
 
 
