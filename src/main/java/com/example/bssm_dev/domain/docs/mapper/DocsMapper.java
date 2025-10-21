@@ -1,14 +1,9 @@
 package com.example.bssm_dev.domain.docs.mapper;
 
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.docs.dto.request.*;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
-import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -28,7 +23,7 @@ import java.util.Map;
 @Component
 public class DocsMapper {
 
-    public Docs toEntity(CreateOriginalDocsRequest request, User creator) {
+    public Docs toOriginalDocs(CreateOriginalDocsRequest request, User creator) {
         Docs docs = Docs.of(
                 creator,
                 request.docsTitle(),
@@ -301,5 +296,18 @@ public class DocsMapper {
         page.apiPage(apiPage);
 
         return page;
+    }
+
+    public Docs toCustomDocs(CreateCustomDocsRequest request, User creator) {
+        Docs docs = Docs.of(
+                creator,
+                request.docsTitle(),
+                request.docsDescription(),
+                DocsType.CUSTOMIZE,
+                request.domain(),
+                request.repositoryUrl(),
+                request.autoApproval()
+        );
+        return docs;
     }
 }

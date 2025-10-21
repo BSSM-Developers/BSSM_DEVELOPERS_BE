@@ -6,7 +6,8 @@ public record CreateCustomDocsRequest (
         String docsTitle,
         String docsDescription,
         String domain,
-        String repositoryUrl
+        String repositoryUrl,
+        Boolean autoApproval
 ) {
 }
 

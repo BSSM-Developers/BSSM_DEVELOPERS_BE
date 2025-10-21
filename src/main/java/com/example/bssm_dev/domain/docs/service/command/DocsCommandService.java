@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DocsCommandService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;
@@ -29,16 +30,20 @@ public class DocsCommandService {
     private final ApplicationEventPublisher eventPublisher;
     private final ApiDocumentCommandService apiDocumentCommandService;
 
-    @Transactional
+
     public void createOriginalDocs(CreateOriginalDocsRequest request, User creator) {
-        Docs docs = docsMapper.toEntity(request, creator);
+        Docs docs = docsMapper.toOriginalDocs(request, creator);
         Docs savedDocs = docsRepository.save(docs);
 
         List<ApiDocumentData> apiDocuments = docsExtractor.extractApiDocuments(request, savedDocs);
         eventPublisher.publishEvent(new DocsCreatedEvent(apiDocuments));
     }
 
-    @Transactional
+    public void createCustomDocs(CreateCustomDocsRequest request, User user) {
+        Docs docs = docsMapper.toCustomDocs(request, user);
+        docsRepository.save(docs);
+    }
+
     public void deleteDocs(Long docsId, User user) {
         Docs docs = docsRepository.findById(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
@@ -55,9 +60,5 @@ public class DocsCommandService {
         }
         
         docsRepository.delete(docs);
-    }
-
-    public void createCustomDocs(CreateCustomDocsRequest request, User user) {
-
     }
 }
