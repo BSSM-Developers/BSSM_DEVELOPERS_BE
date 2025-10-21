@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
@@ -38,5 +39,23 @@ public class DocsPageCommandService {
         DocsPage page = docsMapper.toPageEntity(request, section);
         docsPageRepository.save(page);
     }
+
+    @Transactional
+    public void addApiPage(Long docsId, Long sectionId, AddApiDocsPageRequest request, User user) {
+        DocsSection section = docsSectionRepository.findById(sectionId)
+                .orElseThrow(DocsSectionNotFoundException::raise);
+
+        boolean isDocsSection = section.isSectionOfDocs(docsId);
+        if (!isDocsSection) throw DocsSectionMismatchException.raise();
+
+        // 본인이 작성한 문서만 페이지 추가 가능
+        boolean isMyDocs = section.isMyDocs(user);
+        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+
+        // API DocsPage 생성 및 저장
+        DocsPage page = docsMapper.toApiPageEntity(request, section, user);
+        docsPageRepository.save(page);
+    }
+
 }
 

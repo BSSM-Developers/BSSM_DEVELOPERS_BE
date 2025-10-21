@@ -4,6 +4,7 @@ import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsPageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -31,5 +32,21 @@ public class DocsPageCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully added docs page");
         return ResponseEntity.ok(responseDto);
     }
+
+    /**
+     * API Docs page 추가
+     **/
+    @PostMapping("/api")
+    public ResponseEntity<ResponseDto<Void>> addApiDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("sectionId") Long sectionId,
+            @Valid @RequestBody AddApiDocsPageRequest request,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.addApiPage(docsId, sectionId, request, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully added api docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }
 

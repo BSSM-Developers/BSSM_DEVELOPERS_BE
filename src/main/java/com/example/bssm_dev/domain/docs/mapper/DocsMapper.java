@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.mapper;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
+import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
@@ -269,5 +270,30 @@ public class DocsMapper {
                 page.type(),
                 enrichedApiDetail
         );
+    }
+
+    public DocsPage toApiPageEntity(AddApiDocsPageRequest request, DocsSection section, User creator) {
+        DocsPage page = DocsPage.of(
+                section,
+                request.docsPageTitle(),
+                request.docsPageDescription(),
+                request.order()
+        );
+
+        Docs docs = section.getDocs();
+        Api api = Api.of(
+                creator,
+                request.endpoint(),
+                request.method(),
+                request.docsPageTitle(),
+                docs.getDomain(),
+                docs.getRepositoryUrl(),
+                docs.getAutoApproval()
+        );
+
+        ApiPage apiPage = ApiPage.of(page, api);
+        page.apiPage(apiPage);
+
+        return page;
     }
 }
