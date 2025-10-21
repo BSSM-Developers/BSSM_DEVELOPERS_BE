@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface DocsRepository extends JpaRepository<Docs, Long>, QuerydslPredicateExecutor<Docs> {
 
-    @EntityGraph(attributePaths={"docs", "user"})
+    @EntityGraph(attributePaths={"user"})
     @Query("SELECT d FROM Docs d WHERE d.docsId < COALESCE(:cursor, 9223372036854775807) ORDER BY d.docsId DESC")
     Slice<Docs> findAllWithCursorOrderByDocsIdDesc(@Param("cursor") Long cursor, Pageable pageable);
 }
