@@ -30,9 +30,12 @@ public class DocsSectionCommandService {
         boolean isMyDocs = docs.isMyDocs(user);
         if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
 
+        // 현재 섹션들의 최대 order 값 조회 후 +1
+        int maxOrder = docsSectionRepository.findMaxOrderByDocsId(parsedDocsId);
+        int newOrder = maxOrder + 1;
 
         // 빈 섹션 생성 및 저장
-        DocsSection section = docsMapper.toSectionEntity(request, docs, user);
+        DocsSection section = docsMapper.toSectionEntity(request, docs, user, newOrder);
         docsSectionRepository.save(section);
     }
 }

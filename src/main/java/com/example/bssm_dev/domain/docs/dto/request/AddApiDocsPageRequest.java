@@ -13,9 +13,6 @@ public record AddApiDocsPageRequest(
 
         String docsPageDescription,
 
-        @Positive(message = "순서는 양수여야 합니다")
-        Long order,
-
         @NotBlank(message = "메서드는 필수입니다")
         String method,
 

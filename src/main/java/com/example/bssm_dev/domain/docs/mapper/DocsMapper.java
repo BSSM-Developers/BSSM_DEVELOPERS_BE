@@ -73,20 +73,20 @@ public class DocsMapper {
         return section;
     }
 
-    public DocsSection toSectionEntity(AddDocsSectionRequest request, Docs docs, User creator) {
+    public DocsSection toSectionEntity(AddDocsSectionRequest request, Docs docs, User creator, int order) {
         return DocsSection.of(
                 docs,
                 request.docsSectionTitle(),
-                request.order()
+                order
         );
     }
 
-    public DocsPage toPageEntity(AddDocsPageRequest request, DocsSection section) {
+    public DocsPage toPageEntity(AddDocsPageRequest request, DocsSection section, Long order) {
         return DocsPage.of(
                 section,
                 request.docsPageTitle(),
                 request.docsPageDescription(),
-                request.order()
+                order
         );
     }
 
@@ -278,12 +278,12 @@ public class DocsMapper {
         );
     }
 
-    public DocsPage toApiPageEntity(AddApiDocsPageRequest request, DocsSection section, User creator) {
+    public DocsPage toApiPageEntity(AddApiDocsPageRequest request, DocsSection section, User creator, Long order) {
         DocsPage page = DocsPage.of(
                 section,
                 request.docsPageTitle(),
                 request.docsPageDescription(),
-                request.order()
+                order
         );
 
         Docs docs = section.getDocs();

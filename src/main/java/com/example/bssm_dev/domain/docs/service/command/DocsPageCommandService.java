@@ -18,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DocsPageCommandService {
     private final DocsPageRepository docsPageRepository;
     private final DocsSectionRepository docsSectionRepository;
     private final DocsMapper docsMapper;
 
-    @Transactional
+
     public void addPage(Long docsId, Long sectionId, AddDocsPageRequest request, User user) {
         DocsSection section = docsSectionRepository.findById(sectionId)
                 .orElseThrow(DocsSectionNotFoundException::raise);
@@ -35,12 +36,15 @@ public class DocsPageCommandService {
         boolean isMyDocs = section.isMyDocs(user);
         if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
 
+        // 현재 페이지들의 최대 order 값 조회 후 +1
+        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
+        Long newOrder = maxOrder + 1;
+
         // DocsPage 생성 및 저장
-        DocsPage page = docsMapper.toPageEntity(request, section);
+        DocsPage page = docsMapper.toPageEntity(request, section, newOrder);
         docsPageRepository.save(page);
     }
 
-    @Transactional
     public void addApiPage(Long docsId, Long sectionId, AddApiDocsPageRequest request, User user) {
         DocsSection section = docsSectionRepository.findById(sectionId)
                 .orElseThrow(DocsSectionNotFoundException::raise);
@@ -52,8 +56,12 @@ public class DocsPageCommandService {
         boolean isMyDocs = section.isMyDocs(user);
         if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
 
+        // 현재 페이지들의 최대 order 값 조회 후 +1
+        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
+        Long newOrder = maxOrder + 1;
+
         // API DocsPage 생성 및 저장
-        DocsPage page = docsMapper.toApiPageEntity(request, section, user);
+        DocsPage page = docsMapper.toApiPageEntity(request, section, user, newOrder);
         docsPageRepository.save(page);
     }
 

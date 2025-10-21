@@ -10,9 +10,6 @@ public record AddDocsPageRequest(
         @NotBlank(message = "페이지 제목은 필수입니다")
         String docsPageTitle,
 
-        String docsPageDescription,
-
-        @Positive(message = "순서는 양수여야 합니다")
-        Long order
+        String docsPageDescription
 ) {
 }
