@@ -6,7 +6,6 @@ import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
@@ -29,17 +28,11 @@ public class DocsPageCommandService {
         DocsSection section = docsSectionRepository.findById(sectionId)
                 .orElseThrow(DocsSectionNotFoundException::raise);
 
-        boolean isDocsSection = section.isSectionOfDocs(docsId);
-        if (!isDocsSection) throw DocsSectionMismatchException.raise();
-
+        checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 페이지 추가 가능
-        boolean isMyDocs = section.isMyDocs(user);
-        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
-
+        checkIfIsMyDocs(user, section);
         // 현재 페이지들의 최대 order 값 조회 후 +1
-        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
-        Long newOrder = maxOrder + 1;
-
+        Long newOrder = getNewOrder(sectionId);
         // DocsPage 생성 및 저장
         DocsPage page = docsMapper.toPageEntity(request, section, newOrder);
         docsPageRepository.save(page);
@@ -49,20 +42,31 @@ public class DocsPageCommandService {
         DocsSection section = docsSectionRepository.findById(sectionId)
                 .orElseThrow(DocsSectionNotFoundException::raise);
 
-        boolean isDocsSection = section.isSectionOfDocs(docsId);
-        if (!isDocsSection) throw DocsSectionMismatchException.raise();
-
+        checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 페이지 추가 가능
-        boolean isMyDocs = section.isMyDocs(user);
-        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
-
+        checkIfIsMyDocs(user, section);
         // 현재 페이지들의 최대 order 값 조회 후 +1
-        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
-        Long newOrder = maxOrder + 1;
-
+        Long newOrder = getNewOrder(sectionId);
         // API DocsPage 생성 및 저장
         DocsPage page = docsMapper.toApiPageEntity(request, section, user, newOrder);
         docsPageRepository.save(page);
+    }
+
+    private Long getNewOrder(Long sectionId) {
+        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
+        Long newOrder = maxOrder + 1;
+        return newOrder;
+    }
+
+
+    private void checkIfIsMyDocs(User user, DocsSection section) {
+        boolean isMyDocs = section.isMyDocs(user);
+        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+    }
+
+    private void checkIfIsSectionOfDocs(Long docsId, DocsSection section) {
+        boolean isDocsSection = section.isSectionOfDocs(docsId);
+        if (!isDocsSection) throw DocsSectionMismatchException.raise();
     }
 
 }
