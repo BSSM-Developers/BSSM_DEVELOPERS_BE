@@ -18,4 +18,8 @@ public interface DocsRepository extends JpaRepository<Docs, Long>, QuerydslPredi
     @EntityGraph(attributePaths={"creator"})
     @Query("SELECT d FROM Docs d WHERE d.docsId < COALESCE(:cursor, 9223372036854775807) ORDER BY d.docsId DESC")
     Slice<Docs> findAllWithCursorOrderByDocsIdDesc(@Param("cursor") Long cursor, Pageable pageable);
+
+    @EntityGraph(attributePaths={"creator"})
+    @Query("SELECT d FROM Docs d WHERE d.creator.userId = :userId AND d.docsId < COALESCE(:cursor, 9223372036854775807) ORDER BY d.docsId DESC")
+    Slice<Docs> findMyDocsWithCursorOrderByDocsIdDesc(@Param("userId") Long userId, @Param("cursor") Long cursor, Pageable pageable);
 }

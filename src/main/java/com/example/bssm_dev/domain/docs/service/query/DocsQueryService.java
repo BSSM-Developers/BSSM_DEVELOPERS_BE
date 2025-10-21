@@ -39,6 +39,17 @@ public class DocsQueryService {
         return new CursorPage<>(docsListResponse, docsSlice.hasNext());
     }
 
+    public CursorPage<DocsListResponse> getMyDocs(Long userId, Long cursor, Integer size) {
+        
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Docs> docsSlice = docsRepository.findMyDocsWithCursorOrderByDocsIdDesc(userId, cursor, pageable);
+        
+        List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
+        
+        return new CursorPage<>(docsListResponse, docsSlice.hasNext());
+    }
+
     public DocsDetailResponse getDocsDetail(Long docsId) {
         Docs docs = docsRepository.findById(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
