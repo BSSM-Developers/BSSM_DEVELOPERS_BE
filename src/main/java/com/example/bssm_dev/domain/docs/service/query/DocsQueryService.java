@@ -7,6 +7,7 @@ import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.Docs;
+import com.example.bssm_dev.domain.docs.model.type.DocsType;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,22 +29,22 @@ public class DocsQueryService {
     private final DocsExtractor docsExtractor;
     private final ApiDocumentQueryService apiDocumentQueryService;
 
-    public CursorPage<DocsListResponse> getAllDocs(Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getAllDocs(DocsType type, Long cursor, Integer size) {
         
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(cursor, pageable);
+        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(type, cursor, pageable);
         
         List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
         
         return new CursorPage<>(docsListResponse, docsSlice.hasNext());
     }
 
-    public CursorPage<DocsListResponse> getMyDocs(Long userId, Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getMyDocs(Long userId, DocsType type, Long cursor, Integer size) {
         
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Docs> docsSlice = docsRepository.findMyDocsWithCursorOrderByDocsIdDesc(userId, cursor, pageable);
+        Slice<Docs> docsSlice = docsRepository.findMyDocsWithCursorOrderByDocsIdDesc(userId, type, cursor, pageable);
         
         List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
         
