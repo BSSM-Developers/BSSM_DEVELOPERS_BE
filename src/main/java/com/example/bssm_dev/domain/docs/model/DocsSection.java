@@ -56,4 +56,8 @@ public class DocsSection {
     public boolean isSectionOfDocs(Long docsId) {
         return this.docs.equals(docsId);
     }
+
+    public void updateOrder(int newOrder) {
+        this.order = newOrder;
+    }
 }

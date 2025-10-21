@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/docs/{docsId}/section")
@@ -21,7 +23,7 @@ public class DocsSectionCommandController {
     **/
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> addDocsSection(
-            @PathVariable("docsId") String docsId,
+            @PathVariable("docsId") Long docsId,
             @Valid @RequestBody AddDocsSectionRequest request,
             @CurrentUser User currentUser
     ) {
@@ -29,4 +31,16 @@ public class DocsSectionCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully added docs section");
         return ResponseEntity.ok(responseDto);
     }
+
+    @PatchMapping("/move")
+    public ResponseEntity<ResponseDto<Void>> moveDocsSection(
+            @PathVariable("docsId") Long docsId,
+            @RequestParam("sortedDocsSectionIds") List<Long> sortedDocsSectionIds,
+            @CurrentUser User currentUser
+    ) {
+        docsSectionCommandService.updateOrders(docsId, sortedDocsSectionIds, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs section orders");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }

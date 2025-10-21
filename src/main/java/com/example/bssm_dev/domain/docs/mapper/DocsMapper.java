@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class DocsMapper {
@@ -309,5 +310,11 @@ public class DocsMapper {
                 request.autoApproval()
         );
         return docs;
+    }
+
+    public Map<Long, DocsSection> toSectionMap(Docs docs) {
+        return docs.getSections().stream()
+                .collect(Collectors.toMap(DocsSection::getDocsSectionId, section -> section));
+
     }
 }

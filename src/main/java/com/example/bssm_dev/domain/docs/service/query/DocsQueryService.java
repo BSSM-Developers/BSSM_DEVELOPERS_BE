@@ -67,4 +67,9 @@ public class DocsQueryService {
 
         return response;
     }
+
+    public Docs findById(Long docsId) {
+        return docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+    }
 }
