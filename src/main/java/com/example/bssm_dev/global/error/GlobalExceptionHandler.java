@@ -8,8 +8,10 @@ import com.example.bssm_dev.global.error.exception.GlobalException;
 import com.example.bssm_dev.common.util.HttpUtil;
 import io.jsonwebtoken.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -42,6 +44,20 @@ public class GlobalExceptionHandler {
         ApiErrorResponse errorResponse = HttpUtil.fail(statusCode, errorMessage, cause);
         return ResponseEntity
                 .status(statusCode)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getAllErrors().stream()
+                .findFirst()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .orElse("입력값이 올바르지 않습니다.");
+        
+        log.error("Validation failed: {}", errorMessage);
+        ErrorResponse errorResponse = HttpUtil.fail(HttpStatus.BAD_REQUEST.value(), errorMessage);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 
