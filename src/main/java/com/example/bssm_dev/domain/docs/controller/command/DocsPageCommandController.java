@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/docs/{docsId}/section/{sectionId}/page")
@@ -45,6 +47,21 @@ public class DocsPageCommandController {
     ) {
         docsPageCommandService.addApiPage(docsId, sectionId, request, currentUser);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully added api docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * Docs Page 순서 정렬
+     **/
+    @PatchMapping("/move")
+    public ResponseEntity<ResponseDto<Void>> moveDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("sectionId") Long sectionId,
+            @RequestParam("sortedDocsPageIds") List<Long> sortedDocsPageIds,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.updateOrders(docsId, sectionId, sortedDocsPageIds, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page orders");
         return ResponseEntity.ok(responseDto);
     }
 

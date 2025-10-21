@@ -317,4 +317,9 @@ public class DocsMapper {
                 .collect(Collectors.toMap(DocsSection::getDocsSectionId, section -> section));
 
     }
+
+    public Map<Long, DocsPage> toDocsPageMap(DocsSection section) {
+        return section.getPages().stream()
+                .collect(Collectors.toMap(DocsPage::getDocsPageId, page -> page));
+    }
 }

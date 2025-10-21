@@ -48,4 +48,8 @@ public class DocsPage {
     public boolean isApiPage() {
         return this.apiPage != null;
     }
+
+    public void updateOrder(long newOrder) {
+        this.order = newOrder;
+    }
 }

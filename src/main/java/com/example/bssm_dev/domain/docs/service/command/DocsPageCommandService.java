@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
+import com.example.bssm_dev.domain.docs.exception.DocsPageMismatchException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -13,6 +14,10 @@ import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +53,26 @@ private final DocsSectionQueryService docsSectionQueryService;
         // API DocsPage 생성 및 저장
         DocsPage page = docsMapper.toApiPageEntity(request, section, user, newOrder);
         docsPageRepository.save(page);
+    }
+
+    public void updateOrders(Long docsId, Long sectionId, List<Long> sortedDocsPageIds, User user) {
+        DocsSection section = docsSectionQueryService.findById(sectionId);
+
+        // 해당 섹션이 이 문서에 속하는지 확인
+        checkIfIsSectionOfDocs(docsId, section);
+        // 본인이 작성한 문서만 페이지 순서 변경 가능
+        checkIfIsMyDocs(user, section);
+
+        // DocsSection에 속한 모든 페이지를 한 번에 조회하여 Map으로 변환
+        Map<Long, DocsPage> pageMap = docsMapper.toDocsPageMap(section);
+
+        // 정렬된 페이지 ID 리스트의 순서대로 order 업데이트
+        for (int i = 0; i < sortedDocsPageIds.size(); i++) {
+            Long pageId = sortedDocsPageIds.get(i);
+            DocsPage page = pageMap.get(pageId);
+
+            page.updateOrder(i);
+        }
     }
 
     private Long getNewOrder(Long sectionId) {
