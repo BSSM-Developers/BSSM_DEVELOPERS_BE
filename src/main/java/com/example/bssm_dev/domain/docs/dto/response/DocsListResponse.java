@@ -4,6 +4,8 @@ public record DocsListResponse(
         Long docsId,
         String title,
         String description,
+        Long writerId,
+        String writer,
         String type,
         String domain,
         String repositoryUrl,

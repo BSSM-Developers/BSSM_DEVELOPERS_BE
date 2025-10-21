@@ -87,4 +87,12 @@ public class Docs {
     public int hashCode() {
         return docsId != null ? docsId.hashCode() : 0;
     }
+
+    public Long getWriterId() {
+        return this.creator.getUserId();
+    }
+
+    public String getWriterName() {
+        return this.creator.getName();
+    }
 }
