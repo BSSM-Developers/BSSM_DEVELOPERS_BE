@@ -43,4 +43,19 @@ public class DocsSectionCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+
+    /**
+     * Docs Section 삭제
+     **/
+    @DeleteMapping("/{sectionId}")
+    public ResponseEntity<ResponseDto<Void>> deleteDocsSection(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("sectionId") Long sectionId,
+            @CurrentUser User currentUser
+    ) {
+        docsSectionCommandService.deleteSection(docsId, sectionId, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs section");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }

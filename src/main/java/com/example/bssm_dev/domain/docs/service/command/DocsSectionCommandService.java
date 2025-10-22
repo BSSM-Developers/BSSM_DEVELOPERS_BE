@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
+import com.example.bssm_dev.domain.docs.exception.DocsSectionNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
@@ -60,5 +61,23 @@ public class DocsSectionCommandService {
             
             section.updateOrder(i + 1);
         }
+    }
+
+
+    @Transactional
+    public void deleteSection(Long docsId, Long sectionId, User user) {
+        DocsSection section = docsSectionRepository.findById(sectionId)
+                .orElseThrow(() -> DocsSectionNotFoundException.raise());
+
+        // 해당 섹션이 이 문서에 속하는지 확인
+        boolean isSectionOfDocs = section.isSectionOfDocs(docsId);
+        if (!isSectionOfDocs) throw DocsSectionMismatchException.raise();
+
+        // 본인이 작성한 문서만 섹션 삭제 가능
+        boolean isMyDocs = section.isMyDocs(user);
+        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+
+        // DocsSection 삭제 (DocsPage, ApiPage, Api 모두 cascade로 자동 삭제)
+        docsSectionRepository.delete(section);
     }
 }
