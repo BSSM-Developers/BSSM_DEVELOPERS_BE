@@ -41,7 +41,8 @@ public class DocsCommandController {
             @CurrentUser User user
     ) {
         docsService.createCustomDocs(request, user);
-        return null;
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully created custom docs");
+        return ResponseEntity.ok(responseDto);
     }
 
     /**

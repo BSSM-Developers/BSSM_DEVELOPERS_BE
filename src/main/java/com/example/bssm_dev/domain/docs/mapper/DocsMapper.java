@@ -309,6 +309,12 @@ public class DocsMapper {
                 request.repositoryUrl(),
                 request.autoApproval()
         );
+        DocsSection rootDocsSection = DocsSection.of(
+                docs,
+                "root",
+                1
+        );
+        docs.addSection(rootDocsSection);
         return docs;
     }
 
