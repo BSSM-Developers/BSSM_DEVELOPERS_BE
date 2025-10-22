@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsPageMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
@@ -89,6 +90,23 @@ public class DocsPageCommandService {
         // DocsPage 삭제 (ApiPage, Api 모두 cascade로 자동 삭제)
         // ApiDocument는 ApiPageListener에서 자동 삭제됨
         docsPageRepository.delete(page);
+    }
+
+
+    public void updatePage(Long docsId, Long pageId, UpdateDocsPageRequest request, User user) {
+        // DocsPage 조회
+        DocsPage page = docsPageRepository.findById(pageId)
+                .orElseThrow(DocsPageNotFoundException::raise);
+
+        DocsSection section = page.getDocsSection();
+
+        // 해당 페이지가 이 섹션에 속하는지 확인
+        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
+        // 본인이 작성한 문서만 페이지 수정 가능
+        DocsValidator.checkIfIsMyDocs(user, section);
+
+        // title과 description 업데이트
+        page.updateTitleAndDescription(request.docsPageTitle(), request.docsPageDescription());
     }
 
     private Long getNewOrder(Long sectionId) {

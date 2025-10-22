@@ -52,4 +52,10 @@ public class DocsPage {
     public void updateOrder(long newOrder) {
         this.order = newOrder;
     }
+
+
+    public void updateTitleAndDescription(String newTitle, String newDescription) {
+        this.title = newTitle;
+        this.description = newDescription;
+    }
 }

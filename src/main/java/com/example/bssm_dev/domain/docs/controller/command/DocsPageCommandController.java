@@ -5,6 +5,7 @@ import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsPageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -77,6 +78,22 @@ public class DocsPageCommandController {
     ) {
         docsPageCommandService.deletePage(docsId, sectionId, pageId, currentUser);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
+
+    /**
+     * Docs Page 수정 (Title, Description)
+     **/
+    @PatchMapping("/{pageId}")
+    public ResponseEntity<ResponseDto<Void>> updateDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("pageId") Long pageId,
+            @Valid @RequestBody UpdateDocsPageRequest request,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.updatePage(docsId, pageId, request, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page");
         return ResponseEntity.ok(responseDto);
     }
 
