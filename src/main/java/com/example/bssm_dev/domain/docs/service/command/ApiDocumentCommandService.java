@@ -20,9 +20,7 @@ public class ApiDocumentCommandService {
         apiDocumentRepository.saveAll(documents);
     }
 
-    public void deleteAll(List<Long> apiIds) {
-        apiDocumentRepository.deleteAll(
-                apiDocumentRepository.findByApiIdIn(apiIds)
-        );
+    public void deleteByApiId(Long apiId) {
+        apiDocumentRepository.deleteByApiId(apiId);
     }
 }

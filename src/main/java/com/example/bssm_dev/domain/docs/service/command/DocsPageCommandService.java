@@ -87,6 +87,7 @@ public class DocsPageCommandService {
         DocsValidator.checkIfIsMyDocs(user, section);
 
         // DocsPage 삭제 (ApiPage, Api 모두 cascade로 자동 삭제)
+        // ApiDocument는 ApiPageListener에서 자동 삭제됨
         docsPageRepository.delete(page);
     }
 

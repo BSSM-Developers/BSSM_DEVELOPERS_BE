@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ApiDocumentRepository extends MongoRepository<ApiDocument, String> {
     List<ApiDocument> findByApiIdIn(List<Long> apiIds);
+
+    void deleteByApiId(Long apiId);
 }

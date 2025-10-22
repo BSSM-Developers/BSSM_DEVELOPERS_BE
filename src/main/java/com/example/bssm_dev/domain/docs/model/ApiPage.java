@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@EntityListeners(com.example.bssm_dev.domain.docs.listener.ApiPageListener.class)
 @NoArgsConstructor
 @Getter
 @Builder

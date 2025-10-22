@@ -58,4 +58,12 @@ public class DocsExtractor {
                 .map(page -> page.getApiPage().getApiID())
                 .toList();
     }
+
+
+    public List<Long> extractApiIds(DocsSection section) {
+        return section.getPages().stream()
+                .filter(DocsPage::isApiPage)
+                .map(page -> page.getApiPage().getApiID())
+                .toList();
+    }
 }
