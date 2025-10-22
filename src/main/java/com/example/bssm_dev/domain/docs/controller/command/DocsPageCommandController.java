@@ -114,5 +114,20 @@ public class DocsPageCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * Target Section에 Docs page 복제
+     **/
+    @PostMapping("/{pageId}/duplicate/{targetDocsSectionId}")
+    public ResponseEntity<ResponseDto<Void>> duplicateDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("pageId") Long pageId,
+            @PathVariable("targetDocsSectionId") Long targetDocsSectionId,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.duplicatePage(docsId, pageId, targetDocsSectionId, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully duplicated docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }
 

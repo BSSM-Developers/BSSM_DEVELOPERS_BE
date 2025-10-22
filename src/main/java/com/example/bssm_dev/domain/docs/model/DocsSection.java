@@ -64,4 +64,8 @@ public class DocsSection {
     public void updateTitle(String newTitle) {
         this.title = newTitle;
     }
+
+    public Long nextOrderValue() {
+        return (long) pages.size() + 1 ;
+    }
 }

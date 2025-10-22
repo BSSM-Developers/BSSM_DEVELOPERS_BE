@@ -37,7 +37,8 @@ public enum ErrorCode {
     INVALID_API_USE_REASON_STATE(400, "API 사용 신청 이유 상태 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: PENDING, APPROVED, REJECTED, ALL)"),
     INVALID_DOCS_TYPE_VALUE(400, "문서 타입 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: CUSTOMIZE, ORIGINAL)"),
     DOCS_PAGE_NOT_API_PAGE(400, "해당 페이지는 API 페이지가 아닙니다."),
-    DOCS_API_DOCUMENT_NOT_FOUND(404, "API 문서(요청, 응답)을 찾을 수 없습니다.");
+    DOCS_API_DOCUMENT_NOT_FOUND(404, "API 문서(요청, 응답)을 찾을 수 없습니다."),
+    DOCS_NOT_CUSTOM_TYPE(400, "해당 문서는 커스텀 타입이 아닙니다.");
 
 
     private final int statusCode;

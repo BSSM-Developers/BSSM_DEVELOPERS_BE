@@ -105,4 +105,8 @@ public class Docs {
     public void turnAutoApproval() {
         this.autoApproval = !this.autoApproval;
     }
+
+    public boolean isCustom() {
+        return DocsType.CUSTOMIZE.equals(this.type);
+    }
 }

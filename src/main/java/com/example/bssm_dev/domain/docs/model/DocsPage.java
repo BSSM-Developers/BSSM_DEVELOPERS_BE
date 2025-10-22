@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.docs.model;
 
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,17 @@ public class DocsPage {
 
     @OneToOne(mappedBy = "docsPage", cascade = CascadeType.ALL, orphanRemoval = true)
     private ApiPage apiPage;
+
+    public static DocsPage duplicate(DocsSection targetSection, DocsPage originalPage,User currentUser) {
+        return DocsPage.builder()
+                .title(originalPage.title + " 복제본")
+                .description(originalPage.description)
+                .docsSection(targetSection)
+                .sourceDocsPage(originalPage)
+                .apiPage(originalPage.apiPage)
+                .order(targetSection.nextOrderValue())
+                .build();
+    }
 
     public void apiPage(ApiPage apiPage) {
         this.apiPage = apiPage;

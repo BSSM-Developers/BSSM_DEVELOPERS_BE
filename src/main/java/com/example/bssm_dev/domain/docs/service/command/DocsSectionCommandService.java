@@ -8,6 +8,14 @@ import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsSectionRepository;
+import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
+import com.example.bssm_dev.domain.docs.repository.ApiPageRepository;
+import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
+import com.example.bssm_dev.domain.docs.model.DocsPage;
+import com.example.bssm_dev.domain.docs.model.ApiPage;
+import com.example.bssm_dev.domain.docs.model.ApiDocument;
+import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -89,5 +97,4 @@ public class DocsSectionCommandService {
         // title 업데이트
         section.updateTitle(request.docsSectionTitle());
     }
-
 }

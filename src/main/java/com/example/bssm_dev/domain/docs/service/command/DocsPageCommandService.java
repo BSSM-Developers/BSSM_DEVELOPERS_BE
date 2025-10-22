@@ -3,20 +3,14 @@ package com.example.bssm_dev.domain.docs.service.command;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.exception.DocsPageMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotApiPageException;
+import com.example.bssm_dev.domain.docs.model.*;
 import com.example.bssm_dev.domain.docs.service.query.ApiDocumentQueryService;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.model.DocsPage;
-import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
-import com.example.bssm_dev.domain.docs.repository.ApiPageRepository;
-import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
 import com.example.bssm_dev.domain.docs.mapper.ApiDocumentMapper;
-import com.example.bssm_dev.domain.docs.model.ApiPage;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateApiPageRequest;
 import com.example.bssm_dev.domain.docs.service.query.DocsSectionQueryService;
@@ -47,8 +41,8 @@ public class DocsPageCommandService {
         DocsValidator.checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 페이지 추가 가능
         DocsValidator.checkIfIsMyDocs(user, section);
-        // 현재 페이지들의 최대 order 값 조회 후 +1
-        Long newOrder = getNewOrder(sectionId);
+        // 현재 페이지들의 최대 order 값 + 1
+        Long newOrder = section.nextOrderValue();
         // DocsPage 생성 및 저장
         DocsPage page = docsMapper.toPageEntity(request, section, newOrder);
         docsPageRepository.save(page);
@@ -60,8 +54,8 @@ public class DocsPageCommandService {
         DocsValidator.checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 페이지 추가 가능
         DocsValidator.checkIfIsMyDocs(user, section);
-        // 현재 페이지들의 최대 order 값 조회 후 +1
-        Long newOrder = getNewOrder(sectionId);
+        // 현재 페이지들의 최대 order 값 + 1
+        Long newOrder = section.nextOrderValue();
         // API DocsPage 생성 및 저장
         DocsPage page = docsMapper.toApiPageEntity(request, section, user, newOrder);
         docsPageRepository.save(page);
@@ -150,18 +144,32 @@ public class DocsPageCommandService {
         updateApiDocuement(request, apiDocument);
     }
 
+    public void duplicatePage(Long docsId, Long pageId, Long targetDocsSectionId, User currentUser) {
+        DocsPage originalPage = docsPageRepository.findById(pageId)
+                .orElseThrow(DocsPageNotFoundException::raise);
+
+        // 해당 페이지가 이 섹션에 속하는지 확인
+        DocsSection section = originalPage.getDocsSection();
+        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
+
+        // Docs가 custom docs인지 검증
+        DocsSection targetDocsSection = docsSectionQueryService.findById(targetDocsSectionId);
+        DocsValidator.checkCustomizeDocs(targetDocsSection.getDocs());
+
+        DocsPage duplicatedDocsPage = DocsPage.duplicate(
+                targetDocsSection,
+                originalPage,
+                currentUser
+        );
+
+        docsPageRepository.save(duplicatedDocsPage);
+    }
+
     private void updateApiDocuement(UpdateApiPageRequest request, ApiDocument apiDocument) {
         ApiDocument.RequestInfo requestInfo = apiDocumentMapper.toRequestInfo(request.request());
         ApiDocument.ResponseInfo responseInfo = apiDocumentMapper.toResponseInfo(request.response());
         apiDocument.updateDocument(requestInfo, responseInfo);
         apiDocumentCommandService.update(apiDocument);
     }
-
-    private Long getNewOrder(Long sectionId) {
-        Long maxOrder = docsPageRepository.findMaxOrderBySectionId(sectionId);
-        Long newOrder = maxOrder + 1;
-        return newOrder;
-    }
-
 }
 

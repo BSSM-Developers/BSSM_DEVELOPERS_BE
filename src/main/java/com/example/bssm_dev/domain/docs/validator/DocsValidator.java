@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.validator;
 
+import com.example.bssm_dev.domain.docs.exception.DocsNotCustomTypeException;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
 import com.example.bssm_dev.domain.docs.model.Docs;
@@ -21,5 +22,10 @@ public class DocsValidator {
     public static void checkIfIsSectionOfDocs(Long docsId, DocsSection section) {
         boolean isSectionOfDocs = section.isSectionOfDocs(docsId);
         if (!isSectionOfDocs) throw DocsSectionMismatchException.raise();
+    }
+
+    public static void checkCustomizeDocs(Docs originalDocs) {
+        boolean isCustomDocs = originalDocs.isCustom();
+        if (!isCustomDocs) throw DocsNotCustomTypeException.raise();
     }
 }

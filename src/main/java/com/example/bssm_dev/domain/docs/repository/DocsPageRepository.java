@@ -9,6 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DocsPageRepository extends JpaRepository<DocsPage, Long>, QuerydslPredicateExecutor<DocsPage> {
-    @Query("SELECT COALESCE(MAX(dp.order), 0) FROM DocsPage dp WHERE dp.docsSection.docsSectionId = :sectionId")
-    Long findMaxOrderBySectionId(@Param("sectionId") Long sectionId);
+
 }
