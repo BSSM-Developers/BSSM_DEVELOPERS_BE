@@ -6,6 +6,7 @@ import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateApiPageRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsPageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -94,6 +95,22 @@ public class DocsPageCommandController {
     ) {
         docsPageCommandService.updatePage(docsId, pageId, request, currentUser);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
+
+    /**
+     * API Docs Page 수정 (Title, Description, API Info, API Document)
+     **/
+    @PatchMapping("/api/{pageId}")
+    public ResponseEntity<ResponseDto<Void>> updateApiDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("pageId") Long pageId,
+            @Valid @RequestBody UpdateApiPageRequest request,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.updateApiPage(docsId, pageId, request, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated api docs page");
         return ResponseEntity.ok(responseDto);
     }
 

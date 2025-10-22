@@ -23,4 +23,8 @@ public class ApiDocumentCommandService {
     public void deleteByApiId(Long apiId) {
         apiDocumentRepository.deleteByApiId(apiId);
     }
+
+    public void update(ApiDocument apiDocument) {
+        apiDocumentRepository.save(apiDocument);
+    }
 }

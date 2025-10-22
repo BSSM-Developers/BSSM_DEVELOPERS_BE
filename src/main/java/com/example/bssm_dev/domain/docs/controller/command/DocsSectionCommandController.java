@@ -74,5 +74,4 @@ public class DocsSectionCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs section title");
         return ResponseEntity.ok(responseDto);
     }
-
 }

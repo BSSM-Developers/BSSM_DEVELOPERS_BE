@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 
+import com.example.bssm_dev.domain.api.model.Api;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,5 +58,9 @@ public class DocsPage {
     public void updateTitleAndDescription(String newTitle, String newDescription) {
         this.title = newTitle;
         this.description = newDescription;
+    }
+
+    public Api getApi() {
+        return this.apiPage.getApi();
     }
 }

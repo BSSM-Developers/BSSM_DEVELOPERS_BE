@@ -5,11 +5,20 @@ import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsPageMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
+import com.example.bssm_dev.domain.docs.exception.DocsPageNotApiPageException;
+import com.example.bssm_dev.domain.docs.service.query.ApiDocumentQueryService;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
+import com.example.bssm_dev.domain.docs.repository.ApiPageRepository;
+import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
+import com.example.bssm_dev.domain.docs.mapper.ApiDocumentMapper;
+import com.example.bssm_dev.domain.docs.model.ApiPage;
+import com.example.bssm_dev.domain.docs.model.ApiDocument;
+import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateApiPageRequest;
 import com.example.bssm_dev.domain.docs.service.query.DocsSectionQueryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +36,9 @@ public class DocsPageCommandService {
     private final DocsPageRepository docsPageRepository;
     private final DocsSectionQueryService docsSectionQueryService;
     private final DocsMapper docsMapper;
+    private final ApiDocumentMapper apiDocumentMapper;
+    private final ApiDocumentQueryService apiDocumentQueryService;
+    private final ApiDocumentCommandService apiDocumentCommandService;
 
 
     public void addPage(Long docsId, Long sectionId, AddDocsPageRequest request, User user) {
@@ -107,6 +119,42 @@ public class DocsPageCommandService {
 
         // title과 description 업데이트
         page.updateTitleAndDescription(request.docsPageTitle(), request.docsPageDescription());
+    }
+
+
+    public void updateApiPage(Long docsId, Long pageId, UpdateApiPageRequest request, User user) {
+        DocsPage page = docsPageRepository.findById(pageId)
+                .orElseThrow(DocsPageNotFoundException::raise);
+
+        DocsSection section = page.getDocsSection();
+
+        // 해당 페이지가 이 섹션에 속하는지 확인
+        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
+        // 본인이 작성한 문서만 페이지 수정 가능
+        DocsValidator.checkIfIsMyDocs(user, section);
+
+        // ApiPage가 아닌 경우 예외 처리
+        boolean isApiPapge = page.isApiPage();
+        if (!isApiPapge) throw DocsPageNotApiPageException.raise();
+
+        // DocsPage 업데이트
+        page.updateTitleAndDescription(request.docsPageTitle(), request.docsPageDescription());
+
+        // Api 업데이트
+        Api api = page.getApi();
+        api.updateApiInfo(request.endpoint(), request.method(), request.name(), request.domain());
+
+        // ApiDocument 업데이트
+        ApiDocument apiDocument = apiDocumentQueryService.findByApiId(api);
+        if (apiDocument == null) return;
+        updateApiDocuement(request, apiDocument);
+    }
+
+    private void updateApiDocuement(UpdateApiPageRequest request, ApiDocument apiDocument) {
+        ApiDocument.RequestInfo requestInfo = apiDocumentMapper.toRequestInfo(request.request());
+        ApiDocument.ResponseInfo responseInfo = apiDocumentMapper.toResponseInfo(request.response());
+        apiDocument.updateDocument(requestInfo, responseInfo);
+        apiDocumentCommandService.update(apiDocument);
     }
 
     private Long getNewOrder(Long sectionId) {
