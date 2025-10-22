@@ -30,6 +30,10 @@ public class DocsPage {
     @Column(name = "`order`")
     private Long order;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="source_page_id")
+    private DocsPage sourceDocsPage;
+
     @OneToOne(mappedBy = "docsPage", cascade = CascadeType.ALL, orphanRemoval = true)
     private ApiPage apiPage;
 
