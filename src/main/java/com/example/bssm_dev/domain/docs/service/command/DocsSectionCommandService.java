@@ -1,15 +1,13 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
-import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionNotFoundException;
-import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
+import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsSectionRepository;
 import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
-import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

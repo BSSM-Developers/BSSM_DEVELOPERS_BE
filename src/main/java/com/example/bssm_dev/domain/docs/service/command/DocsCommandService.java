@@ -8,7 +8,7 @@ import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.event.DocsCreatedEvent;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
-import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
+import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.user.model.User;
 
@@ -49,15 +49,7 @@ public class DocsCommandService {
                 .orElseThrow(DocsNotFoundException::raise);
         
         // 본인이 작성한 문서만 삭제 가능
-        if (!docs.isMyDocs(user)) {
-            throw UnauthorizedDocsAccessException.raise();
-        }
-        
-        // MongoDB의 ApiDocument도 함께 삭제
-        List<Long> apiIds = docsExtractor.extractApiIds(docs);
-        if (!apiIds.isEmpty()) {
-            apiDocumentCommandService.deleteAll(apiIds);
-        }
+        DocsValidator.checkIfIsMyDocs(user, docs);
         
         docsRepository.delete(docs);
     }
