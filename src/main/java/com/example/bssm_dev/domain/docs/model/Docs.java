@@ -95,4 +95,10 @@ public class Docs {
     public String getWriterName() {
         return this.creator.getName();
     }
+
+    public void updateDocs(String title, String description, String domain) {
+        this.title = title;
+        this.description = description;
+        this.domain = domain;
+    }
 }

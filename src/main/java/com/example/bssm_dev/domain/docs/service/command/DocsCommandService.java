@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsRequest;
 import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
@@ -52,5 +53,21 @@ public class DocsCommandService {
         DocsValidator.checkIfIsMyDocs(user, docs);
         
         docsRepository.delete(docs);
+    }
+
+
+    public void updateDocs(Long docsId, UpdateDocsRequest request, User user) {
+        Docs docs = docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+        
+        // 본인이 작성한 문서만 수정 가능
+        DocsValidator.checkIfIsMyDocs(user, docs);
+        
+        // Docs 업데이트
+        docs.updateDocs(
+                request.docsTitle(),
+                request.docsDescription(),
+                request.domain()
+        );
     }
 }

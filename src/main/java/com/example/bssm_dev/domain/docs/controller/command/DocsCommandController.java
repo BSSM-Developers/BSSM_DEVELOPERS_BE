@@ -5,6 +5,7 @@ import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -43,7 +44,6 @@ public class DocsCommandController {
         return null;
     }
 
-
     /**
      * Docs 삭제
      */
@@ -54,6 +54,21 @@ public class DocsCommandController {
     ) {
         docsService.deleteDocs(docsId, user);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs");
+        return ResponseEntity.ok(responseDto);
+    }
+
+
+    /**
+     * Docs 수정 (Title, Description, Domain, AutoApproval)
+     */
+    @PatchMapping("/{docsId}")
+    public ResponseEntity<ResponseDto<Void>> updateDocs(
+            @PathVariable Long docsId,
+            @Valid @RequestBody UpdateDocsRequest request,
+            @CurrentUser User user
+    ) {
+        docsService.updateDocs(docsId, request, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs");
         return ResponseEntity.ok(responseDto);
     }
 }
