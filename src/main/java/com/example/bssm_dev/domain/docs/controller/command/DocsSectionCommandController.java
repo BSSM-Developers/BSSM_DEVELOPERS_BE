@@ -3,6 +3,7 @@ import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsSectionTitleRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsSectionCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -55,6 +56,22 @@ public class DocsSectionCommandController {
     ) {
         docsSectionCommandService.deleteSection(docsId, sectionId, currentUser);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs section");
+        return ResponseEntity.ok(responseDto);
+    }
+
+
+    /**
+     * Docs Section Title 변경
+     **/
+    @PatchMapping("/{sectionId}/title")
+    public ResponseEntity<ResponseDto<Void>> updateDocsSectionTitle(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("sectionId") Long sectionId,
+            @Valid @RequestBody UpdateDocsSectionTitleRequest request,
+            @CurrentUser User currentUser
+    ) {
+        docsSectionCommandService.updateTitle(docsId, sectionId, request, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs section title");
         return ResponseEntity.ok(responseDto);
     }
 

@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.AddDocsSectionRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsSectionTitleRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionNotFoundException;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
@@ -19,12 +20,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DocsSectionCommandService {
     private final DocsSectionRepository docsSectionRepository;
     private final DocsQueryService docsQueryService;
     private final DocsMapper docsMapper;
 
-    @Transactional
+
     public void addSection(Long docsId, AddDocsSectionRequest request, User user) {
         Docs docs = docsQueryService.findById(docsId);
 
@@ -41,7 +43,6 @@ public class DocsSectionCommandService {
         docsSectionRepository.save(section);
     }
 
-    @Transactional
     public void updateOrders(Long docsId, List<Long> sortedDocsSectionIds, User user) {
         Docs docs = docsQueryService.findById(docsId);
 
@@ -61,7 +62,6 @@ public class DocsSectionCommandService {
     }
 
 
-    @Transactional
     public void deleteSection(Long docsId, Long sectionId, User user) {
         DocsSection section = docsSectionRepository.findById(sectionId)
                 .orElseThrow(DocsSectionNotFoundException::raise);
@@ -74,6 +74,20 @@ public class DocsSectionCommandService {
         // DocsSection 삭제 (DocsPage, ApiPage, Api 모두 cascade로 자동 삭제)
         // ApiDocument는 ApiPageListener에서 자동 삭제됨
         docsSectionRepository.delete(section);
+    }
+
+
+    public void updateTitle(Long docsId, Long sectionId, UpdateDocsSectionTitleRequest request, User user) {
+        DocsSection section = docsSectionRepository.findById(sectionId)
+                .orElseThrow(DocsSectionNotFoundException::raise);
+
+        // 해당 섹션이 이 문서에 속하는지 확인
+        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
+        // 본인이 작성한 문서만 섹션 제목 변경 가능
+        DocsValidator.checkIfIsMyDocs(user, section);
+
+        // title 업데이트
+        section.updateTitle(request.docsSectionTitle());
     }
 
 }

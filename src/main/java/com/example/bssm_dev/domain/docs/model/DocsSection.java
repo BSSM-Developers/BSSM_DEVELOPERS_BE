@@ -60,4 +60,8 @@ public class DocsSection {
     public void updateOrder(int newOrder) {
         this.order = newOrder;
     }
+
+    public void updateTitle(String newTitle) {
+        this.title = newTitle;
+    }
 }
