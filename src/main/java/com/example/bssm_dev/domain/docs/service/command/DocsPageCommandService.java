@@ -71,7 +71,7 @@ private final DocsSectionQueryService docsSectionQueryService;
             Long pageId = sortedDocsPageIds.get(i);
             DocsPage page = pageMap.get(pageId);
 
-            page.updateOrder(i);
+            page.updateOrder(i + 1);
         }
     }
 
