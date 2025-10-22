@@ -21,7 +21,7 @@ public class ApiPage {
     @JoinColumn(name = "docs_page_id")
     private DocsPage docsPage;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "api_id", nullable = false)
     private Api api;
 

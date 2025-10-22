@@ -65,5 +65,20 @@ public class DocsPageCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * Docs Page 삭제
+     **/
+    @DeleteMapping("/{pageId}")
+    public ResponseEntity<ResponseDto<Void>> deleteDocsPage(
+            @PathVariable("docsId") Long docsId,
+            @PathVariable("sectionId") Long sectionId,
+            @PathVariable("pageId") Long pageId,
+            @CurrentUser User currentUser
+    ) {
+        docsPageCommandService.deletePage(docsId, sectionId, pageId, currentUser);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs page");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }
 

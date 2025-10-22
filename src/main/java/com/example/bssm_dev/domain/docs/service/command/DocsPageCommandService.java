@@ -4,6 +4,7 @@ import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsSectionMismatchException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageMismatchException;
+import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.UnauthorizedDocsAccessException;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class DocsPageCommandService {
     private final DocsPageRepository docsPageRepository;
-private final DocsSectionQueryService docsSectionQueryService;
+    private final DocsSectionQueryService docsSectionQueryService;
     private final DocsMapper docsMapper;
 
 
@@ -73,6 +74,23 @@ private final DocsSectionQueryService docsSectionQueryService;
 
             page.updateOrder(i + 1);
         }
+    }
+
+    public void deletePage(Long docsId, Long sectionId, Long pageId, User user) {
+        // DocsPage 조회
+        DocsPage page = docsPageRepository.findById(pageId)
+                .orElseThrow(DocsPageNotFoundException::raise);
+
+        DocsSection section = page.getDocsSection();
+
+        // 해당 페이지가 이 섹션에 속하는지 확인
+        checkIfIsSectionOfDocs(docsId, section);
+
+        // 본인이 작성한 문서만 페이지 삭제 가능
+        checkIfIsMyDocs(user, section);
+
+        // DocsPage 삭제 (ApiPage, Api 모두 cascade로 자동 삭제)
+        docsPageRepository.delete(page);
     }
 
     private Long getNewOrder(Long sectionId) {

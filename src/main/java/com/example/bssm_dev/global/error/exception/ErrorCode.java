@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_SIGNUP_STATE(400, "유효하지 않은 회원가입 상태입니다."),
     DOCS_NOT_FOUND(404, "문서를 찾을 수 없습니다."),
     DOCS_SECTION_NOT_FOUND(404, "문서 섹션을 찾을 수 없습니다."),
+    DOCS_PAGE_NOT_FOUND(404, "문서 페이지를 찾을 수 없습니다."),
     DOCS_SECTION_MISMATCH(400, "해당 섹션은 이 문서에 속하지 않습니다."),
     DOCS_PAGE_MISMATCH(400, "해당 페이지는 이 섹션에 속하지 않습니다."),
     UNAUTHORIZED_DOCS_ACCESS(403, "해당 문서에 접근할 권한이 없습니다."),
