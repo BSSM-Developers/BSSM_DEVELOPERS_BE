@@ -112,4 +112,8 @@ public class Docs {
     public boolean isCustom() {
         return DocsType.CUSTOMIZE.equals(this.type);
     }
+
+    public int getSectionsSize() {
+        return  this.sections.size();
+    }
 }

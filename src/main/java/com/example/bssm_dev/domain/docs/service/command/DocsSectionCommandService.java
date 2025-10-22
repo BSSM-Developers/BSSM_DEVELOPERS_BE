@@ -78,7 +78,8 @@ public class DocsSectionCommandService {
         DocsValidator.checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 섹션 삭제 가능
         DocsValidator.checkIfIsMyDocs(user, section);
-
+        // 무조건 Docs는 하나 이상의 섹션을 가져야함.
+        DocsValidator.checkHasAtLeastOneSection(section.getDocs());
         // DocsSection 삭제 (DocsPage, ApiPage, Api 모두 cascade로 자동 삭제)
         // ApiDocument는 ApiPageListener에서 자동 삭제됨
         docsSectionRepository.delete(section);
