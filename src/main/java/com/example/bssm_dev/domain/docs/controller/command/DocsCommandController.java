@@ -71,4 +71,18 @@ public class DocsCommandController {
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs");
         return ResponseEntity.ok(responseDto);
     }
+
+    /**
+     * Docs Auto Approval 토글 변경
+     */
+    @PatchMapping("/{docsId}/auto-approval")
+    public ResponseEntity<ResponseDto<Void>> updateDocsAutoApproval(
+            @PathVariable Long docsId,
+            @CurrentUser User user
+    ) {
+        docsService.updateDocsAutoApproval(docsId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }

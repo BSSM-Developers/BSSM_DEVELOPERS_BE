@@ -101,4 +101,8 @@ public class Docs {
         this.description = description;
         this.domain = domain;
     }
+
+    public void turnAutoApproval() {
+        this.autoApproval = !this.autoApproval;
+    }
 }

@@ -70,4 +70,14 @@ public class DocsCommandService {
                 request.domain()
         );
     }
+
+    public void updateDocsAutoApproval(Long docsId, User user) {
+        Docs docs = docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+
+        // 본인이 작성한 문서만 수정 가능
+        DocsValidator.checkIfIsMyDocs(user, docs);
+
+        docs.turnAutoApproval();
+    }
 }
