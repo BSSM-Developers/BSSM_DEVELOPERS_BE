@@ -9,6 +9,7 @@ import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsSection;
 import com.example.bssm_dev.domain.docs.repository.DocsSectionRepository;
 import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
+import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,9 @@ public class DocsSectionCommandService {
     public void addSection(Long docsId, AddDocsSectionRequest request, User user) {
         Docs docs = docsQueryService.findById(docsId);
 
-
         // 본인이 작성한 문서만 섹션 추가 가능
-        boolean isMyDocs = docs.isMyDocs(user);
-        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+        DocsValidator.checkIfIsMyDocs(user, docs);
+
 
         // 현재 섹션들의 최대 order 값 조회 후 +1
         int maxOrder = docsSectionRepository.findMaxOrderByDocsId(docsId);
@@ -48,8 +48,7 @@ public class DocsSectionCommandService {
         Docs docs = docsQueryService.findById(docsId);
 
         // 본인이 작성한 문서만 섹션 순서 변경 가능
-        boolean isMyDocs = docs.isMyDocs(user);
-        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+        DocsValidator.checkIfIsMyDocs(user, docs);
 
         // Docs에 속한 모든 섹션을 한 번에 조회하여 Map으로 변환
         Map<Long, DocsSection> sectionMap = docsMapper.toSectionMap(docs);
@@ -67,17 +66,15 @@ public class DocsSectionCommandService {
     @Transactional
     public void deleteSection(Long docsId, Long sectionId, User user) {
         DocsSection section = docsSectionRepository.findById(sectionId)
-                .orElseThrow(() -> DocsSectionNotFoundException.raise());
+                .orElseThrow(DocsSectionNotFoundException::raise);
 
         // 해당 섹션이 이 문서에 속하는지 확인
-        boolean isSectionOfDocs = section.isSectionOfDocs(docsId);
-        if (!isSectionOfDocs) throw DocsSectionMismatchException.raise();
-
+        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 섹션 삭제 가능
-        boolean isMyDocs = section.isMyDocs(user);
-        if (!isMyDocs) throw UnauthorizedDocsAccessException.raise();
+        DocsValidator.checkIfIsMyDocs(user, section);
 
         // DocsSection 삭제 (DocsPage, ApiPage, Api 모두 cascade로 자동 삭제)
         docsSectionRepository.delete(section);
     }
+
 }
