@@ -21,4 +21,15 @@ public class WebConfig implements WebMvcConfigurer {
         log.info("[WebConfig] Registering CurrentUserArgumentResolver");
         resolvers.add(currentUserArgumentResolver);
     }
+
+    @Override
+    public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
+        log.info("[WebConfig] Configuring CORS mappings");
+        registry.addMapping("/**")
+                .allowedOriginPatterns("https://bssmdev.com")  // 모든 origin 허용 (개발용)
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
 }
