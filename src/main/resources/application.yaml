@@ -2,6 +2,10 @@ spring:
   application:
     name: bssm_dev
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   jpa:
     hibernate:
       ddl-auto: none

@@ -4,7 +4,7 @@ import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.signup.dto.response.SignupResponse;
 import com.example.bssm_dev.domain.signup.exception.InvalidSignupTokenException;
 import com.example.bssm_dev.domain.signup.exception.SignupRequestNotFoundException;
-import com.example.bssm_dev.domain.signup.mapper.SignupRequestMapper;
+import com.example.bssm_dev.domain.signup.mapper.SignupFormMapper;
 import com.example.bssm_dev.domain.signup.model.SignupForm;
 import com.example.bssm_dev.domain.signup.model.SignupToken;
 import com.example.bssm_dev.domain.signup.model.type.SignUpFormState;
@@ -26,7 +26,7 @@ public class SignupQueryService {
 
     private final SignupRequestRepository signupRequestRepository;
     private final SignupTokenRepository signupTokenRepository;
-    private final SignupRequestMapper signupRequestMapper;
+    private final SignupFormMapper signupRequestMapper;
 
 
     public SignupResponse getMySignup(String signupToken) {

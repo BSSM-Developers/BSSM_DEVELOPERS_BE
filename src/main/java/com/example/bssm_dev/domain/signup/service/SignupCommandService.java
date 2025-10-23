@@ -1,12 +1,11 @@
 package com.example.bssm_dev.domain.signup.service;
 
-import com.example.bssm_dev.domain.auth.exception.SignupRequestAlreadyExistsException;
 import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.signup.dto.request.UpdatePurposeRequest;
 import com.example.bssm_dev.domain.signup.exception.InvalidSignupTokenException;
 import com.example.bssm_dev.domain.signup.exception.SignupRequestNotFoundException;
 import com.example.bssm_dev.domain.signup.exception.UnauthorizedSignupAccessException;
-import com.example.bssm_dev.domain.signup.mapper.SignupRequestMapper;
+import com.example.bssm_dev.domain.signup.mapper.SignupFormMapper;
 import com.example.bssm_dev.domain.signup.model.SignupForm;
 import com.example.bssm_dev.domain.signup.model.SignupToken;
 import com.example.bssm_dev.domain.signup.repository.SignupRequestRepository;
@@ -24,7 +23,7 @@ public class SignupCommandService {
 
     private final SignupRequestRepository signupRequestRepository;
     private final SignupTokenRepository signupTokenRepository;
-    private final SignupRequestMapper signupRequestMapper;
+    private final SignupFormMapper signupRequestMapper;
 
     public String createSignupRequest(SignupRequest signupRequestDto) {
         boolean isSignupRequestExists = signupRequestRepository.existsByEmail(signupRequestDto.email());

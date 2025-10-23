@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
+    /**
+     * Access Token 재발급
+     */
     @PostMapping("/refresh")
     public ResponseEntity<ResponseDto<AccessTokenResponse>> reissue(
             @CookieValue("refresh_token") String refreshToken,
@@ -38,6 +41,9 @@ public class AuthController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<ResponseDto<Void>> logout(
             @CookieValue("refresh_token") String refreshToken

@@ -21,6 +21,9 @@ public class GoogleLoginController {
     private final GoogleLoginService googleLoginService;
     private final ClientProperties clientProperties;
 
+    /**
+     * 구글 로그인(Oauth) URL 조회
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<GoogleLoginUrlResponse>> showGoogleLoginUrl() {
         GoogleLoginUrlResponse url = googleLoginService.getUrl();

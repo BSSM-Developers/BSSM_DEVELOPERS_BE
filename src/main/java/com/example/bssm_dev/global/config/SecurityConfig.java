@@ -1,5 +1,7 @@
 package com.example.bssm_dev.global.config;
 
+import com.example.bssm_dev.global.jwt.CustomAccessDeniedHandler;
+import com.example.bssm_dev.global.jwt.CustomAuthenticationEntryPoint;
 import com.example.bssm_dev.global.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,11 +31,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/signup/me").permitAll()
                         .requestMatchers("/signup/*/purpose").permitAll()
                         .requestMatchers("/signup/**").hasRole("ADMIN")
+                        .requestMatchers("/docs/**").permitAll()
+                        .requestMatchers("/api/proxy/**").permitAll()
+                        .requestMatchers("/api/healthy/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

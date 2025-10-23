@@ -3,6 +3,8 @@ package com.example.bssm_dev.global.jwt;
 import com.example.bssm_dev.domain.auth.exception.ExpiredTokenException;
 import com.example.bssm_dev.domain.auth.exception.InvalidTokenException;
 import com.example.bssm_dev.global.config.properties.JwtProperties;
+import com.example.bssm_dev.global.error.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -27,6 +29,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        boolean shouldSkip = path.startsWith("/api/proxy");
+        System.out.println("[JWT DEBUG] shouldNotFilter - path: " + path + ", shouldSkip: " + shouldSkip);
+        return shouldSkip;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -63,6 +74,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(jwtProperties.getHeader());
+        System.out.println("[JWT DEBUG] Header name: " + jwtProperties.getHeader());
+        System.out.println("[JWT DEBUG] Header value: " + bearerToken);
+        System.out.println("[JWT DEBUG] Expected prefix: '" + jwtProperties.getPrefix() + "'");
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getPrefix())) {
             return bearerToken.substring(jwtProperties.getPrefix().length()).trim();
@@ -76,12 +90,8 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setStatus(statusCode);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
-        String jsonResponse = String.format(
-                "{\"statusCode\": %d, \"message\": \"%s\"}",
-                statusCode, message
-        );
-        
-        response.getWriter().write(jsonResponse);
+
+        ErrorResponse errorResponse = new ErrorResponse(statusCode, message);
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
