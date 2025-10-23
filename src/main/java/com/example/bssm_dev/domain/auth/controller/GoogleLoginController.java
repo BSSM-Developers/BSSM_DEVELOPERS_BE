@@ -9,6 +9,7 @@ import com.example.bssm_dev.common.util.HttpUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,13 +42,13 @@ public class GoogleLoginController {
 
         switch (result) {
             case LoginResult.LoginSuccess(String refreshToken) -> {
-                Cookie cookie = CookieUtil.bake("refresh_token", refreshToken);
-                response.addCookie(cookie);
+                ResponseCookie cookie = CookieUtil.bake("refresh_token", refreshToken);
+                response.addHeader("Set-Cookie", cookie.toString());
                 response.sendRedirect(clientProperties.getLoginSuccessUrl());
             }
             case LoginResult.SignupRequired(String signupToken) -> {
-                Cookie cookie = CookieUtil.bake("signup_token", signupToken);
-                response.addCookie(cookie);
+                ResponseCookie cookie = CookieUtil.bake("signup_token", signupToken);
+                response.addHeader("Set-Cookie", cookie.toString());
                 response.sendRedirect(clientProperties.getSignupSuccessUrl());
             }
         }

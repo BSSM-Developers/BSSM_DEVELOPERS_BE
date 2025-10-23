@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +34,8 @@ public class AuthController {
     ) {
         TokenResponse tokenResponse = authService.reissue(refreshToken);
 
-        Cookie refreshTokenCookie = CookieUtil.bake("refresh_token", refreshToken);
-        httpServletResponse.addCookie(refreshTokenCookie);
+        ResponseCookie refreshTokenCookie = CookieUtil.bake("refresh_token", refreshToken);
+        httpServletResponse.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse.accessToken());
         ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("reissue success", accessTokenResponse);
