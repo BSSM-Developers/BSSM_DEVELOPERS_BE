@@ -56,18 +56,21 @@ public class DocsPageCommandService {
         DocsValidator.checkIfIsMyDocs(user, section);
         // 현재 페이지들의 최대 order 값 + 1
         Long newOrder = section.nextOrderValue();
+
         // API DocsPage 생성 및 저장
         DocsPage page = docsMapper.toApiPageEntity(request, section, user, newOrder);
         docsPageRepository.save(page);
     }
 
-    public void updateOrders(Long docsId, Long sectionId, List<Long> sortedDocsPageIds, User user) {
+    public void updateOrders(Long sectionId, Long targetPageId,List<Long> sortedDocsPageIds, User user) {
         DocsSection section = docsSectionQueryService.findById(sectionId);
 
-        // 해당 섹션이 이 문서에 속하는지 확인
-        DocsValidator.checkIfIsSectionOfDocs(docsId, section);
         // 본인이 작성한 문서만 페이지 순서 변경 가능
         DocsValidator.checkIfIsMyDocs(user, section);
+
+        DocsPage targetDocsPage = docsPageRepository.findById(targetPageId)
+                .orElseThrow();
+        targetDocsPage.updateSection(section);
 
         // DocsSection에 속한 모든 페이지를 한 번에 조회하여 Map으로 변환
         Map<Long, DocsPage> pageMap = docsMapper.toDocsPageMap(section);

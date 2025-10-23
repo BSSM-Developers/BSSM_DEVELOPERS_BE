@@ -79,4 +79,8 @@ public class DocsPage {
     public Api getApi() {
         return this.apiPage.getApi();
     }
+
+    public void updateSection(DocsSection section) {
+        this.docsSection = section;
+    }
 }

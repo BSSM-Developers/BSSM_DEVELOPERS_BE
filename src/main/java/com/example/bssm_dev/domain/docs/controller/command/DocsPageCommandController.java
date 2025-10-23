@@ -53,16 +53,16 @@ public class DocsPageCommandController {
     }
 
     /**
-     * Docs Page 순서 정렬
+     * Docs Page 이동 (section Id로 page를 이동)
      **/
-    @PatchMapping("/move")
+    @PatchMapping("/{pageId}/move")
     public ResponseEntity<ResponseDto<Void>> moveDocsPage(
-            @PathVariable("docsId") Long docsId,
             @PathVariable("sectionId") Long sectionId,
+            @PathVariable("pageId") Long pageId,
             @RequestParam("sortedDocsPageIds") List<Long> sortedDocsPageIds,
             @CurrentUser User currentUser
     ) {
-        docsPageCommandService.updateOrders(docsId, sectionId, sortedDocsPageIds, currentUser);
+        docsPageCommandService.updateOrders(sectionId, pageId, sortedDocsPageIds, currentUser);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page orders");
         return ResponseEntity.ok(responseDto);
     }
