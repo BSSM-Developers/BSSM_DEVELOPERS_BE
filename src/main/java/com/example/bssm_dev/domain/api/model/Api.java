@@ -42,8 +42,10 @@ public class Api {
     private Boolean autoApproval;
 
     @OneToMany(mappedBy = "api", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ApiPage> apiPages = new ArrayList<>();
+    private List<ApiUsage> apiUsage = new ArrayList<>();
+
+    @OneToMany(mappedBy = "api", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApiUseReason> apiUseReason = new ArrayList<>();
 
     public static Api of(User creator, String endpoint, String method, String name, String domain, String repositoryUrl, Boolean autoApproval) {
         return Api.builder()
@@ -55,5 +57,13 @@ public class Api {
                 .repositoryUrl(repositoryUrl)
                 .autoApproval(autoApproval != null ? autoApproval : false)
                 .build();
+    }
+
+
+    public void updateApiInfo(String endpoint, String method, String name, String domain) {
+        this.endpoint = endpoint;
+        this.method = method;
+        this.name = name;
+        this.domain = domain;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.docs.service;
+package com.example.bssm_dev.domain.docs.service.query;
 
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
@@ -7,7 +7,7 @@ import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.Docs;
-import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
+import com.example.bssm_dev.domain.docs.model.type.DocsType;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,22 +19,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DocsQueryService {
     private final DocsRepository docsRepository;
-    private final ApiDocumentRepository apiDocumentRepository;
     private final DocsMapper docsMapper;
     private final DocsExtractor docsExtractor;
+    private final ApiDocumentQueryService apiDocumentQueryService;
 
-    public CursorPage<DocsListResponse> getAllDocs(Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getAllDocs(DocsType type, Long cursor, Integer size) {
         
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(cursor, pageable);
+        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(type, cursor, pageable);
+        
+        List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
+        
+        return new CursorPage<>(docsListResponse, docsSlice.hasNext());
+    }
+
+    public CursorPage<DocsListResponse> getMyDocs(Long userId, DocsType type, Long cursor, Integer size) {
+        
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Docs> docsSlice = docsRepository.findMyDocsWithCursorOrderByDocsIdDesc(userId, type, cursor, pageable);
         
         List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
         
@@ -51,15 +61,15 @@ public class DocsQueryService {
         List<Long> apiIds = docsExtractor.extractApiIds(docs);
         boolean apiIdsEmpty = apiIds.isEmpty();
         if (!apiIdsEmpty) {
-            Map<Long, ApiDocument> apiDocumentMap = findApiDocumentsByApiIds(apiIds);
+            Map<Long, ApiDocument> apiDocumentMap = apiDocumentQueryService.findApiDocumentsByApiIds(apiIds);
             response = docsMapper.enrichWithApiDocuments(response, apiDocumentMap);
         }
 
         return response;
     }
 
-    private Map<Long, ApiDocument> findApiDocumentsByApiIds(List<Long> apiIds) {
-        return apiDocumentRepository.findByApiIdIn(apiIds).stream()
-                .collect(Collectors.toMap(ApiDocument::getApiId, doc -> doc));
+    public Docs findById(Long docsId) {
+        return docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
     }
 }

@@ -1,11 +1,9 @@
 package com.example.bssm_dev.domain.docs.mapper;
 
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.docs.dto.request.*;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -21,11 +19,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class DocsMapper {
 
-    public Docs toEntity(CreateDocsRequest request, User creator) {
+    public Docs toOriginalDocs(CreateOriginalDocsRequest request, User creator) {
         Docs docs = Docs.of(
                 creator,
                 request.docsTitle(),
@@ -70,6 +69,23 @@ public class DocsMapper {
         return section;
     }
 
+    public DocsSection toSectionEntity(AddDocsSectionRequest request, Docs docs, User creator, int order) {
+        return DocsSection.of(
+                docs,
+                request.docsSectionTitle(),
+                order
+        );
+    }
+
+    public DocsPage toPageEntity(AddDocsPageRequest request, DocsSection section, Long order) {
+        return DocsPage.of(
+                section,
+                request.docsPageTitle(),
+                request.docsPageDescription(),
+                order
+        );
+    }
+
     private DocsPage toPageEntity(CreateDocsPageRequest request, DocsSection section, User creator, Long order) {
         DocsPage page = DocsPage.of(
                 section,
@@ -106,6 +122,8 @@ public class DocsMapper {
                 docs.getDocsId(),
                 docs.getTitle(),
                 docs.getDescription(),
+                docs.getWriterId(),
+                docs.getWriterName(),
                 docs.getType().name(),
                 docs.getDomain(),
                 docs.getRepositoryUrl(),
@@ -122,6 +140,8 @@ public class DocsMapper {
                 docs.getDocsId(),
                 docs.getTitle(),
                 docs.getDescription(),
+                docs.getWriterId(),
+                docs.getWriterName(),
                 docs.getType().name(),
                 docs.getDomain(),
                 docs.getRepositoryUrl(),
@@ -192,6 +212,8 @@ public class DocsMapper {
                 response.docsId(),
                 response.title(),
                 response.description(),
+                response.writerId(),
+                response.writer(),
                 response.type(),
                 response.domain(),
                 response.repositoryUrl(),
@@ -250,5 +272,60 @@ public class DocsMapper {
                 page.type(),
                 enrichedApiDetail
         );
+    }
+
+    public DocsPage toApiPageEntity(AddApiDocsPageRequest request, DocsSection section, User creator, Long order) {
+        DocsPage page = DocsPage.of(
+                section,
+                request.docsPageTitle(),
+                request.docsPageDescription(),
+                order
+        );
+
+        Docs docs = section.getDocs();
+        Api api = Api.of(
+                creator,
+                request.endpoint(),
+                request.method(),
+                request.docsPageTitle(),
+                docs.getDomain(),
+                docs.getRepositoryUrl(),
+                docs.getAutoApproval()
+        );
+
+        ApiPage apiPage = ApiPage.of(page, api);
+        page.apiPage(apiPage);
+
+        return page;
+    }
+
+    public Docs toCustomDocs(CreateCustomDocsRequest request, User creator) {
+        Docs docs = Docs.of(
+                creator,
+                request.docsTitle(),
+                request.docsDescription(),
+                DocsType.CUSTOMIZE,
+                request.domain(),
+                request.repositoryUrl(),
+                request.autoApproval()
+        );
+        DocsSection rootDocsSection = DocsSection.of(
+                docs,
+                "root",
+                1
+        );
+        docs.addSection(rootDocsSection);
+        return docs;
+    }
+
+    public Map<Long, DocsSection> toSectionMap(Docs docs) {
+        return docs.getSections().stream()
+                .collect(Collectors.toMap(DocsSection::getDocsSectionId, section -> section));
+
+    }
+
+    public Map<Long, DocsPage> toDocsPageMap(DocsSection section) {
+        return section.getPages().stream()
+                .collect(Collectors.toMap(DocsPage::getDocsPageId, page -> page));
     }
 }

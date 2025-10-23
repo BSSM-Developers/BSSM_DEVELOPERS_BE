@@ -32,6 +32,14 @@ public class JwtFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        boolean shouldSkip = path.startsWith("/api/proxy");
+        System.out.println("[JWT DEBUG] shouldNotFilter - path: " + path + ", shouldSkip: " + shouldSkip);
+        return shouldSkip;
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
 

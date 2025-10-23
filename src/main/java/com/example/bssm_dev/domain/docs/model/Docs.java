@@ -52,6 +52,9 @@ public class Docs {
     public void addSectionList(List<DocsSection> sectionList) {
         this.sections.addAll(sectionList);
     }
+    public void addSection(DocsSection section) {
+        this.sections.add(section);
+    }
 
     public static Docs of(User creator, String title, String description, DocsType type, String domain, String repositoryUrl, Boolean autoApproval) {
         return Docs.builder()
@@ -68,5 +71,49 @@ public class Docs {
     public boolean isMyDocs(User user) {
         Long creatorId = this.creator.getUserId();
         return creatorId.equals(user.getUserId());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof Long) {
+            return this.docsId.equals(o);
+        }
+        if (o instanceof Docs) {
+            Docs docs = (Docs) o;
+            return this.docsId.equals(docs.docsId);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return docsId != null ? docsId.hashCode() : 0;
+    }
+
+    public Long getWriterId() {
+        return this.creator.getUserId();
+    }
+
+    public String getWriterName() {
+        return this.creator.getName();
+    }
+
+    public void updateDocs(String title, String description, String domain) {
+        this.title = title;
+        this.description = description;
+        this.domain = domain;
+    }
+
+    public void turnAutoApproval() {
+        this.autoApproval = !this.autoApproval;
+    }
+
+    public boolean isCustom() {
+        return DocsType.CUSTOMIZE.equals(this.type);
+    }
+
+    public int getSectionsSize() {
+        return  this.sections.size();
     }
 }

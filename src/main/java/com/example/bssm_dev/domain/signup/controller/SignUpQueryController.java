@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class SignUpQueryController {
     private final SignupQueryService signupQueryService;
 
+    /**
+     * 나의 회원가입 신청 조회
+     */
     @GetMapping("/me")
     public ResponseEntity<ResponseDto<SignupResponse>> getMySignup(
             @CookieValue("signup_token") String signupToken
@@ -24,6 +27,9 @@ public class SignUpQueryController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * 회원가입 신청 조회 by 커서 기반 페이지네이션
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<SignupResponse>>> getSignupRequests(
             @RequestParam(required = false) Long cursor,

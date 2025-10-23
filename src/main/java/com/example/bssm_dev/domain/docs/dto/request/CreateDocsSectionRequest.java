@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public record CreateDocsSectionRequest(
         @NotBlank(message = "섹션 제목은 필수입니다")
         String docsSectionTitle,
-        
+
         @NotNull(message = "페이지 목록은 null일 수 없습니다")
         @NotEmpty(message = "최소 하나의 페이지가 필요합니다")
         @Valid

@@ -45,4 +45,32 @@ public class ApiDocumentMapper {
                 responseInfo
         );
     }
+
+
+    public ApiDocument.RequestInfo toRequestInfo(com.example.bssm_dev.domain.docs.dto.request.ApiRequestData requestData) {
+        if (requestData == null) {
+            return null;
+        }
+        return ApiDocument.RequestInfo.builder()
+                .applicationType(requestData.applicationType())
+                .header(requestData.header())
+                .pathParams(requestData.pathParams())
+                .queryParams(requestData.queryParams())
+                .body(requestData.body())
+                .cookie(requestData.cookie())
+                .build();
+    }
+
+    public ApiDocument.ResponseInfo toResponseInfo(com.example.bssm_dev.domain.docs.dto.request.ApiResponseData responseData) {
+        if (responseData == null) {
+            return null;
+        }
+        return ApiDocument.ResponseInfo.builder()
+                .applicationType(responseData.applicationType())
+                .header(responseData.header())
+                .statusCode(responseData.statusCode())
+                .body(responseData.body())
+                .cookie(responseData.cookie())
+                .build();
+    }
 }

@@ -60,4 +60,10 @@ public class ApiDocument {
                 .response(response)
                 .build();
     }
+
+
+    public void updateDocument(RequestInfo request, ResponseInfo response) {
+        this.request = request;
+        this.response = response;
+    }
 }

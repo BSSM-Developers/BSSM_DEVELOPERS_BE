@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 public class SignUpCommandController {
     private final SignupCommandService signupCommandService;
 
+    /**
+     * 회원가입 신청 목적 업데이트
+     */
     @PatchMapping("/{signupRequestId}/purpose")
     public ResponseEntity<ResponseDto<Void>> updatePurpose(
             @PathVariable Long signupRequestId,
@@ -25,6 +28,9 @@ public class SignUpCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * 어드민 - 회원가입 신청 승인
+     */
     @PatchMapping("/{signupRequestId}/approve")
     public ResponseEntity<ResponseDto<Void>> approveSignupRequest(
             @PathVariable Long signupRequestId
@@ -34,6 +40,9 @@ public class SignUpCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * 어드민 - 회원가입 신청 거절
+     */
     @PatchMapping("/{signupRequestId}/reject")
     public ResponseEntity<ResponseDto<Void>> rejectSignupRequest(
             @PathVariable Long signupRequestId

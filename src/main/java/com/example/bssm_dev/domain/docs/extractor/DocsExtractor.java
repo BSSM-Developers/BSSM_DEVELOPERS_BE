@@ -2,7 +2,7 @@ package com.example.bssm_dev.domain.docs.extractor;
 
 import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 public class DocsExtractor {
-    public List<ApiDocumentData> extractApiDocuments(CreateDocsRequest request, Docs savedDocs) {
+    public List<ApiDocumentData> extractApiDocuments(CreateOriginalDocsRequest request, Docs savedDocs) {
         List<ApiDocumentData> result = new ArrayList<>();
 
         boolean isSectionEmpty = request.docsSections() == null || savedDocs.getSections() == null;
@@ -49,9 +49,19 @@ public class DocsExtractor {
         return result;
     }
 
+
+
     public List<Long> extractApiIds(Docs docs) {
         return docs.getSections().stream()
                 .flatMap(section -> section.getPages().stream())
+                .filter(DocsPage::isApiPage)
+                .map(page -> page.getApiPage().getApiID())
+                .toList();
+    }
+
+
+    public List<Long> extractApiIds(DocsSection section) {
+        return section.getPages().stream()
                 .filter(DocsPage::isApiPage)
                 .map(page -> page.getApiPage().getApiID())
                 .toList();
