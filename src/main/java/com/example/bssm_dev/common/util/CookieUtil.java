@@ -1,15 +1,21 @@
 package com.example.bssm_dev.common.util;
 
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 
 public class CookieUtil {
 
-    public static Cookie bake(String k, String v) {
-        Cookie cookie = new Cookie(k, v);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-//        cookie.setSecure(true); // 배포 시에 주석 해제
-        cookie.setMaxAge(7 * 24 * 60 * 60);
+    public static ResponseCookie bake(
+            String k,
+            String v
+    ) {
+        ResponseCookie cookie = ResponseCookie.from(k, v)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("None")
+                .build();
         return cookie;
     }
 
