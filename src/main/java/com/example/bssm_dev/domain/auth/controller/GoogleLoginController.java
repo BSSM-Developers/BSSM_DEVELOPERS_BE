@@ -39,18 +39,40 @@ public class GoogleLoginController {
             HttpServletResponse response
     ) throws IOException {
         LoginResult result = googleLoginService.registerOrLogin(code, state);
-
+        String redirectUrl = "";
         switch (result) {
             case LoginResult.LoginSuccess(String refreshToken) -> {
                 ResponseCookie cookie = CookieUtil.bake("refresh_token", refreshToken);
                 response.addHeader("Set-Cookie", cookie.toString());
-                response.sendRedirect(clientProperties.getLoginSuccessUrl());
+                redirectUrl = clientProperties.getLoginSuccessUrl();
             }
             case LoginResult.SignupRequired(String signupToken) -> {
                 ResponseCookie cookie = CookieUtil.bake("signup_token", signupToken);
                 response.addHeader("Set-Cookie", cookie.toString());
-                response.sendRedirect(clientProperties.getSignupSuccessUrl());
+                redirectUrl = clientProperties.getSignupSuccessUrl();
             }
         }
+        response.setContentType("text/html;charset=UTF-8");
+        String html = """
+        <!doctype html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <meta http-equiv="x-ua-compatible" content="ie=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Redirecting…</title>
+        </head>
+        <body>
+          <noscript>
+            <meta http-equiv="cookie" content="0;url=%s" />
+          </noscript>
+          <script>
+            window.location.replace("%s");
+          </script>
+        </body>
+        </html>
+        """.formatted(redirectUrl, redirectUrl);
+
+        response.getWriter().write(html);
     }
 }
