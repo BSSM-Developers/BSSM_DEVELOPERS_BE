@@ -2,13 +2,13 @@ package com.example.bssm_dev.domain.docs.model.type;
 
 import com.example.bssm_dev.domain.docs.exception.InvalidDocsTypeValueException;
 
-public enum DocsType {
+public enum DocumentType {
     CUSTOMIZE,
     ORIGINAL;
 
-    public static DocsType fromString(String type) {
+    public static DocumentType fromString(String type) {
         try {
-            return type == null ? null : DocsType.valueOf(type.toUpperCase());
+            return type == null ? null : DocumentType.valueOf(type.toUpperCase());
         } catch(IllegalArgumentException e) {
             throw InvalidDocsTypeValueException.raise();
         }

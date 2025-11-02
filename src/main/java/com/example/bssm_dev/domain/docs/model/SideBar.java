@@ -1,6 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +10,6 @@ import java.util.List;
 public class SideBar {
     @Id
     private String id;
-    private DocsType type;
+    private DocumentType type;
     private List<SideBarBlock> sideBarBlocks;
 }
