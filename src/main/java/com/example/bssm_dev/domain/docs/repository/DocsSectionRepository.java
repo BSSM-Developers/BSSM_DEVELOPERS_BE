@@ -1,6 +1,5 @@
 package com.example.bssm_dev.domain.docs.repository;
 
-import com.example.bssm_dev.domain.docs.model.DocsSection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -5,8 +5,6 @@ import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
-import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.type.DocsType;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
