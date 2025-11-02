@@ -1,6 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 
-import jakarta.persistence.Embedded;
+import com.example.bssm_dev.domain.docs.model.type.DocsType;
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +10,6 @@ import java.util.List;
 public class SideBar {
     @Id
     private String id;
-    @Embedded
+    private DocsType type;
     private List<SideBarBlock> sideBarBlocks;
 }
