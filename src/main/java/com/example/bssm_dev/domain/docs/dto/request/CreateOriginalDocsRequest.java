@@ -14,7 +14,6 @@ import java.util.List;
 public record CreateOriginalDocsRequest(
         @NotBlank(message = "문서 제목은 필수입니다")
         String title,
-
         String description,
         String domain,
         String repositoryUrl,
@@ -22,10 +21,10 @@ public record CreateOriginalDocsRequest(
 
         @NotNull(message = "sidebar는 null일 수 없습니다")
         @Valid
-        CreateDocsSideBarRequest sidebar,
+        CreateDocsSideBarRequest sidebarRequest,
 
         @NotNull(message = "docs page는 null일 수 없습니다")
         @Valid
-        List<CreateDocsPageRequest> docsPages
+        List<CreateDocsPageRequest> docsPagesRequest
 ) {
 }

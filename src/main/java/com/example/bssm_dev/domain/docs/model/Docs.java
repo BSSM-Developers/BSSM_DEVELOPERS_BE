@@ -1,8 +1,12 @@
 package com.example.bssm_dev.domain.docs.model;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "docs")
+@Builder
+@Getter
 public class Docs {
     private String id;
     private String title;
@@ -11,4 +15,5 @@ public class Docs {
     private String repositoryUrl;
     private DocumentType type;
     private String domain;
+    private Long writerId;
 }
