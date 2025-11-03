@@ -16,4 +16,8 @@ public class SideBar {
     private String id;
     private List<SideBarBlock> sideBarBlocks;
     private String docsId;
+
+    public void updateSideBarBlocks(List<SideBarBlock> sideBarBlocks) {
+        this.sideBarBlocks = sideBarBlocks;
+    }
 }
