@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
@@ -38,6 +39,19 @@ public class DocsCommandService {
         String docsId = docsRepository.save(docs).getId();
         docsSideBarCommandService.save(CustomDocsInitializer.initSideBar(docsId));
         docsPageCommandService.save(CustomDocsInitializer.initDocsPage(docsId));
+    }
+
+    public void updateDocs(String docsId, UpdateDocsRequest request, User user) {
+        Docs docs = getMyDocs(docsId, user);
+        
+        docs.updateDocs(
+                request.title(),
+                request.description(),
+                request.domain(),
+                request.repositoryUrl()
+        );
+        
+        docsRepository.save(docs);
     }
 
     public void updateDocsAutoApproval(String docsId, User user) {

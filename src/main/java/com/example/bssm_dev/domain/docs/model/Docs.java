@@ -27,4 +27,11 @@ public class Docs {
     public void toggleAutoApproval() {
         this.auto_approval = !this.auto_approval;
     }
+
+    public void updateDocs(String title, String description, String domain, String repositoryUrl) {
+        this.title = title;
+        this.description = description;
+        this.domain = domain;
+        this.repositoryUrl = repositoryUrl;
+    }
 }
