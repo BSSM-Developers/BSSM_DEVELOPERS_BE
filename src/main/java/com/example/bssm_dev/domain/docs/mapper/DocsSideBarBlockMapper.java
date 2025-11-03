@@ -6,6 +6,7 @@ import com.example.bssm_dev.domain.docs.model.SideBarBlock;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DocsSideBarBlockMapper {
@@ -22,6 +23,12 @@ public class DocsSideBarBlockMapper {
                 .mappedId(request.id())
                 .label(request.label())
                 .module(request.module())
+                .childrenItems(
+                        request.childrenItems() == null ? null :
+                        request.childrenItems().stream()
+                                .map(this::toSideBarBlock)
+                                .toList()
+                )
                 .build();
         return sideBarBlock;
     }
