@@ -39,7 +39,8 @@ public enum ErrorCode {
     DOCS_PAGE_NOT_API_PAGE(400, "해당 페이지는 API 페이지가 아닙니다."),
     DOCS_API_DOCUMENT_NOT_FOUND(404, "API 문서(요청, 응답)을 찾을 수 없습니다."),
     DOCS_NOT_CUSTOM_TYPE(400, "해당 문서는 커스텀 타입이 아닙니다."),
-    DOCS_SECTION_REQUIRED(400, "문서에는 최소 1개 이상의 섹션이 필요합니다.");
+    DOCS_SECTION_REQUIRED(400, "문서에는 최소 1개 이상의 섹션이 필요합니다."),
+    DOCS_SIDEBAR_NOT_FOUND(404, "문서 사이드바를 찾을 수 없습니다.");
 
 
     private final int statusCode;

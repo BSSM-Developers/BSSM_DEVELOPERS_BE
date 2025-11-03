@@ -4,6 +4,7 @@ import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
+import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
@@ -48,14 +49,4 @@ public class DocsQueryController {
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved my docs", response);
         return ResponseEntity.ok(responseDto);
     }
-//
-//    /**
-//     * 문서 상세 조회
-//     */
-//    @GetMapping("/{docsId}")
-//    public ResponseEntity<ResponseDto<DocsDetailResponse>> getDocsDetail(@PathVariable Long docsId) {
-//        DocsDetailResponse response = docsQueryService.getDocsDetail(docsId);
-//        ResponseDto<DocsDetailResponse> responseDto = HttpUtil.success("Successfully retrieved docs detail", response);
-//        return ResponseEntity.ok(responseDto);
-//    }
 }
