@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.aspectj.weaver.ast.Not;
 
 import java.util.List;
 
@@ -21,10 +19,10 @@ public record CreateOriginalDocsRequest(
 
         @NotNull(message = "sidebar는 null일 수 없습니다")
         @Valid
-        CreateDocsSideBarRequest sidebarRequest,
+        CreateDocsSideBarRequest sidebar,
 
         @NotNull(message = "docs page는 null일 수 없습니다")
         @Valid
-        List<CreateDocsPageRequest> docsPagesRequest
+        List<CreateDocsPageRequest> docsPages
 ) {
 }

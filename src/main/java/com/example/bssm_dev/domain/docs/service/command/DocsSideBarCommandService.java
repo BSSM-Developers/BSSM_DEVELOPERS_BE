@@ -5,8 +5,6 @@ import com.example.bssm_dev.domain.docs.mapper.DocsSideBarMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.SideBar;
 import com.example.bssm_dev.domain.docs.repository.DocsSideBarRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

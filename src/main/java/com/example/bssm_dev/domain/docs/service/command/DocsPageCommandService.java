@@ -5,9 +5,6 @@ import com.example.bssm_dev.domain.docs.mapper.DocsPageMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
-import com.example.bssm_dev.domain.docs.repository.DocsRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

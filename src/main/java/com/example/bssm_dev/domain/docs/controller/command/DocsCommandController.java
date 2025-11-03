@@ -34,15 +34,15 @@ public class DocsCommandController {
     /**
      * 커스텀 Docs 생성 (빈 독스)
      */
-    @PostMapping("/custom")
-    public ResponseEntity<ResponseDto<Void>> createCustomDocs(
-            @RequestBody @Valid CreateCustomDocsRequest request,
-            @CurrentUser User user
-    ) {
-        docsService.createCustomDocs(request, user);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully created custom docs");
-        return ResponseEntity.ok(responseDto);
-    }
+//    @PostMapping("/custom")
+//    public ResponseEntity<ResponseDto<Void>> createCustomDocs(
+//            @RequestBody @Valid CreateCustomDocsRequest request,
+//            @CurrentUser User user
+//    ) {
+//        docsService.createCustomDocs(request, user);
+//        ResponseDto<Void> responseDto = HttpUtil.success("Successfully created custom docs");
+//        return ResponseEntity.ok(responseDto);
+//    }
 
 //    /**
 //     * Docs 삭제

@@ -8,11 +8,10 @@ import com.example.bssm_dev.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional("mongoTransactionManager")
+//@Transactional("mongoTransactionManager")
 public class DocsCommandService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;
@@ -24,8 +23,8 @@ public class DocsCommandService {
     public void createOriginalDocs(CreateOriginalDocsRequest request, User creator) {
         Docs docs = docsMapper.toOriginalDocs(request, creator);
         Docs newDocs = docsRepository.save(docs);
-        docsSideBarCommandService.save(request.sidebarRequest(), newDocs);
-        docsPageCommandService.save(request.docsPagesRequest(), newDocs);
+        docsSideBarCommandService.save(request.sidebar(), newDocs);
+        docsPageCommandService.save(request.docsPages(), newDocs);
     }
 
 //    public void createCustomDocs(CreateCustomDocsRequest request, User user) {
