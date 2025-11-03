@@ -24,4 +24,8 @@ public class DocsPageCommandService {
     public void save(DocsPage docsPage) {
         docsPageRepository.save(docsPage);
     }
+
+    public void delete(String docsId) {
+        docsPageRepository.deleteByDocsId(docsId);
+    }
 }

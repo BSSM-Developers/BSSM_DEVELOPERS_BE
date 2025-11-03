@@ -22,4 +22,8 @@ public class DocsSideBarCommandService {
     public void save(SideBar sideBar) {
         docsSideBarRepository.save(sideBar);
     }
+
+    public void delete(String docsId) {
+        docsSideBarRepository.deleteByDocsId(docsId);
+    }
 }

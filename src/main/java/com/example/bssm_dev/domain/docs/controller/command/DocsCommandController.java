@@ -44,18 +44,18 @@ public class DocsCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
-//    /**
-//     * Docs 삭제
-//     */
-//    @DeleteMapping("/{docsId}")
-//    public ResponseEntity<ResponseDto<Void>> deleteDocs(
-//            @PathVariable Long docsId,
-//            @CurrentUser User user
-//    ) {
-//        docsService.deleteDocs(docsId, user);
-//        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs");
-//        return ResponseEntity.ok(responseDto);
-//    }
+    /**
+     * Docs 삭제
+     */
+    @DeleteMapping("/{docsId}")
+    public ResponseEntity<ResponseDto<Void>> deleteDocs(
+            @PathVariable String docsId,
+            @CurrentUser User user
+    ) {
+        docsService.deleteDocs(docsId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs");
+        return ResponseEntity.ok(responseDto);
+    }
 //
 //
 //    /**

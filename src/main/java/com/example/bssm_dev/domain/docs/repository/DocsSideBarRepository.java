@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface DocsSideBarRepository extends MongoRepository<SideBar, String> {
     Optional<SideBar> findByDocsId(String docsId);
+
+    void deleteByDocsId(String docsId);
 }
