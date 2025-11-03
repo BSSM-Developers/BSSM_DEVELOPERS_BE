@@ -41,11 +41,11 @@ public class DocsSideBarCommandService {
 
     public void update(String docsId, UpdateDocsSideBarRequest request, User user) {
         Docs docs = docsRepository.findById(docsId)
-                .orElseThrow(() -> DocsNotFoundException.raise());
+                .orElseThrow(DocsNotFoundException::raise);
         DocsValidator.checkIfIsMyDocs(user, docs);
 
         SideBar sideBar = docsSideBarRepository.findByDocsId(docsId)
-                .orElseThrow(() -> DocsSideBarNotFoundException.raise());
+                .orElseThrow(DocsSideBarNotFoundException::raise);
 
         List<SideBarBlock> updatedBlocks = docsSideBarBlockMapper.toDocsSideBarBlocks(request.blocks());
         sideBar.updateSideBarBlocks(updatedBlocks);

@@ -15,5 +15,9 @@ public class DocsPage {
     private String mappedId;
     private String docsId;
     private List<DocsPageBlock> docsBlocks;
+
+    public void updateDocsBlocks(List<DocsPageBlock> docsBlocks) {
+        this.docsBlocks = docsBlocks;
+    }
 }
 
