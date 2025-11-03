@@ -20,4 +20,8 @@ public class DocsPageCommandService {
         List<DocsPage> docsPages = docsPageMapper.toDocsPages(requests, newDocs);
         docsPageRepository.saveAll(docsPages);
     }
+
+    public void save(DocsPage docsPage) {
+        docsPageRepository.save(docsPage);
+    }
 }

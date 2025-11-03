@@ -1,9 +1,12 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSideBarRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
+import com.example.bssm_dev.domain.docs.model.SideBar;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.user.model.User;
 
@@ -30,8 +33,10 @@ public class DocsCommandService {
 
     public void createCustomDocs(CreateCustomDocsRequest request, User creator) {
         Docs docs = docsMapper.toCustomDocs(request, creator);
-        docsRepository.save(docs);
-        // Custom Docs는 빈 문서로 생성되므로 sidebar와 docsPages를 저장하지 않음
+
+        String docsId = docsRepository.save(docs).getId();
+        docsSideBarCommandService.save(CustomDocsInitializer.initSideBar(docsId));
+        docsPageCommandService.save(CustomDocsInitializer.initDocsPage(docsId));
     }
 //
 //    public void deleteDocs(Long docsId, User user) {

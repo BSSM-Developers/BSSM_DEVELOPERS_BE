@@ -18,4 +18,8 @@ public class DocsSideBarCommandService {
         SideBar sideBar = docsSideBarMapper.toDocsSideBar(request, newDocs);
         docsSideBarRepository.save(sideBar);
     }
+
+    public void save(SideBar sideBar) {
+        docsSideBarRepository.save(sideBar);
+    }
 }
