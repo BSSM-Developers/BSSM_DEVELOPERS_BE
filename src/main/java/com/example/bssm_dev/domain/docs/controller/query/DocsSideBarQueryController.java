@@ -18,6 +18,9 @@ public class DocsSideBarQueryController {
     private final DocsSideBarQueryService docsSIdeBarQueryService;
 
 
+    /**
+     * SideBar 조회 by docsId
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<DocsSideBarResponse>> getSideBar(
             @PathVariable("docsId") String docsId
