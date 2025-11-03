@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.mapper;
 
+import com.example.bssm_dev.common.util.RandomNumberGenerateUtil;
 import com.example.bssm_dev.domain.docs.dto.request.SideBarBlockRequest;
 import com.example.bssm_dev.domain.docs.model.SideBarBlock;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class DocsSideBarBlockMapper {
 
     private SideBarBlock toSideBarBlock(SideBarBlockRequest request) {
         SideBarBlock sideBarBlock = SideBarBlock.builder()
-                .id()
+                .id(RandomNumberGenerateUtil.generate(5))
                 .mappedId(request.id())
                 .label(request.label())
                 .module(request.module())

@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public class DocsPageBlock {
     private String id;
+    private String mappedId;
     private String module;
     private String content;
 }
