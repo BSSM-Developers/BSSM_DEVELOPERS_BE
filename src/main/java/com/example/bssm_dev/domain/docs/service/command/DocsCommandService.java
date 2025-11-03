@@ -1,21 +1,13 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
-import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
-import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
-import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.event.DocsCreatedEvent;
-import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
