@@ -25,6 +25,19 @@ public class DocsMapper {
         return docs;
     }
 
+    public Docs toCustomDocs(CreateCustomDocsRequest request, User creator) {
+        Docs docs = Docs.builder()
+                .title(request.title())
+                .repositoryUrl(request.repositoryUrl())
+                .description(request.description())
+                .domain(request.domain())
+                .type(DocumentType.CUSTOMIZE)
+                .auto_approval(request.autoApproval())
+                .writerId(creator.getUserId())
+                .build();
+        return docs;
+    }
+
     public DocsListResponse toListResponse(Docs docs, String writerName) {
         return new DocsListResponse(
                 docs.getId(),
