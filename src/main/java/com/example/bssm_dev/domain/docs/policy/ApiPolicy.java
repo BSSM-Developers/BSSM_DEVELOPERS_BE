@@ -1,6 +1,5 @@
 package com.example.bssm_dev.domain.docs.policy;
 
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.model.type.PageType;
 
 public class ApiPolicy {

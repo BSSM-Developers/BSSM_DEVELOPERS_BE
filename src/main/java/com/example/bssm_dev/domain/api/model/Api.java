@@ -1,6 +1,5 @@
 package com.example.bssm_dev.domain.api.model;
 
-import com.example.bssm_dev.domain.docs.model.ApiPage;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

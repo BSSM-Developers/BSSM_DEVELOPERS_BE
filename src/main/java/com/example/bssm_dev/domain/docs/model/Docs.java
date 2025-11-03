@@ -1,11 +1,14 @@
 package com.example.bssm_dev.domain.docs.model;
-
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.List;
 
 @Document(collection = "docs")
 public class Docs {
     private String id;
-    private List<DocsBlock> docsBlocks;
+    private String title;
+    private boolean auto_approval;
+    private String description;
+    private String repositoryUrl;
+    private DocumentType type;
+    private String domain;
 }
-

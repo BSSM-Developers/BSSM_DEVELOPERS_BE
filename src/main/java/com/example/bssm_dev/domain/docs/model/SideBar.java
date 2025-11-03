@@ -10,6 +10,7 @@ import java.util.List;
 public class SideBar {
     @Id
     private String id;
+    private String mappedId;
     private DocumentType type;
     private List<SideBarBlock> sideBarBlocks;
 }

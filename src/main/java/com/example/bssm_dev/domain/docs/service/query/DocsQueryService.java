@@ -5,8 +5,7 @@ import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
-import com.example.bssm_dev.domain.docs.repository.DocsRepository;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +26,7 @@ public class DocsQueryService {
     private final DocsExtractor docsExtractor;
     private final ApiDocumentQueryService apiDocumentQueryService;
 
-    public CursorPage<DocsListResponse> getAllDocs(DocsType type, Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getAllDocs(DocumentType type, Long cursor, Integer size) {
         
         Pageable pageable = PageRequest.of(0, size);
 
@@ -38,7 +37,7 @@ public class DocsQueryService {
         return new CursorPage<>(docsListResponse, docsSlice.hasNext());
     }
 
-    public CursorPage<DocsListResponse> getMyDocs(Long userId, DocsType type, Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getMyDocs(Long userId, DocumentType type, Long cursor, Integer size) {
         
         Pageable pageable = PageRequest.of(0, size);
 

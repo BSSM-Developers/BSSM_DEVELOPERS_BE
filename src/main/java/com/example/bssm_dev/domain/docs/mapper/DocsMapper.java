@@ -4,12 +4,7 @@ import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.request.*;
 import com.example.bssm_dev.domain.docs.dto.response.*;
 import com.example.bssm_dev.domain.docs.dto.response.ApiDetailResponse;
-import com.example.bssm_dev.domain.docs.model.ApiPage;
-import com.example.bssm_dev.domain.docs.model.Docs;
-import com.example.bssm_dev.domain.docs.model.DocsPage;
-import com.example.bssm_dev.domain.docs.model.DocsSection;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.model.type.PageType;
 import com.example.bssm_dev.domain.docs.policy.ApiPolicy;
 import com.example.bssm_dev.domain.user.model.User;
@@ -29,7 +24,7 @@ public class DocsMapper {
                 creator,
                 request.docsTitle(),
                 request.docsDescription(),
-                DocsType.ORIGINAL,
+                DocumentType.ORIGINAL,
                 request.domain(),
                 request.repositoryUrl(),
                 request.autoApproval()
@@ -304,7 +299,7 @@ public class DocsMapper {
                 creator,
                 request.docsTitle(),
                 request.docsDescription(),
-                DocsType.CUSTOMIZE,
+                DocumentType.CUSTOMIZE,
                 request.domain(),
                 request.repositoryUrl(),
                 request.autoApproval()

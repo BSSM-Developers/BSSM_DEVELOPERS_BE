@@ -1,7 +1,6 @@
 package com.example.bssm_dev.domain.docs.mapper;
 
 import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

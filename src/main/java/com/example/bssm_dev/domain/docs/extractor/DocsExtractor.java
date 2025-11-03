@@ -1,9 +1,7 @@
 package com.example.bssm_dev.domain.docs.extractor;
 
 import com.example.bssm_dev.domain.docs.dto.ApiDocumentData;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSectionRequest;
 import com.example.bssm_dev.domain.docs.policy.ApiPolicy;
 import org.springframework.stereotype.Component;
 

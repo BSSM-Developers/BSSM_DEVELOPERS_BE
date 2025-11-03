@@ -2,8 +2,6 @@ package com.example.bssm_dev.domain.docs.service.query;
 
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.exception.ApiDocumentNotFoundException;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
-import com.example.bssm_dev.domain.docs.repository.ApiDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
