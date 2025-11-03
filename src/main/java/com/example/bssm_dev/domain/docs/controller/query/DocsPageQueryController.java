@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocsPageQueryController {
     private final DocsPageQueryService docsPageQueryService;
 
+    /**
+     * Docs Page 조회
+     */
     @GetMapping
     public ResponseEntity<ResponseDto<DocsPageResponse>> getDocsPageByDocsId(
             @PathVariable("docsId") String docsId,
