@@ -48,4 +48,10 @@ public class DocsMapper {
                 })
                 .toList();
     }
+
+    public List<DocsListResponse> toDocsListResponse(String writerName,  List<Docs> content) {
+        return content.stream()
+                .map(docs -> this.toListResponse(docs, writerName))
+                .toList();
+    }
 }

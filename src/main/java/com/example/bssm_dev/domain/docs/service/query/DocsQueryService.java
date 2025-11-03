@@ -46,6 +46,20 @@ public class DocsQueryService {
         return new CursorPage<>(responses, hasNext);
     }
 
+    public CursorPage<DocsListResponse> getMyDocs(User currentUser, DocumentType docsType, String cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
+        
+        Slice<Docs> docsSlice = docsRepository.fetchMyDocs(currentUser.getUserId(), docsType, cursor, pageable);
+        List<Docs> docsList = docsSlice.getContent();
+
+        boolean hasNext = docsList.size() > size;
+        List<Docs> content = hasNext ? docsList.subList(0, size) : docsList;
+
+        String writerName = currentUser.getName();
+        List<DocsListResponse> responses = docsMapper.toDocsListResponse(writerName, content);
+        return new CursorPage<>(responses, hasNext);
+    }
+
     private Map<Long, User> getUserMapByWriterids(List<Docs> content) {
         Set<Long> writerIds = content.stream()
                 .map(Docs::getWriterId)

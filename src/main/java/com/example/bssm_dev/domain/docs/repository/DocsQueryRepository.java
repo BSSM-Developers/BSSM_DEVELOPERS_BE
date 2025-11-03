@@ -7,5 +7,7 @@ import org.springframework.data.domain.Slice;
 
 public interface DocsQueryRepository {
     Slice<Docs> fetchDocs(DocumentType docsType, String cursor, Pageable pageable);
+    
+    Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, String cursor, Pageable pageable);
 
 }

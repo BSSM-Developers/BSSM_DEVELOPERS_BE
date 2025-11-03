@@ -47,4 +47,33 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
 
         return new SliceImpl<>(results, pageable, hasNext);
     }
+
+    @Override
+    public Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, String cursor, Pageable pageable) {
+        Query query = new Query();
+
+        // writerId 필터 추가
+        query.addCriteria(Criteria.where("writerId").is(writerId));
+
+        if (docsType != null) {
+            query.addCriteria(Criteria.where("type").is(docsType));
+        }
+
+        if (cursor != null) {
+            // ObjectId 기반 커서
+            query.addCriteria(Criteria.where("_id").lt(new ObjectId(cursor)));
+        }
+
+        query.with(Sort.by(Sort.Direction.DESC, "_id"));
+        query.limit(pageable.getPageSize() + 1);
+
+        List<Docs> results = mongoTemplate.find(query, Docs.class);
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.removeLast();
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
+    }
 }

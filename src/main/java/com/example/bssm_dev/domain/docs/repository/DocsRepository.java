@@ -15,4 +15,12 @@ public interface DocsRepository extends MongoRepository<Docs, String>, DocsQuery
     // type별 문서 조회
     Slice<Docs> findByTypeOrderByIdDesc(DocumentType type, Pageable pageable);
     Slice<Docs> findByTypeAndIdLessThanOrderByIdDesc(DocumentType type, String cursor, Pageable pageable);
+    
+    // writerId별 문서 조회 (내가 작성한 문서)
+    Slice<Docs> findByWriterIdOrderByIdDesc(Long writerId, Pageable pageable);
+    Slice<Docs> findByWriterIdAndIdLessThanOrderByIdDesc(Long writerId, String cursor, Pageable pageable);
+    
+    // writerId + type별 문서 조회
+    Slice<Docs> findByWriterIdAndTypeOrderByIdDesc(Long writerId, DocumentType type, Pageable pageable);
+    Slice<Docs> findByWriterIdAndTypeAndIdLessThanOrderByIdDesc(Long writerId, DocumentType type, String cursor, Pageable pageable);
 }
