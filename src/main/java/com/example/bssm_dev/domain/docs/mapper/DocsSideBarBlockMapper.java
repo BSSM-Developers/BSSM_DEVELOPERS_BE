@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.mapper;
 import com.example.bssm_dev.common.util.RandomNumberGenerateUtil;
 import com.example.bssm_dev.domain.docs.dto.request.SideBarBlockRequest;
 import com.example.bssm_dev.domain.docs.model.SideBarBlock;
+import com.example.bssm_dev.domain.docs.model.type.SideBarModule;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class DocsSideBarBlockMapper {
                 .id(RandomNumberGenerateUtil.generate(5))
                 .mappedId(request.id())
                 .label(request.label())
-                .module(request.module())
+                .module(SideBarModule.fromString(request.module()))
                 .childrenItems(
                         request.childrenItems() == null ? null :
                         request.childrenItems().stream()
