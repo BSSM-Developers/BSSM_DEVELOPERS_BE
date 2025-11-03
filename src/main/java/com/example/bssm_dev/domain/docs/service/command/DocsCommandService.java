@@ -4,7 +4,6 @@ import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
-import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional("mongoTransactionManager")
 public class DocsCommandService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;
