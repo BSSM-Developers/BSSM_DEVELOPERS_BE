@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.user.model.User;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
@@ -18,4 +19,12 @@ public class Docs {
     private DocumentType type;
     private String domain;
     private Long writerId;
+
+    public boolean isMyDocs(User user) {
+        return this.writerId.equals(user.getUserId());
+    }
+
+    public void toggleAutoApproval() {
+        this.auto_approval = !this.auto_approval;
+    }
 }

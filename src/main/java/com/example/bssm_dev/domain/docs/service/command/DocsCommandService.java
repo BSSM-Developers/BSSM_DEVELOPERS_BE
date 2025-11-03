@@ -3,11 +3,13 @@ package com.example.bssm_dev.domain.docs.service.command;
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsSideBarRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.SideBar;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
+import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class DocsCommandService {
 
     public void createOriginalDocs(CreateOriginalDocsRequest request, User creator) {
         Docs docs = docsMapper.toOriginalDocs(request, creator);
+
         Docs newDocs = docsRepository.save(docs);
         docsSideBarCommandService.save(request.sidebar(), newDocs);
         docsPageCommandService.save(request.docsPages(), newDocs);
@@ -37,6 +40,15 @@ public class DocsCommandService {
         String docsId = docsRepository.save(docs).getId();
         docsSideBarCommandService.save(CustomDocsInitializer.initSideBar(docsId));
         docsPageCommandService.save(CustomDocsInitializer.initDocsPage(docsId));
+    }
+
+    public void updateDocsAutoApproval(String docsId, User user) {
+        Docs docs = docsRepository.findById(docsId)
+                        .orElseThrow(DocsNotFoundException::raise);
+
+        DocsValidator.checkIfIsMyDocs(user, docs);
+        docs.toggleAutoApproval();
+        docsRepository.save(docs);
     }
 //
 //    public void deleteDocs(Long docsId, User user) {
