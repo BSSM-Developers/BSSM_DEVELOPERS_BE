@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record UpdateDocsPageRequest(
-        @NotNull(message = "문서 블록 리스트는 필수입니다.")
+public record UpdateDocsSideBarRequest(
+        @NotNull(message = "sidebar blocks는 null일 수 없습니다")
         @Valid
-        List<DocsPageBlockRequest> docsBlocks
+        List<SideBarBlockRequest> blocks
 ) {
 }

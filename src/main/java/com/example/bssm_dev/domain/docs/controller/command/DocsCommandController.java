@@ -50,7 +50,7 @@ public class DocsCommandController {
      */
     @DeleteMapping("/{docsId}")
     public ResponseEntity<ResponseDto<Void>> deleteDocs(
-            @PathVariable Long docsId,
+            @PathVariable String docsId,
             @CurrentUser User user
     ) {
         docsService.deleteDocs(docsId, user);
@@ -58,14 +58,14 @@ public class DocsCommandController {
         return ResponseEntity.ok(responseDto);
     }
 
-
     /**
-     * Docs 수정 (Title, Description, Domain, AutoApproval)
+     * Docs 수정 (Title, Description, Domain, RepositoryUrl)
      */
     @PatchMapping("/{docsId}")
     public ResponseEntity<ResponseDto<Void>> updateDocs(
-            @PathVariable Long docsId,
-            @Valid @RequestBody UpdateDocsRequest request,
+            @PathVariable String docsId,
+            @Valid
+            @RequestBody UpdateDocsRequest request,
             @CurrentUser User user
     ) {
         docsService.updateDocs(docsId, request, user);
@@ -78,7 +78,7 @@ public class DocsCommandController {
      */
     @PatchMapping("/{docsId}/auto-approval")
     public ResponseEntity<ResponseDto<Void>> updateDocsAutoApproval(
-            @PathVariable Long docsId,
+            @PathVariable String docsId,
             @CurrentUser User user
     ) {
         docsService.updateDocsAutoApproval(docsId, user);

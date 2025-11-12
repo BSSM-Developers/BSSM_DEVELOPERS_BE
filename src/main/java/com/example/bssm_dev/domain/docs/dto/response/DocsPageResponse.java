@@ -1,14 +1,12 @@
 package com.example.bssm_dev.domain.docs.dto.response;
 
+import java.util.List;
+
 public record DocsPageResponse(
-        Long docsPageId,
-        String title,
-        String description,
-        Long order,
-        String type,
-        ApiDetailResponse apiDetail
+     String id,
+     String mappedId,
+     String docsId,
+     List<DocsPageBlockResponse> docsBlocks
 ) {
-    public Long apiId() {
-        return this.apiDetail.apiId();
-    }
+
 }

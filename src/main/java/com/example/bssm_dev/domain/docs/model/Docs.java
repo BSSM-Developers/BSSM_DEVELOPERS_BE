@@ -1,119 +1,37 @@
 package com.example.bssm_dev.domain.docs.model;
-
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.user.model.User;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Entity
-@NoArgsConstructor
-@Getter
+@Document(collection = "docs")
 @Builder
-@AllArgsConstructor
+@Getter
 public class Docs {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long docsId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
-    private User creator;
-
-    @Column(nullable = false)
+    private String id;
     private String title;
-
-    @Column(columnDefinition = "TEXT")
+    private boolean auto_approval;
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DocsType type;
-
-    private String domain;
-
     private String repositoryUrl;
-
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean autoApproval;
-
-    @OneToMany(mappedBy = "docs", cascade = CascadeType.ALL, orphanRemoval = true)
-    @BatchSize(size = 100)
-    @OrderBy("order asc")
-    @Builder.Default
-    private List<DocsSection> sections = new ArrayList<>();
-
-    public void addSectionList(List<DocsSection> sectionList) {
-        this.sections.addAll(sectionList);
-    }
-    public void addSection(DocsSection section) {
-        this.sections.add(section);
-    }
-
-    public static Docs of(User creator, String title, String description, DocsType type, String domain, String repositoryUrl, Boolean autoApproval) {
-        return Docs.builder()
-                .creator(creator)
-                .title(title)
-                .description(description)
-                .type(type)
-                .domain(domain)
-                .repositoryUrl(repositoryUrl)
-                .autoApproval(autoApproval != null ? autoApproval : false)
-                .build();
-    }
+    private DocumentType type;
+    private String domain;
+    private Long writerId;
 
     public boolean isMyDocs(User user) {
-        Long creatorId = this.creator.getUserId();
-        return creatorId.equals(user.getUserId());
+        return this.writerId.equals(user.getUserId());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o instanceof Long) {
-            return this.docsId.equals(o);
-        }
-        if (o instanceof Docs) {
-            Docs docs = (Docs) o;
-            return this.docsId.equals(docs.docsId);
-        }
-        return false;
+    public void toggleAutoApproval() {
+        this.auto_approval = !this.auto_approval;
     }
 
-    @Override
-    public int hashCode() {
-        return docsId != null ? docsId.hashCode() : 0;
-    }
-
-    public Long getWriterId() {
-        return this.creator.getUserId();
-    }
-
-    public String getWriterName() {
-        return this.creator.getName();
-    }
-
-    public void updateDocs(String title, String description, String domain) {
+    public void updateDocs(String title, String description, String domain, String repositoryUrl) {
         this.title = title;
         this.description = description;
         this.domain = domain;
-    }
-
-    public void turnAutoApproval() {
-        this.autoApproval = !this.autoApproval;
-    }
-
-    public boolean isCustom() {
-        return DocsType.CUSTOMIZE.equals(this.type);
-    }
-
-    public int getSectionsSize() {
-        return  this.sections.size();
+        this.repositoryUrl = repositoryUrl;
     }
 }

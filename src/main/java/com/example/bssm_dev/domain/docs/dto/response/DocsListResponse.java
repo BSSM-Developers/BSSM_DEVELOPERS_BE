@@ -1,7 +1,7 @@
 package com.example.bssm_dev.domain.docs.dto.response;
 
 public record DocsListResponse(
-        Long docsId,
+        String docsId,
         String title,
         String description,
         Long writerId,

@@ -3,10 +3,7 @@ package com.example.bssm_dev.domain.docs.controller.command;
 import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
-import com.example.bssm_dev.domain.docs.dto.request.AddDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.AddApiDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
-import com.example.bssm_dev.domain.docs.dto.request.UpdateApiPageRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsPageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -14,120 +11,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/docs/{docsId}/section/{sectionId}/page")
+@RequestMapping("/docs/{docsId}/page/{mappedId}")
 public class DocsPageCommandController {
     private final DocsPageCommandService docsPageCommandService;
 
     /**
-     * Docs page 추가
-     **/
-    @PostMapping
-    public ResponseEntity<ResponseDto<Void>> addDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("sectionId") Long sectionId,
-            @Valid @RequestBody AddDocsPageRequest request,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.addPage(docsId, sectionId, request, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully added docs page");
-        return ResponseEntity.ok(responseDto);
-    }
-
-    /**
-     * API Docs page 추가
-     **/
-    @PostMapping("/api")
-    public ResponseEntity<ResponseDto<Void>> addApiDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("sectionId") Long sectionId,
-            @Valid @RequestBody AddApiDocsPageRequest request,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.addApiPage(docsId, sectionId, request, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully added api docs page");
-        return ResponseEntity.ok(responseDto);
-    }
-
-    /**
-     * Docs Page 이동 (section Id로 page를 이동)
-     **/
-    @PatchMapping("/{pageId}/move")
-    public ResponseEntity<ResponseDto<Void>> moveDocsPage(
-            @PathVariable("sectionId") Long sectionId,
-            @PathVariable("pageId") Long pageId,
-            @RequestParam("sortedDocsPageIds") List<Long> sortedDocsPageIds,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.updateOrders(sectionId, pageId, sortedDocsPageIds, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page orders");
-        return ResponseEntity.ok(responseDto);
-    }
-
-    /**
-     * Docs Page 삭제
-     **/
-    @DeleteMapping("/{pageId}")
-    public ResponseEntity<ResponseDto<Void>> deleteDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("sectionId") Long sectionId,
-            @PathVariable("pageId") Long pageId,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.deletePage(docsId, sectionId, pageId, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted docs page");
-        return ResponseEntity.ok(responseDto);
-    }
-
-
-    /**
-     * Docs Page 수정 (Title, Description)
-     **/
-    @PatchMapping("/{pageId}")
+     * DocsPage의 docsBlocks 수정
+     */
+    @PutMapping
     public ResponseEntity<ResponseDto<Void>> updateDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("pageId") Long pageId,
+            @PathVariable String docsId,
+            @PathVariable String mappedId,
             @Valid @RequestBody UpdateDocsPageRequest request,
-            @CurrentUser User currentUser
+            @CurrentUser User user
     ) {
-        docsPageCommandService.updatePage(docsId, pageId, request, currentUser);
+        docsPageCommandService.update(docsId, mappedId, request, user);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated docs page");
         return ResponseEntity.ok(responseDto);
     }
-
-
-    /**
-     * API Docs Page 수정 (Title, Description, API Info, API Document)
-     **/
-    @PatchMapping("/api/{pageId}")
-    public ResponseEntity<ResponseDto<Void>> updateApiDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("pageId") Long pageId,
-            @Valid @RequestBody UpdateApiPageRequest request,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.updateApiPage(docsId, pageId, request, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated api docs page");
-        return ResponseEntity.ok(responseDto);
-    }
-
-    /**
-     * Target Section에 Docs page 복제
-     **/
-    @PostMapping("/{pageId}/duplicate/{targetDocsSectionId}")
-    public ResponseEntity<ResponseDto<Void>> duplicateDocsPage(
-            @PathVariable("docsId") Long docsId,
-            @PathVariable("pageId") Long pageId,
-            @PathVariable("targetDocsSectionId") Long targetDocsSectionId,
-            @CurrentUser User currentUser
-    ) {
-        docsPageCommandService.duplicatePage(docsId, pageId, targetDocsSectionId, currentUser);
-        ResponseDto<Void> responseDto = HttpUtil.success("Successfully duplicated docs page");
-        return ResponseEntity.ok(responseDto);
-    }
-
 }
-

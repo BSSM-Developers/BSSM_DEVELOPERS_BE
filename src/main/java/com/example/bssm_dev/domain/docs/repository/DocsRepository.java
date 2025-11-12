@@ -1,26 +1,26 @@
 package com.example.bssm_dev.domain.docs.repository;
 
 import com.example.bssm_dev.domain.docs.model.Docs;
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
-
-@Repository
-public interface DocsRepository extends JpaRepository<Docs, Long>, QuerydslPredicateExecutor<Docs> {
-
-    @EntityGraph(attributePaths={"creator"})
-    @Query("SELECT d FROM Docs d WHERE (:type IS NULL OR d.type = :type) AND d.docsId < COALESCE(:cursor, 9223372036854775807) ORDER BY d.docsId DESC")
-    Slice<Docs> findAllWithCursorOrderByDocsIdDesc(@Param("type") DocsType type, @Param("cursor") Long cursor, Pageable pageable);
-
-    @EntityGraph(attributePaths={"creator"})
-    @Query("SELECT d FROM Docs d WHERE d.creator.userId = :userId AND (:type IS NULL OR d.type = :type) AND d.docsId < COALESCE(:cursor, 9223372036854775807) ORDER BY d.docsId DESC")
-    Slice<Docs> findMyDocsWithCursorOrderByDocsIdDesc(@Param("userId") Long userId, @Param("type") DocsType type, @Param("cursor") Long cursor, Pageable pageable);
+public interface DocsRepository extends MongoRepository<Docs, String>, DocsQueryRepository{
+    
+    // 모든 문서 조회 (type 필터 없음)
+    Slice<Docs> findAllByOrderByIdDesc(Pageable pageable);
+    Slice<Docs> findByIdLessThanOrderByIdDesc(String cursor, Pageable pageable);
+    
+    // type별 문서 조회
+    Slice<Docs> findByTypeOrderByIdDesc(DocumentType type, Pageable pageable);
+    Slice<Docs> findByTypeAndIdLessThanOrderByIdDesc(DocumentType type, String cursor, Pageable pageable);
+    
+    // writerId별 문서 조회 (내가 작성한 문서)
+    Slice<Docs> findByWriterIdOrderByIdDesc(Long writerId, Pageable pageable);
+    Slice<Docs> findByWriterIdAndIdLessThanOrderByIdDesc(Long writerId, String cursor, Pageable pageable);
+    
+    // writerId + type별 문서 조회
+    Slice<Docs> findByWriterIdAndTypeOrderByIdDesc(Long writerId, DocumentType type, Pageable pageable);
+    Slice<Docs> findByWriterIdAndTypeAndIdLessThanOrderByIdDesc(Long writerId, DocumentType type, String cursor, Pageable pageable);
 }
