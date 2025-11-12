@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record CreateOriginalDocsRequest(
+public record DocsCreateRequest(
         @NotBlank(message = "문서 제목은 필수입니다.")
         String title,
         @NotBlank(message = "문서 설명은 필수입니다.")

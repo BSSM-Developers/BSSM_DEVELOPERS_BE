@@ -12,7 +12,7 @@ import java.util.Map;
 @Component
 public class DocsMapper {
 
-    public Docs toOriginalDocs(CreateOriginalDocsRequest request, User creator) {
+    public Docs toOriginalDocs(DocsCreateRequest request, User creator) {
         Docs docs = Docs.builder()
                 .title(request.title())
                 .repositoryUrl(request.repositoryUrl())
