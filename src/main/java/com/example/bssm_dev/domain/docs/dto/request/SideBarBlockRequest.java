@@ -14,6 +14,7 @@ public record SideBarBlockRequest(
         String label,
         @NotNull(message = "module은 필수 값입니다.")
         String module,
-        List<SideBarBlockRequest> childrenItems
+        List<SideBarBlockRequest> childrenItems,
+        String method // label = api면 method 존재
 ) {
 }
