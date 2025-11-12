@@ -8,16 +8,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
-@RequiredArgsConstructor
 public class InfobipMailSender implements MailSender {
-    private InfobipProperties infobipProperties;
+    private final InfobipProperties infobipProperties;
+    private final RestClient restClient;
 
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl(infobipProperties.getUrl())
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "App " + infobipProperties.getApiKey())
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+    public InfobipMailSender(InfobipProperties infobipProperties) {
+        this.infobipProperties = infobipProperties;
+        this.restClient = RestClient.builder()
+                .baseUrl(infobipProperties.getUrl())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "App " + infobipProperties.getApiKey())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
 
     @Override
     public void send(
