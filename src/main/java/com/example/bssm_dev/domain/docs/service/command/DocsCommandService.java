@@ -7,12 +7,18 @@ import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
+import com.example.bssm_dev.domain.docs.model.DocsPage;
+import com.example.bssm_dev.domain.docs.model.SideBar;
+import com.example.bssm_dev.domain.docs.model.event.DocsCreatedEvent;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +30,19 @@ public class DocsCommandService {
     private final DocsSideBarCommandService docsSideBarCommandService;
     private final DocsPageCommandService docsPageCommandService;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     public void createOriginalDocs(CreateOriginalDocsRequest request, User creator) {
         Docs docs = docsMapper.toOriginalDocs(request, creator);
 
         Docs newDocs = docsRepository.save(docs);
-        docsSideBarCommandService.save(request.sidebar(), newDocs);
-        docsPageCommandService.save(request.docsPages(), newDocs);
+        SideBar newSideBar = docsSideBarCommandService.save(request.sidebar(), newDocs);
+        List<DocsPage> newDocsPages = docsPageCommandService.save(request.docsPages(), newDocs);
+
+        applicationEventPublisher.publishEvent(
+                DocsCreatedEvent.from(newDocs, newSideBar, newDocsPages)
+        );
     }
 
     public void createCustomDocs(CreateCustomDocsRequest request, User creator) {

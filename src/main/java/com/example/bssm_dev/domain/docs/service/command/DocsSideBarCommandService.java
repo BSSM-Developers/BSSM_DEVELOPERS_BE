@@ -26,9 +26,10 @@ public class DocsSideBarCommandService {
     private final DocsSideBarBlockMapper docsSideBarBlockMapper;
     private final DocsRepository docsRepository;
 
-    public void save(CreateDocsSideBarRequest request, Docs newDocs) {
+    public SideBar save(CreateDocsSideBarRequest request, Docs newDocs) {
         SideBar sideBar = docsSideBarMapper.toDocsSideBar(request, newDocs);
-        docsSideBarRepository.save(sideBar);
+        SideBar newSideBar = docsSideBarRepository.save(sideBar);
+        return newSideBar;
     }
 
     public void save(SideBar sideBar) {
