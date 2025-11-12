@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/docs/{docsId}/page/{mappedId}")
+@RequestMapping("/docs/{docsId}/page/{mappedId:.+}")
 public class DocsPageQueryController {
     private final DocsPageQueryService docsPageQueryService;
 

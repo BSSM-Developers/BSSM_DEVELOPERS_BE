@@ -8,6 +8,7 @@ public record CreateDocsPageRequest (
         @NotBlank(message = "문서 페이지 ID는 필수입니다.")
         String id,
         @NotNull(message = "문서 블록 리스트는 필수입니다.")
-        List<DocsPageBlockRequest> blocks
+        List<DocsPageBlockRequest> blocks,
+        String endpoint  // API 페이지인 경우에만 존재
 ) {
 }

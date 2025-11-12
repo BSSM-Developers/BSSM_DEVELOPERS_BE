@@ -24,6 +24,7 @@ public class DocsPageMapper {
                 .docsBlocks(
                         docsPageBlockMapper.toDocsPageBlocks(request.blocks())
                 )
+                .endpoint(request.endpoint())  // API 페이지인 경우에만 값이 있음
                 .build();
         return docsPage;
     }
@@ -38,11 +39,12 @@ public class DocsPageMapper {
         List<DocsPageBlockResponse> blockResponses = docsPage.getDocsBlocks().stream()
                 .map(this::toBlockResponse)
                 .toList();
-        
+
         return new DocsPageResponse(
                 docsPage.getId(),
                 docsPage.getMappedId(),
                 docsPage.getDocsId(),
+                docsPage.getEndpoint(),
                 blockResponses
         );
     }

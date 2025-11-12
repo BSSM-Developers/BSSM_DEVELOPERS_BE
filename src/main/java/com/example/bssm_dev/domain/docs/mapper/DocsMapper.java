@@ -46,7 +46,6 @@ public class DocsMapper {
                 docs.getWriterId(),
                 writerName,
                 docs.getType().name(),
-                docs.getDomain(),
                 docs.getRepositoryUrl(),
                 docs.getAutoApproval()
         );
