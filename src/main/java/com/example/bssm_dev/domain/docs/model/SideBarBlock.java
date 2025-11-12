@@ -14,6 +14,7 @@ public class SideBarBlock {
     private String label;
     private SideBarModule module;
     private List<SideBarBlock> childrenItems;
+    private String method;
 
     public String getModuleName() {
         return this.module.name().toLowerCase();

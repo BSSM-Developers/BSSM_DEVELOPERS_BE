@@ -13,7 +13,7 @@ public class Docs {
     @Id
     private String id;
     private String title;
-    private boolean auto_approval;
+    private Boolean autoApproval;
     private String description;
     private String repositoryUrl;
     private DocumentType type;
@@ -25,7 +25,7 @@ public class Docs {
     }
 
     public void toggleAutoApproval() {
-        this.auto_approval = !this.auto_approval;
+        this.autoApproval = !this.autoApproval;
     }
 
     public void updateDocs(String title, String description, String domain, String repositoryUrl) {

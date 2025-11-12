@@ -19,7 +19,7 @@ public class DocsMapper {
                 .description(request.description())
                 .domain(request.domain())
                 .type(DocumentType.ORIGINAL)
-                .auto_approval(request.autoApproval())
+                .autoApproval(request.autoApproval())
                 .writerId(creator.getUserId())
                 .build();
         return docs;
@@ -32,7 +32,7 @@ public class DocsMapper {
                 .description(request.description())
                 .domain(request.domain())
                 .type(DocumentType.CUSTOMIZE)
-                .auto_approval(request.autoApproval())
+                .autoApproval(request.autoApproval())
                 .writerId(creator.getUserId())
                 .build();
         return docs;
@@ -46,9 +46,8 @@ public class DocsMapper {
                 docs.getWriterId(),
                 writerName,
                 docs.getType().name(),
-                docs.getDomain(),
                 docs.getRepositoryUrl(),
-                docs.isAuto_approval()
+                docs.getAutoApproval()
         );
     }
 

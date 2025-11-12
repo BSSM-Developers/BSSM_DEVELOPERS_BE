@@ -26,9 +26,10 @@ public class DocsPageCommandService {
     private final DocsPageBlockMapper docsPageBlockMapper;
     private final DocsRepository docsRepository;
 
-    public void save(List<CreateDocsPageRequest> requests, Docs newDocs) {
+    public List<DocsPage> save(List<CreateDocsPageRequest> requests, Docs newDocs) {
         List<DocsPage> docsPages = docsPageMapper.toDocsPages(requests, newDocs);
-        docsPageRepository.saveAll(docsPages);
+        List<DocsPage> newDocsPages = docsPageRepository.saveAll(docsPages);
+        return newDocsPages;
     }
 
     public void save(DocsPage docsPage) {

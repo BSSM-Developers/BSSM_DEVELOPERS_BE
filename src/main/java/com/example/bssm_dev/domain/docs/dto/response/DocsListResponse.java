@@ -7,7 +7,6 @@ public record DocsListResponse(
         Long writerId,
         String writer,
         String type,
-        String domain,
         String repositoryUrl,
         Boolean autoApproval
 ) {

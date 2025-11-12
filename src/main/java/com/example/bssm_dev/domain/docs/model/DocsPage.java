@@ -16,6 +16,8 @@ public class DocsPage {
     private String docsId;
     private List<DocsPageBlock> docsBlocks;
 
+    private String endpoint;
+
     public void updateDocsBlocks(List<DocsPageBlock> docsBlocks) {
         this.docsBlocks = docsBlocks;
     }

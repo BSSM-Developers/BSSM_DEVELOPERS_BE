@@ -30,6 +30,11 @@ public class DocsSideBarBlockMapper {
                                 .map(this::toSideBarBlock)
                                 .toList()
                 )
+                .method(
+                        request.method() == null && SideBarModule.isApi(request.module())
+                                ? null
+                                : request.method()
+                )
                 .build();
         return sideBarBlock;
     }
