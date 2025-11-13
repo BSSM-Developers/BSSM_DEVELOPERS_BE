@@ -17,8 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Api {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long apiId;
+    @Column(length = 255)
+    private String apiId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
@@ -46,8 +46,9 @@ public class Api {
     @OneToMany(mappedBy = "api", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApiUseReason> apiUseReason = new ArrayList<>();
 
-    public static Api of(User creator, String endpoint, String method, String name, String domain, String repositoryUrl, Boolean autoApproval) {
+    public static Api of(String apiId, User creator, String endpoint, String method, String name, String domain, String repositoryUrl, Boolean autoApproval) {
         return Api.builder()
+                .apiId(apiId)
                 .creator(creator)
                 .endpoint(endpoint)
                 .method(method)

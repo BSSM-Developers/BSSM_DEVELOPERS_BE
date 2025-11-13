@@ -26,7 +26,7 @@ public class ApiUsageCommandController {
      */
     @PatchMapping("/endpoint")
     public ResponseEntity<ResponseDto<Void>> changeEndpoint(
-            @PathVariable Long apiId,
+            @PathVariable String apiId,
             @PathVariable Long apiTokenId,
             @CurrentUser User user,
             @Valid ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest
@@ -41,7 +41,7 @@ public class ApiUsageCommandController {
      */
     @PatchMapping("/name")
     public ResponseEntity<ResponseDto<Void>> changeName(
-            @PathVariable Long apiId,
+            @PathVariable String apiId,
             @PathVariable Long apiTokenId,
             @CurrentUser User user,
             @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest

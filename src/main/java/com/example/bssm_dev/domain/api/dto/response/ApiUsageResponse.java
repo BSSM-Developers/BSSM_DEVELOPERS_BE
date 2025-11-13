@@ -2,7 +2,7 @@ package com.example.bssm_dev.domain.api.dto.response;
 
 public record ApiUsageResponse(
         Long apiTokenId,
-        Long apiId,
+        String apiId,
         String name,
         String endpoint,
         String apiName,

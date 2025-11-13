@@ -37,7 +37,7 @@ public class ApiUsageCommandService {
         apiUsageRepository.save(apiUsage);
     }
 
-    public void changeEndpoint(Long apiId, Long apiTokenId, User currentUser, ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest) {
+    public void changeEndpoint(String apiId, Long apiTokenId, User currentUser, ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest) {
         ApiUsageId apiUsageId = ApiUsageId.create(apiId, apiTokenId);
 
         ApiUsage apiUsage = apiUsageRepository.findById(apiUsageId)
@@ -54,7 +54,7 @@ public class ApiUsageCommandService {
         apiUsage.updateEndpoint(endpoint);
     }
 
-    public void changeName(Long apiId, Long apiTokenId, User currentUser, @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest) {
+    public void changeName(String apiId, Long apiTokenId, User currentUser, @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest) {
         ApiUsageId apiUsageId = ApiUsageId.create(apiId, apiTokenId);
 
         ApiUsage apiUsage = apiUsageRepository.findById(apiUsageId)
