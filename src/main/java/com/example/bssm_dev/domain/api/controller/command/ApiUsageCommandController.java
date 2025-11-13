@@ -10,10 +10,7 @@ import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +26,7 @@ public class ApiUsageCommandController {
             @PathVariable String apiId,
             @PathVariable Long apiTokenId,
             @CurrentUser User user,
-            @Valid ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest
+            @Valid @RequestBody ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest
     ) {
         apiUsageCommandService.changeEndpoint(apiId, apiTokenId, user, apiUsageEndpointUpdateRequest);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use endpoint");
@@ -44,7 +41,7 @@ public class ApiUsageCommandController {
             @PathVariable String apiId,
             @PathVariable Long apiTokenId,
             @CurrentUser User user,
-            @Valid ApiUsageNameUpdateRequest apiUsageNameUpdateRequest
+            @Valid @RequestBody ApiUsageNameUpdateRequest apiUsageNameUpdateRequest
     ) {
         apiUsageCommandService.changeName(apiId, apiTokenId, user, apiUsageNameUpdateRequest);
         ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use Name");
