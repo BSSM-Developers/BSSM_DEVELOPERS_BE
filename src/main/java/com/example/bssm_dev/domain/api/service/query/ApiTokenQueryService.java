@@ -1,7 +1,10 @@
 package com.example.bssm_dev.domain.api.service.query;
 
 import com.example.bssm_dev.common.dto.CursorPage;
+import com.example.bssm_dev.domain.api.dto.response.ApiTokenListResponse;
+import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
@@ -34,7 +37,7 @@ public class ApiTokenQueryService {
                 .orElseThrow(ApiTokenNotFoundException::raise);
     }
     
-    public CursorPage<SecretApiTokenResponse> getAllApiTokens(User user, Long cursor, Integer size) {
+    public CursorPage<ApiTokenListResponse> getAllApiTokens(User user, Long cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size);
         
         Slice<ApiToken> apiTokenSlice = apiTokenRepository.findAllByUserIdWithCursorOrderByApiTokenIdDesc(
@@ -43,8 +46,19 @@ public class ApiTokenQueryService {
                 pageable
         );
 
-        List<SecretApiTokenResponse> secretApiTokenResponseList = apiTokenMapper.toSecretResponseList(apiTokenSlice);
+        List<ApiTokenListResponse> apiTokenListResponseList = apiTokenMapper.toListResponse(apiTokenSlice);
 
-        return new CursorPage<>(secretApiTokenResponseList, apiTokenSlice.hasNext());
+        return new CursorPage<>(apiTokenListResponseList, apiTokenSlice.hasNext());
+    }
+
+    public ApiTokenResponse getApiTokenDetail(User user, Long apiTokenId) {
+        ApiToken apiToken = apiTokenRepository.findById(apiTokenId)
+                .orElseThrow(ApiTokenNotFoundException::raise);
+
+        // 사용자 권한 확인
+        boolean equalsUser = apiToken.isOwner(user);
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
+        
+        return apiTokenMapper.toApiTokenResponse(apiToken);
     }
 }
