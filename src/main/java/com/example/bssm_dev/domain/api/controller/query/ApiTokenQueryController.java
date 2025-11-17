@@ -39,7 +39,7 @@ public class ApiTokenQueryController {
 
 
     /**
-     * 사용자의 API Token 단일 조회 (등록된 API 포함)
+     * 사용자의 API Token 단일 조회
      */
     @GetMapping("/{apiTokenId}")
     public ResponseEntity<ResponseDto<ApiTokenResponse>> getApiTokenDetail(
