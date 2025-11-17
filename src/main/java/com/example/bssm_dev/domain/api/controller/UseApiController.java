@@ -26,7 +26,6 @@ public class UseApiController {
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         String endpoint = extractEndpoint(request);
-
         ProxyResponse response = useApiService.get(secretKey, token, endpoint);
         return ResponseEntity.ok(response);
     }

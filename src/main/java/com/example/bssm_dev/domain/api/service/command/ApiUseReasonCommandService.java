@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.request.CreateApiUseReasonRequest;
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
+import com.example.bssm_dev.domain.api.exception.ApiUsageAlreadyExistsException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiUseReasonMapper;
 import com.example.bssm_dev.domain.api.model.Api;
@@ -41,6 +42,8 @@ public class ApiUseReasonCommandService {
         boolean equalsUser = currentUser.equals(apiToken.getUser());
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
+        boolean alreadyApiUsage = apiToken.checkApiUsage(api);
+        if (alreadyApiUsage) throw ApiUsageAlreadyExistsException.raise();
 
         ApiUseReason apiUseReason = apiUseReasonMapper.toApiUserReason(request, currentUser, api, apiToken);
         ApiUseReason savedApiUseReason = apiUseReasonRepository.save(apiUseReason);

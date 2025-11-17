@@ -66,4 +66,9 @@ public class ApiToken {
         if (!equalsSecretKey)
             throw InvalidSecretKeyException.raise();
     }
+
+    public boolean checkApiUsage(Api api) {
+        return this.apiUsageList.stream()
+                .anyMatch(apiUsage -> apiUsage.equalsApi(api));
+    }
 }
