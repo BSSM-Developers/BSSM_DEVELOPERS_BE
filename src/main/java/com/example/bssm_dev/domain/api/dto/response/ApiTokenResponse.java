@@ -1,10 +1,12 @@
 package com.example.bssm_dev.domain.api.dto.response;
 
+import java.util.List;
+
 public record ApiTokenResponse(
         Long apiTokenId,
-        Long userId,
-        String secretKey,
         String apiTokenName,
-        String apiTokenUUID
+        String apiTokenClientId,
+        List<ApiUsageSummaryResponse> registeredApis
 ) {
 }
+

@@ -44,6 +44,20 @@ public interface ApiUsageRepository extends JpaRepository<ApiUsage, ApiUsageId> 
            "WHERE au.apiToken = :apiToken")
     List<ApiUsage> findAllByApiToken(@Param("apiToken") ApiToken apiToken);
 
+    @Query("SELECT au FROM ApiUsage au " +
+           "JOIN FETCH au.apiToken at " +
+           "JOIN FETCH at.user u " +
+           "JOIN FETCH au.apiUseReason aur " +
+           "WHERE au.api.apiId = :apiId " +
+           "AND au.id.apiTokenId < COALESCE(:cursor, 9223372036854775807) " +
+           "ORDER BY au.id.apiTokenId DESC")
+    Slice<ApiUsage> findAllByApiIdWithCursor(
+            @Param("apiId") String apiId,
+            @Param("cursor") Long cursor,
+            Pageable pageable
+    );
+
+    boolean existsByApiTokenAndEndpoint(ApiToken apiToken, String endpoint);
 }
 
 

@@ -60,14 +60,16 @@ public class DocsCreatedEventListener {
                 log.info("API block found: mappedId={}, label={}, method={}", 
                     block.getMappedId(), block.getLabel(), block.getMethod());
                 
-                // DocsPage에서 endpoint 직접 가져오기
-                String endpoint = findEndpointByMappedId(block.getMappedId(), event.docsPages());
+                // DocsPage 전체 가져오기
+                DocsPage docsPage = findDocsPageByMappedId(block.getMappedId(), event.docsPages());
                 
-                if (endpoint != null) {
-                    log.info("Endpoint found for mappedId={}: {}", block.getMappedId(), endpoint);
+                if (docsPage != null && docsPage.getEndpoint() != null) {
+                    log.info("DocsPage found for mappedId={}: id={}, endpoint={}", 
+                        block.getMappedId(), docsPage.getId(), docsPage.getEndpoint());
                     Api api = Api.of(
+                            docsPage.getId(),  // DocsPage의 id를 apiId로 사용
                             creator,
-                            endpoint,
+                            docsPage.getEndpoint(),
                             block.getMethod(),
                             block.getLabel(),
                             event.domain(),
@@ -75,9 +77,10 @@ public class DocsCreatedEventListener {
                             event.autoApproval()
                     );
                     apis.add(api);
-                    log.info("API added: {} {} - {}", block.getMethod(), endpoint, block.getLabel());
+                    log.info("API added: {} {} - {} (apiId={})", 
+                        block.getMethod(), docsPage.getEndpoint(), block.getLabel(), docsPage.getId());
                 } else {
-                    log.warn("Endpoint not found for API block with mappedId: {}", block.getMappedId());
+                    log.warn("DocsPage or endpoint not found for API block with mappedId: {}", block.getMappedId());
                 }
             }
 
@@ -87,7 +90,7 @@ public class DocsCreatedEventListener {
         }
     }
 
-    private String findEndpointByMappedId(String mappedId, List<DocsPage> docsPages) {
+    private DocsPage findDocsPageByMappedId(String mappedId, List<DocsPage> docsPages) {
         if (mappedId == null || docsPages == null) {
             log.warn("mappedId or docsPages is null");
             return null;
@@ -100,7 +103,7 @@ public class DocsCreatedEventListener {
             
             if (mappedId.equals(page.getMappedId())) {
                 log.debug("Match found for mappedId: {}, endpoint: {}", mappedId, page.getEndpoint());
-                return page.getEndpoint();  // 이제 endpoint 필드에서 직접 가져옴!
+                return page;
             }
         }
         log.warn("No matching page found for mappedId: {}", mappedId);

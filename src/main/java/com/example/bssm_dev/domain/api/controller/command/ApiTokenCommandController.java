@@ -6,8 +6,7 @@ import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.request.ChangeApiTokenNameRequest;
 import com.example.bssm_dev.domain.api.dto.request.CreateApiTokenRequest;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
-import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
-import com.example.bssm_dev.domain.api.model.ApiToken;
+import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.service.command.ApiTokenCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -25,12 +24,12 @@ public class ApiTokenCommandController {
      * API Token 생성
      */
     @PostMapping
-    public ResponseEntity<ResponseDto<ApiTokenResponse>> createApiToken(
+    public ResponseEntity<ResponseDto<SecretApiTokenResponse>> createApiToken(
             @CurrentUser User user,
             @Valid @RequestBody CreateApiTokenRequest request
     ) {
-        ApiTokenResponse apiTokenResponse = apiTokenCommandService.createApiToken(user, request.apiTokenName());
-        ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully created API token", apiTokenResponse);
+        SecretApiTokenResponse apiTokenResponse = apiTokenCommandService.createApiToken(user, request.apiTokenName());
+        ResponseDto<SecretApiTokenResponse> responseDto = HttpUtil.success("Successfully created API token", apiTokenResponse);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -38,12 +37,12 @@ public class ApiTokenCommandController {
      * API Token Secret Key 재발급
      */
     @PatchMapping("/{tokenId}/secret")
-    public ResponseEntity<ResponseDto<ApiTokenResponse>> reGenerateSecretKeyOfApiToken(
+    public ResponseEntity<ResponseDto<SecretApiTokenResponse>> reGenerateSecretKeyOfApiToken(
             @CurrentUser User user,
             @PathVariable("tokenId") Long tokenId
     ) {
-        ApiTokenResponse apiTokenResponse = apiTokenCommandService.reGenerateSecretKey(user, tokenId);
-        ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully regenerated API token secret key", apiTokenResponse);
+        SecretApiTokenResponse apiTokenResponse = apiTokenCommandService.reGenerateSecretKey(user, tokenId);
+        ResponseDto<SecretApiTokenResponse> responseDto = HttpUtil.success("Successfully regenerated API token secret key", apiTokenResponse);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -51,13 +50,13 @@ public class ApiTokenCommandController {
      * API Token 이름 변경
      */
     @PatchMapping("/{tokenId}/name")
-    public ResponseEntity<ResponseDto<ApiTokenResponse>> changeApiTokenName(
+    public ResponseEntity<ResponseDto<Void>> changeApiTokenName(
             @CurrentUser User user,
             @PathVariable("tokenId") Long tokenId,
             @Valid @RequestBody ChangeApiTokenNameRequest request
     ) {
-        ApiTokenResponse apiTokenResponse = apiTokenCommandService.changeApiTokenName(user, tokenId, request.apiTokenName());
-        ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully changed API token name", apiTokenResponse);
+        apiTokenCommandService.changeApiTokenName(user, tokenId, request.apiTokenName());
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API token name");
         return ResponseEntity.ok(responseDto);
     }
 }

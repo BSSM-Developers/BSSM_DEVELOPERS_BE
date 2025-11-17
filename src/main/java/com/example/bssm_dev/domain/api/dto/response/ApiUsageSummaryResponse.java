@@ -1,7 +1,7 @@
 package com.example.bssm_dev.domain.api.dto.response;
 
 public record ApiUsageSummaryResponse(
-        Long apiId,
+        String apiId,
         String name,
         String endpoint,
         String apiMethod,

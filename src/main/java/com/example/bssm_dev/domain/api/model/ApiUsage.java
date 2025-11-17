@@ -60,4 +60,8 @@ public class ApiUsage {
     public String getMethod() {
         return this.api.getMethod();
     }
+
+    public boolean equalsApi(Api api) {
+        return this.api.equals(api);
+    }
 }

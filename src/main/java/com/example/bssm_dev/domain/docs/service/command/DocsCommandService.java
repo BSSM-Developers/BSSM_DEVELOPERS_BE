@@ -1,7 +1,8 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
-import com.example.bssm_dev.domain.docs.dto.request.CreateOriginalDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.DocsCreateRequest;
+import com.example.bssm_dev.domain.docs.dto.request.DocsUpdateRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
@@ -33,7 +34,7 @@ public class DocsCommandService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public void createOriginalDocs(CreateOriginalDocsRequest request, User creator) {
+    public void createOriginalDocs(DocsCreateRequest request, User creator) {
         Docs docs = docsMapper.toOriginalDocs(request, creator);
 
         Docs newDocs = docsRepository.save(docs);
@@ -55,7 +56,7 @@ public class DocsCommandService {
 
     public void updateDocs(String docsId, UpdateDocsRequest request, User user) {
         Docs docs = getMyDocs(docsId, user);
-        
+
         docs.updateDocs(
                 request.title(),
                 request.description(),
@@ -70,6 +71,25 @@ public class DocsCommandService {
         Docs docs = getMyDocs(docsId, user);
         docs.toggleAutoApproval();
         docsRepository.save(docs);
+    }
+
+    public void replaceDocs(String docsId, DocsUpdateRequest request, User user) {
+        Docs docs = getMyDocs(docsId, user);
+        docs.updateDocs(
+                request.title(),
+                request.description(),
+                request.domain(),
+                request.repositoryUrl()
+        );
+        docsRepository.save(docs);
+
+        // 기존 sidebar, docs page 삭제
+        docsSideBarCommandService.delete(docsId);
+        docsPageCommandService.delete(docsId);
+
+        // 새 sidebar, docs page 생성
+        docsSideBarCommandService.save(request.sidebar(), docs);
+        docsPageCommandService.save(request.docsPages(), docs);
     }
 
     public void deleteDocs(String docsId, User user) {
