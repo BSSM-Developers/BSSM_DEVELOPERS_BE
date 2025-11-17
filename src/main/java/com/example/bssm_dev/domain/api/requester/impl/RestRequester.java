@@ -23,10 +23,18 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object get(String endpoint) {
+    public Object get(String endpoint, java.util.Map<String, String> headers) {
         try {
-            Object response = restClient.get()
-                    .uri(endpoint)
+            var requestSpec = restClient.get()
+                    .uri(endpoint);
+            
+            if (headers != null) {
+                requestSpec = requestSpec.headers(httpHeaders -> {
+                    headers.forEach(httpHeaders::add);
+                });
+            }
+            
+            Object response = requestSpec
                     .retrieve()
                     .body(Object.class);
             log.info("response : {}", response );
@@ -38,12 +46,18 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object post(String endpoint, Object body) {
+    public Object post(String endpoint, Object body, java.util.Map<String, String> headers) {
         try {
             var requestSpec = restClient.post()
                     .uri(endpoint);
             
             if (body != null) requestSpec = requestSpec.body(body);
+            
+            if (headers != null) {
+                requestSpec = requestSpec.headers(httpHeaders -> {
+                    headers.forEach(httpHeaders::add);
+                });
+            }
 
             
             Object response = requestSpec
@@ -58,12 +72,18 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object put(String endpoint, Object body) {
+    public Object put(String endpoint, Object body, java.util.Map<String, String> headers) {
         try {
             var requestSpec = restClient.put()
                     .uri(endpoint);
             
             if (body != null) requestSpec = requestSpec.body(body);
+            
+            if (headers != null) {
+                requestSpec = requestSpec.headers(httpHeaders -> {
+                    headers.forEach(httpHeaders::add);
+                });
+            }
 
             Object response = requestSpec
                     .retrieve()
@@ -77,12 +97,18 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object patch(String endpoint, Object body) {
+    public Object patch(String endpoint, Object body, java.util.Map<String, String> headers) {
         try {
             var requestSpec = restClient.patch()
                     .uri(endpoint);
             
             if (body != null) requestSpec = requestSpec.body(body);
+            
+            if (headers != null) {
+                requestSpec = requestSpec.headers(httpHeaders -> {
+                    headers.forEach(httpHeaders::add);
+                });
+            }
 
             Object response = requestSpec
                     .retrieve()
@@ -96,10 +122,18 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object delete(String endpoint) {
+    public Object delete(String endpoint, java.util.Map<String, String> headers) {
         try {
-            Object response = restClient.delete()
-                    .uri(endpoint)
+            var requestSpec = restClient.delete()
+                    .uri(endpoint);
+            
+            if (headers != null) {
+                requestSpec = requestSpec.headers(httpHeaders -> {
+                    headers.forEach(httpHeaders::add);
+                });
+            }
+            
+            Object response = requestSpec
                     .retrieve()
                     .body(String.class);
             log.info("response : {}", response );
