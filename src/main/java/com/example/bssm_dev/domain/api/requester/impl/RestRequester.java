@@ -3,6 +3,9 @@ package com.example.bssm_dev.domain.api.requester.impl;
 import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.domain.api.requester.Requester;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
@@ -13,8 +16,22 @@ public class RestRequester implements Requester {
     private final RestClient restClient;
 
     public RestRequester(String domainUrl) {
+        CloseableHttpClient httpClient =
+                HttpClients.custom()
+                        .setDefaultRequestConfig(
+                                org.apache.hc.client5.http.config.RequestConfig.custom()
+                                        .setContentCompressionEnabled(true)
+                                        .build()
+                        )
+                        .setUserAgent("BSSM-DEV-API-Client/1.0")
+                        .build();
+        
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
+        
         this.restClient = RestClient.builder()
                 .baseUrl(domainUrl)
+                .requestFactory(requestFactory)
                 .build();
     }
 
@@ -34,9 +51,9 @@ public class RestRequester implements Requester {
                 });
             }
             
-            Object response = requestSpec
+            String response = requestSpec
                     .retrieve()
-                    .body(Object.class);
+                    .body(String.class);
             log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
@@ -60,9 +77,9 @@ public class RestRequester implements Requester {
             }
 
             
-            Object response = requestSpec
+            String response = requestSpec
                     .retrieve()
-                    .body(Object.class);
+                    .body(String.class);
             log.info("response : {}", response );
             return response;
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
