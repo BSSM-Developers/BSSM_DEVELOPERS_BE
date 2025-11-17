@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.request.ApiUsageEndpointUpdateRequest;
 import com.example.bssm_dev.domain.api.dto.request.ApiUsageNameUpdateRequest;
+import com.example.bssm_dev.domain.api.exception.ApiUsageAlreadyExistsException;
 import com.example.bssm_dev.domain.api.exception.ApiUsageEndpointAlreadyExistsException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiUsageMapper;
@@ -30,7 +31,7 @@ public class ApiUsageCommandService {
     public void createApiUsage(Api api, ApiToken apiToken, ApiUseReason apiUseReason) {
         // 이미 같은 endpoint가 존재하는지 체크
         boolean alreadyEndpoint = apiUsageRepository.existsByApiTokenAndEndpoint(apiToken, api.getEndpoint());
-        if (alreadyEndpoint) throw com.example.bssm_dev.domain.api.exception.ApiUsageAlreadyExistsException.raise(); ApiUsageEndpointAlreadyExistsException.raise();
+        if (alreadyEndpoint) throw ApiUsageAlreadyExistsException.raise();
 
         // ApiUsage 생성
         ApiUsage apiUsage = apiUsageMapper.toApiUsage(apiToken, api, apiUseReason);
@@ -49,6 +50,10 @@ public class ApiUsageCommandService {
                 .orElseThrow(ApiUsageNotFoundException::raise);
 
         ApiToken apiToken = apiTokenQueryService.findById(apiTokenId);
+
+        // 이미 같은 endpoint가 존재하는지 체크
+        boolean alreadyEndpoint = apiUsageRepository.existsByApiTokenAndEndpoint(apiToken, apiUsageEndpointUpdateRequest.endpoint());
+        if (alreadyEndpoint) throw ApiUsageAlreadyExistsException.raise();
 
         boolean equalsUser = currentUser.equals(apiToken.getUser());
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
