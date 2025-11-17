@@ -1,6 +1,5 @@
 package com.example.bssm_dev.domain.api.service;
 
-import com.example.bssm_dev.domain.api.dto.response.ProxyResponse;
 import com.example.bssm_dev.domain.api.executor.ApiRequestExecutor;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.model.ApiUsage;
@@ -18,7 +17,7 @@ public class UseApiService {
     private final ApiTokenQueryService apiTokenQueryService;
     private final ApiUsageQueryService apiUsageQueryService;
 
-    public ProxyResponse get(String secretKey, String token, HttpServletRequest request) {
+    public Object get(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
@@ -27,11 +26,11 @@ public class UseApiService {
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, requestInfo);
 
         Object response = ApiRequestExecutor.request(apiUsage, requestInfo);
-        return ProxyResponse.of(response);
+        return response;
     }
 
 
-    public ProxyResponse post(String secretKey, String token, HttpServletRequest request) {
+    public Object post(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
@@ -40,10 +39,10 @@ public class UseApiService {
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, requestInfo);
 
         Object response = ApiRequestExecutor.request(apiUsage, requestInfo);
-        return ProxyResponse.of(response);
+        return response;
     }
 
-    public ProxyResponse patch(String secretKey, String token, HttpServletRequest request) {
+    public Object patch(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
@@ -52,10 +51,10 @@ public class UseApiService {
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, requestInfo);
 
         Object response = ApiRequestExecutor.request(apiUsage, requestInfo);
-        return ProxyResponse.of(response);
+        return response;
     }
 
-    public ProxyResponse put(String secretKey, String token, HttpServletRequest request) {
+    public Object put(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
@@ -64,10 +63,10 @@ public class UseApiService {
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, requestInfo);
 
         Object response = ApiRequestExecutor.request(apiUsage, requestInfo);
-        return ProxyResponse.of(response);
+        return response;
     }
 
-    public ProxyResponse delete(String secretKey, String token, HttpServletRequest request) {
+    public Object delete(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         apiToken.validateSecretKey(secretKey);
 
@@ -76,6 +75,6 @@ public class UseApiService {
         ApiUsage apiUsage = apiUsageQueryService.findByTokenAndEndpoint(apiToken, requestInfo);
 
         Object response = ApiRequestExecutor.request(apiUsage, requestInfo);
-        return ProxyResponse.of(response);
+        return response;
     }
 }
