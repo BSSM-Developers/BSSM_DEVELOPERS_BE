@@ -31,7 +31,7 @@ public class ApiUsageCommandService {
     public void createApiUsage(Api api, ApiToken apiToken, ApiUseReason apiUseReason) {
         // 이미 같은 endpoint가 존재하는지 체크
         boolean alreadyEndpoint = apiUsageRepository.existsByApiTokenAndEndpoint(apiToken, api.getEndpoint());
-        if (alreadyEndpoint) throw ApiUsageAlreadyExistsException.raise();
+        if (alreadyEndpoint) throw ApiUsageEndpointAlreadyExistsException.raise();
 
         // ApiUsage 생성
         ApiUsage apiUsage = apiUsageMapper.toApiUsage(apiToken, api, apiUseReason);
@@ -53,14 +53,12 @@ public class ApiUsageCommandService {
 
         // 이미 같은 endpoint가 존재하는지 체크
         boolean alreadyEndpoint = apiUsageRepository.existsByApiTokenAndEndpoint(apiToken, apiUsageEndpointUpdateRequest.endpoint());
-        if (alreadyEndpoint) throw ApiUsageAlreadyExistsException.raise();
+        if (alreadyEndpoint) throw ApiUsageEndpointAlreadyExistsException.raise();
 
         boolean equalsUser = currentUser.equals(apiToken.getUser());
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
-
         String endpoint = apiUsageEndpointUpdateRequest.endpoint();
-        
         apiUsage.updateEndpoint(endpoint);
     }
 
@@ -75,9 +73,7 @@ public class ApiUsageCommandService {
         boolean equalsUser = currentUser.equals(apiToken.getUser());
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
-
         String name = apiUsageNameUpdateRequest.name();
-
         apiUsage.updateName(name);
     }
 }
