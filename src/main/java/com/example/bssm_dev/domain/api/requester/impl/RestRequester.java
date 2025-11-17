@@ -39,6 +39,22 @@ public class RestRequester implements Requester {
         return new RestRequester(domainUrl);
     }
 
+    private Object parseResponse(String responseBody) {
+        if (responseBody == null || responseBody.isEmpty()) {
+            return responseBody;
+        }
+        
+        // JSON 파싱 시도
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            return objectMapper.readValue(responseBody, Object.class);
+        } catch (Exception e) {
+            // JSON이 아니면 그냥 문자열로 반환
+            log.debug("Response is not JSON, returning as string: {}", e.getMessage());
+            return responseBody;
+        }
+    }
+
     @Override
     public Object get(String endpoint, java.util.Map<String, String> headers) {
         try {
@@ -55,7 +71,7 @@ public class RestRequester implements Requester {
                     .retrieve()
                     .body(String.class);
             log.info("response : {}", response );
-            return response;
+            return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
@@ -81,7 +97,7 @@ public class RestRequester implements Requester {
                     .retrieve()
                     .body(String.class);
             log.info("response : {}", response );
-            return response;
+            return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw ExternalApiException.raise(e.getMessage());
