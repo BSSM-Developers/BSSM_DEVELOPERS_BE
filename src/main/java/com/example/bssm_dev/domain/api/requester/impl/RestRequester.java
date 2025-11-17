@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.requester.impl;
 
 import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.domain.api.requester.Requester;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -9,6 +10,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
+
+import java.util.Map;
 
 @Slf4j
 public class RestRequester implements Requester {
@@ -25,7 +28,7 @@ public class RestRequester implements Requester {
                         )
                         .setUserAgent("BSSM-DEV-API-Client/1.0")
                         .build();
-        
+
         HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
         
@@ -46,7 +49,7 @@ public class RestRequester implements Requester {
         
         // JSON 파싱 시도
         try {
-            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(responseBody, Object.class);
         } catch (Exception e) {
             // JSON이 아니면 그냥 문자열로 반환
@@ -56,17 +59,17 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object get(String endpoint, java.util.Map<String, String> headers) {
+    public Object get(String endpoint, Map<String, String> headers) {
         try {
             var requestSpec = restClient.get()
                     .uri(endpoint);
-            
+
             if (headers != null) {
                 requestSpec = requestSpec.headers(httpHeaders -> {
                     headers.forEach(httpHeaders::add);
                 });
             }
-            
+
             String response = requestSpec
                     .retrieve()
                     .body(String.class);
@@ -79,7 +82,7 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object post(String endpoint, Object body, java.util.Map<String, String> headers) {
+    public Object post(String endpoint, Object body, Map<String, String> headers) {
         try {
             var requestSpec = restClient.post()
                     .uri(endpoint);
@@ -105,7 +108,7 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object put(String endpoint, Object body, java.util.Map<String, String> headers) {
+    public Object put(String endpoint, Object body, Map<String, String> headers) {
         try {
             var requestSpec = restClient.put()
                     .uri(endpoint);
@@ -130,7 +133,7 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object patch(String endpoint, Object body, java.util.Map<String, String> headers) {
+    public Object patch(String endpoint, Object body, Map<String, String> headers) {
         try {
             var requestSpec = restClient.patch()
                     .uri(endpoint);
@@ -155,7 +158,7 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object delete(String endpoint, java.util.Map<String, String> headers) {
+    public Object delete(String endpoint, Map<String, String> headers) {
         try {
             var requestSpec = restClient.delete()
                     .uri(endpoint);

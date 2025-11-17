@@ -25,6 +25,13 @@ public class RequestExtractor {
 
         while (headers.hasNext()) {
             String headerName =  headers.next();
+            
+            // bssm-dev 내부 인증 헤더는 제외
+            if (headerName.equalsIgnoreCase("bssm-dev-token") || 
+                headerName.equalsIgnoreCase("bssm-dev-secret")) {
+                continue;
+            }
+            
             headerMap.put(headerName, request.getHeader(headerName));
         }
         return  headerMap;
