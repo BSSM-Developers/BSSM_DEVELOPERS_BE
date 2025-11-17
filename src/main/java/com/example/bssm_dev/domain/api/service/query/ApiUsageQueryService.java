@@ -67,20 +67,7 @@ public class ApiUsageQueryService {
         }
         return endpoint;
     }
-    
-    public CursorPage<ApiUsageResponse> getAllApiUsages(User user, Long cursor, Integer size) {
-        Pageable pageable = PageRequest.of(0, size);
-        
-        Slice<ApiUsage> apiUsageSlice = apiUsageRepository.findAllByUserIdWithCursor(
-                user.getUserId(),
-                cursor,
-                pageable
-        );
-        
-        List<ApiUsageResponse> responses = apiUsageMapper.toListResponse(apiUsageSlice);
-        
-        return new CursorPage<>(responses, apiUsageSlice.hasNext());
-    }
+
     
     public CursorPage<ApiUsageResponse> getApiUsagesByApiId(User user, String apiId, Long cursor, Integer size) {
         Api api = apiQueryService.findById(apiId);
