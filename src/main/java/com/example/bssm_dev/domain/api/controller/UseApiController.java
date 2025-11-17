@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/proxy/**")
-@Slf4j
 public class UseApiController {
 
     private final UseApiService useApiService;
@@ -20,13 +19,12 @@ public class UseApiController {
      * 외부 API GET 요청 프록시
      */
     @GetMapping
-    public ResponseEntity<ProxyResponse> useApiByGet(
+    public ResponseEntity<Object> useApiByGet(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        String endpoint = extractEndpoint(request);
-        ProxyResponse response = useApiService.get(secretKey, token, endpoint);
+        Object response = useApiService.get(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -37,11 +35,9 @@ public class UseApiController {
     public ResponseEntity<ProxyResponse> useApiByPost(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
-            @RequestHeader("bssm-dev-secret") String secretKey,
-            @RequestBody(required = false) Object body
+            @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        String endpoint = extractEndpoint(request);
-        ProxyResponse response = useApiService.post(secretKey, token, endpoint, body);
+        ProxyResponse response = useApiService.post(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -52,12 +48,9 @@ public class UseApiController {
     public ResponseEntity<ProxyResponse> useApiByPatch(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
-            @RequestHeader("bssm-dev-secret") String secretKey,
-            @RequestBody(required = false) Object body
+            @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        String endpoint = extractEndpoint(request);
-
-        ProxyResponse response = useApiService.patch(secretKey, token, endpoint, body);
+        ProxyResponse response = useApiService.patch(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -68,12 +61,10 @@ public class UseApiController {
     public ResponseEntity<ProxyResponse> useApiByPut(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
-            @RequestHeader("bssm-dev-secret") String secretKey,
-            @RequestBody(required = false) Object body
+            @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        String endpoint = extractEndpoint(request);
 
-        ProxyResponse response = useApiService.put(secretKey, token, endpoint, body);
+        ProxyResponse response = useApiService.put(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -86,17 +77,8 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        String endpoint = extractEndpoint(request);
-
-        ProxyResponse response = useApiService.delete(secretKey, token, endpoint);
+        ProxyResponse response = useApiService.delete(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
-    private static String extractEndpoint(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        String endpoint = requestUri.substring("/api/proxy".length());
-        log.info("요청 URI = {}", requestUri);
-        log.info("endpoint = {}", endpoint);
-        return endpoint;
-    }
 }

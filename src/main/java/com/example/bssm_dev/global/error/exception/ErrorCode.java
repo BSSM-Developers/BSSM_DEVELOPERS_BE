@@ -34,6 +34,7 @@ public enum ErrorCode {
     UNAUTHORIZED_API_USE_REASON_ACCESS(403, "해당 API 사용 신청에 접근할 권한이 없습니다."),
     API_USAGE_NOT_FOUND(404, "API 사용을 찾을 수 없습니다."),
     API_USAGE_ALREADY_EXISTS(400, "이미 해당 API에 대한 사용 신청이 되어있습니다."),
+    API_USAGE_ENDPOINT_ALREADY_EXISTS(400, "이미 동일한 엔드포인트가 존재합니다."),
     UNAUTHORIZED_API_USAGE_ACCESS(403, "해당 API 사용에 접근할 권한이 없습니다."),
     INVALID_API_USE_REASON_STATE(400, "API 사용 신청 이유 상태 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: PENDING, APPROVED, REJECTED, ALL)"),
     INVALID_DOCS_TYPE_VALUE(400, "문서 타입 변환(문자열 -> ENUM)에 실패했습니다. (허용된 값: CUSTOMIZE, ORIGINAL)"),
