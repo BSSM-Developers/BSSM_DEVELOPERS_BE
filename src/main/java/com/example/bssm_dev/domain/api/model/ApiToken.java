@@ -71,4 +71,8 @@ public class ApiToken {
         return this.apiUsageList.stream()
                 .anyMatch(apiUsage -> apiUsage.equalsApi(api));
     }
+
+    public boolean isOwner(User user) {
+        return this.user.equals(user);
+    }
 }
