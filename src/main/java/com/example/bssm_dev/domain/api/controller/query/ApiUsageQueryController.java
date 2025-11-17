@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/usage")
@@ -41,12 +39,14 @@ public class ApiUsageQueryController {
      * 본인이 등록한 API에 대한 사용 신청 목록 조회
      */
     @GetMapping("/by-api/{apiId}")
-    public ResponseEntity<ResponseDto<List<ApiUsageResponse>>> getApiUsagesByApiId(
+    public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsagesByApiId(
             @CurrentUser User user,
-            @PathVariable String apiId
+            @PathVariable String apiId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
-        List<ApiUsageResponse> response = apiUsageQueryService.getApiUsagesByApiId(user, apiId);
-        ResponseDto<List<ApiUsageResponse>> responseDto = HttpUtil.success("Successfully retrieved API usage requests", response);
+        CursorPage<ApiUsageResponse> response = apiUsageQueryService.getApiUsagesByApiId(user, apiId, cursor, size);
+        ResponseDto<CursorPage<ApiUsageResponse>> responseDto = HttpUtil.success("Successfully retrieved API usage requests", response);
         return ResponseEntity.ok(responseDto);
     }
 }

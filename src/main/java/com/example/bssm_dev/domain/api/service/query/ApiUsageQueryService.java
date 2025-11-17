@@ -82,18 +82,20 @@ public class ApiUsageQueryService {
         return new CursorPage<>(responses, apiUsageSlice.hasNext());
     }
     
-    public List<ApiUsageResponse> getApiUsagesByApiId(User user, String apiId) {
+    public CursorPage<ApiUsageResponse> getApiUsagesByApiId(User user, String apiId, Long cursor, Integer size) {
         Api api = apiQueryService.findById(apiId);
-        
-        if (!api.getCreator().equals(user)) {
+
+        boolean isApiCreator = api.isCreator(user);
+        if (!isApiCreator) {
             throw UnauthorizedApiUsageAccessException.raise();
         }
         
-        List<ApiUsage> apiUsages = apiUsageRepository.findAllByApiId(apiId);
+        Pageable pageable = PageRequest.of(0, size);
+        Slice<ApiUsage> apiUsageSlice = apiUsageRepository.findAllByApiIdWithCursor(apiId, cursor, pageable);
         
-        return apiUsages.stream()
-                .map(apiUsageMapper::toResponse)
-                .toList();
+        List<ApiUsageResponse> responses = apiUsageMapper.toListResponse(apiUsageSlice);
+        
+        return new CursorPage<>(responses, apiUsageSlice.hasNext());
     }
 }
 

@@ -66,4 +66,8 @@ public class Api {
         this.name = name;
         this.domain = domain;
     }
+
+    public boolean isCreator(User user) {
+        return this.creator.equals(user);
+    }
 }

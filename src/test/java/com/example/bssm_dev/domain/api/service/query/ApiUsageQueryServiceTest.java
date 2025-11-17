@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.api.service.query;
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageResponse;
 import com.example.bssm_dev.domain.api.exception.ApiNotFoundException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiUsageAccessException;
+import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.api.mapper.ApiUsageMapper;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
@@ -24,6 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.lang.reflect.Field;
 
@@ -133,11 +139,15 @@ class ApiUsageQueryServiceTest {
     class GetApiUsagesByApiIdTests {
 
         @Test
-        @DisplayName("API creator가 자신의 API 사용 신청 목록 조회 성공")
+        @DisplayName("API creator가 자신의 API 사용 신청 목록 조회 성공 (커서 페이지네이션)")
         void getApiUsagesByApiId_WithCreator_Success() {
             // given
             String apiId = "test-api-id";
+            Long cursor = null;
+            Integer size = 20;
             List<ApiUsage> apiUsages = Arrays.asList(apiUsage1, apiUsage2);
+            Pageable pageable = PageRequest.of(0, size);
+            Slice<ApiUsage> apiUsageSlice = new SliceImpl<>(apiUsages, pageable, false);
             
             ApiUsageResponse response1 = new ApiUsageResponse(
                     1L, "test-api-id", "Usage 1", "/test-endpoint",
@@ -147,23 +157,24 @@ class ApiUsageQueryServiceTest {
                     2L, "test-api-id", "Usage 2", "/test-endpoint",
                     "Test API", "https://test.domain.com", "GET", "2", "PENDING"
             );
+            List<ApiUsageResponse> responses = Arrays.asList(response1, response2);
 
             when(apiQueryService.findById(apiId)).thenReturn(api);
-            when(apiUsageRepository.findAllByApiId(apiId)).thenReturn(apiUsages);
-            when(apiUsageMapper.toResponse(apiUsage1)).thenReturn(response1);
-            when(apiUsageMapper.toResponse(apiUsage2)).thenReturn(response2);
+            when(apiUsageRepository.findAllByApiIdWithCursor(apiId, cursor, pageable)).thenReturn(apiUsageSlice);
+            when(apiUsageMapper.toListResponse(apiUsageSlice)).thenReturn(responses);
 
             // when
-            List<ApiUsageResponse> result = apiUsageQueryService.getApiUsagesByApiId(creator, apiId);
+            CursorPage<ApiUsageResponse> result = apiUsageQueryService.getApiUsagesByApiId(creator, apiId, cursor, size);
 
             // then
             assertNotNull(result);
-            assertEquals(2, result.size());
-            assertEquals("Usage 1", result.get(0).name());
-            assertEquals("Usage 2", result.get(1).name());
+            assertEquals(2, result.values().size());
+            assertEquals("Usage 1", result.values().get(0).name());
+            assertEquals("Usage 2", result.values().get(1).name());
+            assertFalse(result.hasNext());
             verify(apiQueryService).findById(apiId);
-            verify(apiUsageRepository).findAllByApiId(apiId);
-            verify(apiUsageMapper, times(2)).toResponse(any(ApiUsage.class));
+            verify(apiUsageRepository).findAllByApiIdWithCursor(apiId, cursor, pageable);
+            verify(apiUsageMapper).toListResponse(apiUsageSlice);
         }
 
         @Test
@@ -171,17 +182,19 @@ class ApiUsageQueryServiceTest {
         void getApiUsagesByApiId_WithNonCreator_ThrowsException() {
             // given
             String apiId = "test-api-id";
+            Long cursor = null;
+            Integer size = 20;
 
             when(apiQueryService.findById(apiId)).thenReturn(api);
 
             // when & then
             assertThrows(UnauthorizedApiUsageAccessException.class, () ->
-                    apiUsageQueryService.getApiUsagesByApiId(otherUser, apiId)
+                    apiUsageQueryService.getApiUsagesByApiId(otherUser, apiId, cursor, size)
             );
 
             verify(apiQueryService).findById(apiId);
-            verify(apiUsageRepository, never()).findAllByApiId(anyString());
-            verify(apiUsageMapper, never()).toResponse(any(ApiUsage.class));
+            verify(apiUsageRepository, never()).findAllByApiIdWithCursor(anyString(), any(), any());
+            verify(apiUsageMapper, never()).toListResponse(any());
         }
 
         @Test
@@ -189,17 +202,19 @@ class ApiUsageQueryServiceTest {
         void getApiUsagesByApiId_WithNonExistentApiId_ThrowsException() {
             // given
             String apiId = "non-existent-api-id";
+            Long cursor = null;
+            Integer size = 20;
 
             when(apiQueryService.findById(apiId)).thenThrow(ApiNotFoundException.raise());
 
             // when & then
             assertThrows(ApiNotFoundException.class, () ->
-                    apiUsageQueryService.getApiUsagesByApiId(creator, apiId)
+                    apiUsageQueryService.getApiUsagesByApiId(creator, apiId, cursor, size)
             );
 
             verify(apiQueryService).findById(apiId);
-            verify(apiUsageRepository, never()).findAllByApiId(anyString());
-            verify(apiUsageMapper, never()).toResponse(any(ApiUsage.class));
+            verify(apiUsageRepository, never()).findAllByApiIdWithCursor(anyString(), any(), any());
+            verify(apiUsageMapper, never()).toListResponse(any());
         }
 
         @Test
@@ -207,20 +222,27 @@ class ApiUsageQueryServiceTest {
         void getApiUsagesByApiId_WithNoUsages_ReturnsEmptyList() {
             // given
             String apiId = "test-api-id";
+            Long cursor = null;
+            Integer size = 20;
             List<ApiUsage> emptyList = Arrays.asList();
+            Pageable pageable = PageRequest.of(0, size);
+            Slice<ApiUsage> emptySlice = new SliceImpl<>(emptyList, pageable, false);
+            List<ApiUsageResponse> emptyResponses = Arrays.asList();
 
             when(apiQueryService.findById(apiId)).thenReturn(api);
-            when(apiUsageRepository.findAllByApiId(apiId)).thenReturn(emptyList);
+            when(apiUsageRepository.findAllByApiIdWithCursor(apiId, cursor, pageable)).thenReturn(emptySlice);
+            when(apiUsageMapper.toListResponse(emptySlice)).thenReturn(emptyResponses);
 
             // when
-            List<ApiUsageResponse> result = apiUsageQueryService.getApiUsagesByApiId(creator, apiId);
+            CursorPage<ApiUsageResponse> result = apiUsageQueryService.getApiUsagesByApiId(creator, apiId, cursor, size);
 
             // then
             assertNotNull(result);
-            assertTrue(result.isEmpty());
+            assertTrue(result.values().isEmpty());
+            assertFalse(result.hasNext());
             verify(apiQueryService).findById(apiId);
-            verify(apiUsageRepository).findAllByApiId(apiId);
-            verify(apiUsageMapper, never()).toResponse(any(ApiUsage.class));
+            verify(apiUsageRepository).findAllByApiIdWithCursor(apiId, cursor, pageable);
+            verify(apiUsageMapper).toListResponse(emptySlice);
         }
     }
 }
