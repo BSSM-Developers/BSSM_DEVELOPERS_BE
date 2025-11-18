@@ -1,86 +1,25 @@
 package com.example.bssm_dev.domain.docs.model;
 
-import com.example.bssm_dev.domain.api.model.Api;
-import com.example.bssm_dev.domain.user.model.User;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.List;
 
-@Entity
-@NoArgsConstructor
-@Getter
+@Document(collection = "docs_page")
 @Builder
-@AllArgsConstructor
+@Getter
 public class DocsPage {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long docsPageId;
+    private String id;
+    private String mappedId;
+    private String docsId;
+    private List<DocsPageBlock> docsBlocks;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "docs_section_id", nullable = false)
-    private DocsSection docsSection;
+    private String endpoint;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "`order`")
-    private Long order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="source_page_id")
-    private DocsPage sourceDocsPage;
-
-    @OneToOne(mappedBy = "docsPage", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ApiPage apiPage;
-
-    public static DocsPage duplicate(DocsSection targetSection, DocsPage originalPage,User currentUser) {
-        return DocsPage.builder()
-                .title(originalPage.title + " 복제본")
-                .description(originalPage.description)
-                .docsSection(targetSection)
-                .sourceDocsPage(originalPage)
-                .apiPage(originalPage.apiPage)
-                .order(targetSection.nextOrderValue())
-                .build();
-    }
-
-    public void apiPage(ApiPage apiPage) {
-        this.apiPage = apiPage;
-    }
-
-    public static DocsPage of(DocsSection docsSection, String title, String description, Long order) {
-        return DocsPage.builder()
-                .docsSection(docsSection)
-                .title(title)
-                .description(description)
-                .order(order)
-                .build();
-    }
-
-    public boolean isApiPage() {
-        return this.apiPage != null;
-    }
-
-    public void updateOrder(long newOrder) {
-        this.order = newOrder;
-    }
-
-
-    public void updateTitleAndDescription(String newTitle, String newDescription) {
-        this.title = newTitle;
-        this.description = newDescription;
-    }
-
-    public Api getApi() {
-        return this.apiPage.getApi();
-    }
-
-    public void updateSection(DocsSection section) {
-        this.docsSection = section;
+    public void updateDocsBlocks(List<DocsPageBlock> docsBlocks) {
+        this.docsBlocks = docsBlocks;
     }
 }
+

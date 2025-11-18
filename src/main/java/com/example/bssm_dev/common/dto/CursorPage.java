@@ -8,5 +8,4 @@ public record CursorPage<T>(
         List<T> values,
         boolean hasNext
 ) {
-
 }

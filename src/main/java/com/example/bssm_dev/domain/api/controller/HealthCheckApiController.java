@@ -5,6 +5,7 @@ import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.request.ApiHealthCheckRequest;
 import com.example.bssm_dev.domain.api.dto.response.ApiHealthCheckResponse;
 import com.example.bssm_dev.domain.api.service.HealthCheckApiService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,12 @@ public class HealthCheckApiController {
      */
     @PostMapping
     public ResponseEntity<ResponseDto<ApiHealthCheckResponse>> healthCheckWithApiId(
-            @RequestBody(required = false) ApiHealthCheckRequest apiHealthCheckRequest
+            @RequestParam String endpoint,
+            @RequestParam String method,
+            @RequestParam String domain,
+            HttpServletRequest httpServletRequest
     ) {
-        ApiHealthCheckResponse healthCheckResponse = healthCheckApiService.check(apiHealthCheckRequest);
-
+        ApiHealthCheckResponse healthCheckResponse = healthCheckApiService.check(endpoint, method, domain, httpServletRequest);
 
         ResponseDto<ApiHealthCheckResponse> responseDto = HttpUtil.success("heath check ok", healthCheckResponse);
         return ResponseEntity.ok(responseDto);

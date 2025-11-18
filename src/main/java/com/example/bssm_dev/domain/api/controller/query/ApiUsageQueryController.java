@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,16 +22,17 @@ public class ApiUsageQueryController {
     private final ApiUsageQueryService apiUsageQueryService;
 
     /**
-     * 사용자의 API Usage 목록 조회
+     * 본인이 등록한 API에 대한 사용 신청 목록 조회
      */
-    @GetMapping
-    public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsageList(
+    @GetMapping("/by-api/{apiId}")
+    public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsagesByApiId(
             @CurrentUser User user,
+            @PathVariable String apiId,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
-        CursorPage<ApiUsageResponse> response = apiUsageQueryService.getAllApiUsages(user, cursor, size);
-        ResponseDto<CursorPage<ApiUsageResponse>> responseDto = HttpUtil.success("Successfully retrieved API usages", response);
+        CursorPage<ApiUsageResponse> response = apiUsageQueryService.getApiUsagesByApiId(user, apiId, cursor, size);
+        ResponseDto<CursorPage<ApiUsageResponse>> responseDto = HttpUtil.success("Successfully retrieved API usage requests", response);
         return ResponseEntity.ok(responseDto);
     }
 }

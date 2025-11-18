@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
+import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
@@ -20,16 +21,16 @@ public class ApiTokenCommandService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
 
-    public ApiTokenResponse createApiToken(User user, String apiTokenName) {
+    public SecretApiTokenResponse createApiToken(User user, String apiTokenName) {
         String secretKey = generateSecretKey();
         String apiTokenUUID = generateUUID();
         ApiToken apiToken = ApiToken.of(user, secretKey, apiTokenName, apiTokenUUID);
         apiTokenRepository.save(apiToken);
-        ApiTokenResponse response = apiTokenMapper.toResponse(apiToken);
+        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken);
         return response;
     }
 
-    public ApiTokenResponse reGenerateSecretKey(User user, Long tokenId) {
+    public SecretApiTokenResponse reGenerateSecretKey(User user, Long tokenId) {
         ApiToken apiToken = apiTokenRepository.findById(tokenId)
                 .orElseThrow(ApiTokenNotFoundException::raise);
 
@@ -38,11 +39,11 @@ public class ApiTokenCommandService {
 
         String secretKey = generateSecretKey();
         apiToken.changeSecretKey(secretKey);
-        ApiTokenResponse response = apiTokenMapper.toResponse(apiToken);
+        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken);
         return response;
     }
 
-    public ApiTokenResponse changeApiTokenName(User user, Long tokenId, String apiTokenName) {
+    public void changeApiTokenName(User user, Long tokenId, String apiTokenName) {
         ApiToken apiToken = apiTokenRepository.findById(tokenId)
                 .orElseThrow(ApiTokenNotFoundException::raise);
 
@@ -50,8 +51,6 @@ public class ApiTokenCommandService {
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
         apiToken.changeApiTokenName(apiTokenName);
-        ApiTokenResponse response = apiTokenMapper.toResponse(apiToken);
-        return response;
     }
 
     private String generateSecretKey() {

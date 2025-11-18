@@ -1,14 +1,13 @@
 package com.example.bssm_dev.domain.docs.dto.request;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+import java.util.List;
+
 public record UpdateDocsPageRequest(
-        @NotBlank(message = "페이지 제목은 필수입니다")
-        String docsPageTitle,
-        
-        String docsPageDescription
+        @NotNull(message = "문서 블록 리스트는 필수입니다.")
+        @Valid
+        List<DocsPageBlockRequest> docsBlocks
 ) {
 }

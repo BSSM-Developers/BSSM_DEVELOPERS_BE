@@ -15,9 +15,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ApiUsageId implements Serializable {
     private Long apiTokenId;
-    private Long apiId;
+    private String apiId;
 
-    public static ApiUsageId create(Long apiId, Long apiTokenId) {
-        return new ApiUsageId(apiId, apiTokenId);
+    public static ApiUsageId create(String apiId, Long apiTokenId) {
+        return new ApiUsageId(apiTokenId, apiId);
     }
 }

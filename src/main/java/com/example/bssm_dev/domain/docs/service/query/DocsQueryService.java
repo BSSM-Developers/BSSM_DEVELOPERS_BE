@@ -1,15 +1,13 @@
 package com.example.bssm_dev.domain.docs.service.query;
 
 import com.example.bssm_dev.common.dto.CursorPage;
-import com.example.bssm_dev.domain.docs.dto.response.DocsDetailResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
-import com.example.bssm_dev.domain.docs.extractor.DocsExtractor;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
-import com.example.bssm_dev.domain.docs.model.ApiDocument;
 import com.example.bssm_dev.domain.docs.model.Docs;
-import com.example.bssm_dev.domain.docs.model.type.DocsType;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
-import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
+import com.example.bssm_dev.domain.user.model.User;
+import com.example.bssm_dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,50 +26,48 @@ import java.util.Map;
 public class DocsQueryService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;
-    private final DocsExtractor docsExtractor;
-    private final ApiDocumentQueryService apiDocumentQueryService;
+    private final UserRepository userRepository;
 
-    public CursorPage<DocsListResponse> getAllDocs(DocsType type, Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getAllDocs(DocumentType docsType, String cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
         
-        Pageable pageable = PageRequest.of(0, size);
+        Slice<Docs> docsSlice = docsRepository.fetchDocs(docsType, cursor, pageable);
+        List<Docs> docsList = docsSlice.getContent();
 
-        Slice<Docs> docsSlice = docsRepository.findAllWithCursorOrderByDocsIdDesc(type, cursor, pageable);
-        
-        List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
-        
-        return new CursorPage<>(docsListResponse, docsSlice.hasNext());
+        boolean hasNext = docsList.size() > size;
+        List<Docs> content = hasNext ? docsList.subList(0, size) : docsList;
+
+        Map<Long, User> userMap = getUserMapByWriterids(content);
+
+        List<DocsListResponse> responses = docsMapper.toDocsListResponse(userMap, content);
+       
+        return new CursorPage<>(responses, hasNext);
     }
 
-    public CursorPage<DocsListResponse> getMyDocs(Long userId, DocsType type, Long cursor, Integer size) {
+    public CursorPage<DocsListResponse> getMyDocs(User currentUser, DocumentType docsType, String cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
         
-        Pageable pageable = PageRequest.of(0, size);
+        Slice<Docs> docsSlice = docsRepository.fetchMyDocs(currentUser.getUserId(), docsType, cursor, pageable);
+        List<Docs> docsList = docsSlice.getContent();
 
-        Slice<Docs> docsSlice = docsRepository.findMyDocsWithCursorOrderByDocsIdDesc(userId, type, cursor, pageable);
-        
-        List<DocsListResponse> docsListResponse = docsMapper.toListResponse(docsSlice);
-        
-        return new CursorPage<>(docsListResponse, docsSlice.hasNext());
+        boolean hasNext = docsList.size() > size;
+        List<Docs> content = hasNext ? docsList.subList(0, size) : docsList;
+
+        String writerName = currentUser.getName();
+        List<DocsListResponse> responses = docsMapper.toDocsListResponse(writerName, content);
+        return new CursorPage<>(responses, hasNext);
     }
 
-    public DocsDetailResponse getDocsDetail(Long docsId) {
-        Docs docs = docsRepository.findById(docsId)
-                .orElseThrow(DocsNotFoundException::raise);
+    private Map<Long, User> getUserMapByWriterids(List<Docs> content) {
+        Set<Long> writerIds = content.stream()
+                .map(Docs::getWriterId)
+                .collect(Collectors.toSet());
 
-        DocsDetailResponse response = docsMapper.toDetailResponse(docs);
-
-        // API 문서 정보를 MongoDB에서 가져와서 추가
-        List<Long> apiIds = docsExtractor.extractApiIds(docs);
-        boolean apiIdsEmpty = apiIds.isEmpty();
-        if (!apiIdsEmpty) {
-            Map<Long, ApiDocument> apiDocumentMap = apiDocumentQueryService.findApiDocumentsByApiIds(apiIds);
-            response = docsMapper.enrichWithApiDocuments(response, apiDocumentMap);
-        }
-
-        return response;
-    }
-
-    public Docs findById(Long docsId) {
-        return docsRepository.findById(docsId)
-                .orElseThrow(DocsNotFoundException::raise);
+        Map<Long, User> userMap = userRepository.findAllById(writerIds)
+                .stream()
+                .collect(
+                        Collectors.toMap(User::getUserId, user -> user)
+                );
+        return userMap;
     }
 }

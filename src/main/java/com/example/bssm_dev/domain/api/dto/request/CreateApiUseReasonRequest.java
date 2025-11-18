@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateApiUseReasonRequest(
         @NotNull(message = "API ID는 필수입니다.")
-        Long apiId,
+        String apiId,
 
         @NotBlank(message = "API 사용 사유는 필수입니다.")
         String apiUseReason

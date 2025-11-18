@@ -2,6 +2,12 @@ spring:
   application:
     name: bssm_dev
 
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/bssm_dev
+      auto-index-creation: true
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
