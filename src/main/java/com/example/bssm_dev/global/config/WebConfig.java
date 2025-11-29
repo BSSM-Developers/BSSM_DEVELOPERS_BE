@@ -26,7 +26,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
         log.info("[WebConfig] Configuring CORS mappings");
         registry.addMapping("/**")
-                .allowedOriginPatterns("https://bdv.comodoapp.net", "http://localhost:*", "https://localhost:*")
+                .allowedOriginPatterns(
+                        "https://bssmdev.com",
+                        "http://localhost:*",     
+                        "https://localhost:*"     
+                )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)

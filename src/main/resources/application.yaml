@@ -1,3 +1,7 @@
+cookie:
+  secure: true  # 프로덕션 기본값 (HTTPS 필수)
+  same-site: None
+
 spring:
   application:
     name: bssm_dev
