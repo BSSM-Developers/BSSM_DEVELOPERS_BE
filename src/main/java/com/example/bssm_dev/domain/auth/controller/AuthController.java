@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final CookieUtil cookieUtil;
 
     /**
      * Access Token 재발급
@@ -34,7 +35,7 @@ public class AuthController {
     ) {
         TokenResponse tokenResponse = authService.reissue(refreshToken);
 
-        ResponseCookie refreshTokenCookie = CookieUtil.bake("refresh_token", refreshToken);
+        ResponseCookie refreshTokenCookie = cookieUtil.bake("refresh_token", refreshToken);
         httpServletResponse.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse.accessToken());

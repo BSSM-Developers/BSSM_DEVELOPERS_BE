@@ -26,7 +26,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
         log.info("[WebConfig] Configuring CORS mappings");
         registry.addMapping("/**")
-                .allowedOriginPatterns("https://bssmdev.com")  // 모든 origin 허용 (개발용)
+                .allowedOriginPatterns(
+                        "https://bssmdev.com",
+                        "http://localhost:*",     // 프론트 로컬 개발용
+                        "https://localhost:*"     // 프론트 로컬 개발용 (HTTPS)
+                )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
