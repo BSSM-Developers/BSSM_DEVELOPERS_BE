@@ -1,13 +1,9 @@
 package com.example.bssm_dev.domain.auth.service;
 
 import com.example.bssm_dev.domain.auth.component.UrlBuilder;
-import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleTokenResponse;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
 import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
-import com.example.bssm_dev.domain.auth.exception.InvalidStateParameterException;
-import com.example.bssm_dev.domain.auth.model.GoogleCodeVerifier;
-import com.example.bssm_dev.domain.auth.repository.GoogleCodeVerifierRepository;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
 import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
 import com.example.bssm_dev.domain.user.dto.request.UserRequest;
@@ -18,11 +14,8 @@ import com.example.bssm_dev.domain.user.service.UserQueryService;
 import com.example.bssm_dev.global.feign.GoogleResourceAccessFeign;
 import com.example.bssm_dev.global.feign.GoogleTokenFeign;
 import com.example.bssm_dev.global.jwt.JwtProvider;
-import com.example.bssm_dev.domain.auth.util.PkceUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,28 +31,12 @@ public class GoogleLoginService {
 
     private final SignupCommandService signupCommandService;
     private final JwtProvider jwtProvider;
-    private final GoogleCodeVerifierRepository googleCodeVerifierRepository;
 
-    public GoogleLoginUrlResponse getUrl() {
-        String state = UUID.randomUUID().toString();
-        String codeVerifier = PkceUtil.generateCodeVerifier();
-        String codeChallenge = PkceUtil.codeChallengeS256(codeVerifier);
-
-        GoogleCodeVerifier googleCodeVerifier = GoogleCodeVerifier.of(state, codeVerifier);
-        googleCodeVerifierRepository.save(googleCodeVerifier);
-
-        String url = urlBuilder.getGoogleLoginUrl(codeChallenge, state);
-
-        return new GoogleLoginUrlResponse(url);
+    public LoginResult exchangeTokenDirectly(String code, String codeVerifier) {
+        return exchangeTokenAndRegisterOrLogin(code, codeVerifier);
     }
 
-    public LoginResult registerOrLogin(String code, String state) {
-        GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
-                .orElseThrow(InvalidStateParameterException::raise);
-
-        String codeVerifier = googleCodeVerifier.getCodeVerifier();
-        googleCodeVerifierRepository.delete(googleCodeVerifier);
-
+    private LoginResult exchangeTokenAndRegisterOrLogin(String code, String codeVerifier) {
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
         GoogleTokenResponse tokenResponse = googleTokenFeign.getToken(body);
@@ -86,8 +63,9 @@ public class GoogleLoginService {
         String userEmail = userLoginResponse.email();
         String role = userLoginResponse.role();
 
+        String accessToken = jwtProvider.generateAccessToken(userId, userEmail, role);
         String refreshToken = jwtProvider.generateRefreshToken(userId, userEmail, role);
-        return new LoginResult.LoginSuccess(refreshToken);
+        return new LoginResult.LoginSuccess(accessToken, refreshToken);
     }
 
     private LoginResult registerUser(GoogleUserResponse googleUser) {
@@ -101,8 +79,9 @@ public class GoogleLoginService {
             String email = userLoginResponse.email();
             String role = userLoginResponse.role();
 
+            String accessToken = jwtProvider.generateAccessToken(userId, email, role);
             String refreshToken = jwtProvider.generateRefreshToken(userId, email, role);
-            return new LoginResult.LoginSuccess(refreshToken);
+            return new LoginResult.LoginSuccess(accessToken, refreshToken);
         } else {
             // 일반 구글 계정이면 회원가입 신청
             SignupRequest signupRequest = new SignupRequest(
