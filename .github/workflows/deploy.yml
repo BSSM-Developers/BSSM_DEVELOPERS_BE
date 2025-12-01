@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-${{ vars.SVC }}-prod
+  group: deploy-${{ vars.SVC }}-dev
   cancel-in-progress: false
 
 permissions:
@@ -17,9 +17,9 @@ jobs:
     runs-on: [ self-hosted ]   
 
     env:
-      CTID:     ${{ vars.CTID }}        
+      CTID:     ${{ vars.DEV_CTID }}        
       SVC:      ${{ vars.SVC }}         
-      APP_DIR:  ${{ vars.APP_DIR }}     
+      APP_DIR:  ${{ vars.DEV_APP_DIR }}     
       JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
 
     steps:
