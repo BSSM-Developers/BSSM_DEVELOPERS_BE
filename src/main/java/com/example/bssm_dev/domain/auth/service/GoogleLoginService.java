@@ -88,20 +88,6 @@ public class GoogleLoginService {
         return exchangeTokenAndRegisterOrLogin(code, codeVerifier);
     }
 
-    /**
-     * @deprecated 기존 방식 (Server에서 직접 redirect). handleCallback + processLogin 사용 권장
-     */
-    @Deprecated
-    public LoginResult registerOrLogin(String code, String state) {
-        GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
-                .orElseThrow(InvalidStateParameterException::raise);
-
-        String codeVerifier = googleCodeVerifier.getCodeVerifier();
-        googleCodeVerifierRepository.delete(googleCodeVerifier);
-
-        return exchangeTokenAndRegisterOrLogin(code, codeVerifier);
-    }
-
     private LoginResult exchangeTokenAndRegisterOrLogin(String code, String codeVerifier) {
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
