@@ -17,7 +17,7 @@ jobs:
     runs-on: [ self-hosted ]   
 
     env:
-      CTID:     ${{ vars.CTID }}        
+      CTID:     ${{ vars.PROD_CTID }}        
       SVC:      ${{ vars.SVC }}         
       APP_DIR:  ${{ vars.APP_DIR }}     
       JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
