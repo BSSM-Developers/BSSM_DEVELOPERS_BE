@@ -19,7 +19,7 @@ jobs:
     env:
       CTID:     ${{ vars.DEV_CTID }}        
       SVC:      ${{ vars.SVC }}         
-      APP_DIR:  ${{ vars.DEV_APP_DIR }}     
+      APP_DIR:  ${{ vars.APP_DIR }}     
       JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
 
     steps:
