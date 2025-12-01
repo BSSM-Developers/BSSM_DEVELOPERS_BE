@@ -1,6 +1,9 @@
 package com.example.bssm_dev.domain.auth.controller;
 
 import com.example.bssm_dev.common.dto.ResponseDto;
+import com.example.bssm_dev.domain.auth.dto.request.GoogleTokenExchangeRequest;
+import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
+import com.example.bssm_dev.domain.auth.service.GoogleLoginService;
 import com.example.bssm_dev.common.util.CookieUtil;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.auth.dto.response.AccessTokenResponse;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +27,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final GoogleLoginService googleLoginService;
     private final CookieUtil cookieUtil;
+
+    /**
+     * 구글 로그인 - Access Token 발급
+     */
+    @PostMapping("/google/token")
+    public ResponseEntity<ResponseDto<AccessTokenResponse>> exchangeGoogleToken(
+            @RequestBody GoogleTokenExchangeRequest request,
+            HttpServletResponse httpServletResponse
+    ) {
+        LoginResult result = googleLoginService.exchangeTokenDirectly(
+                request.code(),
+                request.codeVerifier()
+        );
+
+        switch (result) {
+            case LoginResult.LoginSuccess(String accessToken, String refreshToken) -> {
+                // Refresh Token은 HttpOnly Cookie로 저장
+                ResponseCookie cookie = cookieUtil.bake("refresh_token", refreshToken);
+                httpServletResponse.addHeader("Set-Cookie", cookie.toString());
+
+                // Access Token은 응답 본문으로 반환 (FE에서 메모리/상태관리에 저장)
+                AccessTokenResponse response = AccessTokenResponse.of(accessToken);
+                ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("login success", response);
+                return ResponseEntity.ok(responseDto);
+            }
+            case LoginResult.SignupRequired(String signupToken) -> {
+                // 회원가입 필요한 경우
+                ResponseCookie cookie = cookieUtil.bake("signup_token", signupToken);
+                httpServletResponse.addHeader("Set-Cookie", cookie.toString());
+
+                ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("signup required", null);
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseDto);
+            }
+        }
+    }
 
     /**
      * Access Token 재발급
