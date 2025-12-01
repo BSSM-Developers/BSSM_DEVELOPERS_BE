@@ -7,6 +7,8 @@ import com.example.bssm_dev.domain.auth.dto.response.GoogleUserResponse;
 import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
 import com.example.bssm_dev.domain.auth.exception.InvalidStateParameterException;
 import com.example.bssm_dev.domain.auth.model.GoogleCodeVerifier;
+import com.example.bssm_dev.domain.auth.model.GoogleAuthCode;
+import com.example.bssm_dev.domain.auth.repository.GoogleAuthCodeRepository;
 import com.example.bssm_dev.domain.auth.repository.GoogleCodeVerifierRepository;
 import com.example.bssm_dev.domain.auth.validator.EmailValidator;
 import com.example.bssm_dev.domain.signup.dto.request.SignupRequest;
@@ -39,6 +41,7 @@ public class GoogleLoginService {
     private final SignupCommandService signupCommandService;
     private final JwtProvider jwtProvider;
     private final GoogleCodeVerifierRepository googleCodeVerifierRepository;
+    private final GoogleAuthCodeRepository googleAuthCodeRepository;
 
     public GoogleLoginUrlResponse getUrl() {
         String state = UUID.randomUUID().toString();
@@ -53,6 +56,42 @@ public class GoogleLoginService {
         return new GoogleLoginUrlResponse(url);
     }
 
+    /**
+     * Google OAuth callback 처리: state 검증 후 임시 토큰 생성
+     */
+    public String handleCallback(String code, String state) {
+        GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
+                .orElseThrow(InvalidStateParameterException::raise);
+
+        String codeVerifier = googleCodeVerifier.getCodeVerifier();
+        googleCodeVerifierRepository.delete(googleCodeVerifier);
+
+        // 임시 토큰 생성 및 저장
+        String tempToken = UUID.randomUUID().toString();
+        GoogleAuthCode googleAuthCode = GoogleAuthCode.of(tempToken, code, codeVerifier);
+        googleAuthCodeRepository.save(googleAuthCode);
+
+        return tempToken;
+    }
+
+    /**
+     * 임시 토큰으로 로그인 처리: 토큰 교환 및 사용자 등록/로그인
+     */
+    public LoginResult processLogin(String tempToken) {
+        GoogleAuthCode googleAuthCode = googleAuthCodeRepository.findById(tempToken)
+                .orElseThrow(InvalidStateParameterException::raise);
+
+        String code = googleAuthCode.getCode();
+        String codeVerifier = googleAuthCode.getCodeVerifier();
+        googleAuthCodeRepository.delete(googleAuthCode);
+
+        return exchangeTokenAndRegisterOrLogin(code, codeVerifier);
+    }
+
+    /**
+     * @deprecated 기존 방식 (Server에서 직접 redirect). handleCallback + processLogin 사용 권장
+     */
+    @Deprecated
     public LoginResult registerOrLogin(String code, String state) {
         GoogleCodeVerifier googleCodeVerifier = googleCodeVerifierRepository.findById(state)
                 .orElseThrow(InvalidStateParameterException::raise);
@@ -60,6 +99,10 @@ public class GoogleLoginService {
         String codeVerifier = googleCodeVerifier.getCodeVerifier();
         googleCodeVerifierRepository.delete(googleCodeVerifier);
 
+        return exchangeTokenAndRegisterOrLogin(code, codeVerifier);
+    }
+
+    private LoginResult exchangeTokenAndRegisterOrLogin(String code, String codeVerifier) {
         String body = urlBuilder.getTokenUrl(code, codeVerifier);
 
         GoogleTokenResponse tokenResponse = googleTokenFeign.getToken(body);

@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.auth.controller;
 import com.example.bssm_dev.common.dto.ResponseDto;
+import com.example.bssm_dev.domain.auth.dto.request.GoogleLoginRequest;
 import com.example.bssm_dev.domain.auth.dto.response.GoogleLoginUrlResponse;
 import com.example.bssm_dev.domain.auth.dto.response.LoginResult;
 import com.example.bssm_dev.domain.auth.service.GoogleLoginService;
@@ -33,26 +34,44 @@ public class GoogleLoginController {
         return ResponseEntity.ok(responseDto);
     }
 
+    /**
+     * Google OAuth2 callback - code를 받아 임시 토큰 생성 후 FE로 redirect
+     */
     @GetMapping("/callback")
     public void googleLoginCallback(
             @RequestParam("code") String code,
             @RequestParam("state") String state,
             HttpServletResponse response
     ) throws IOException {
-        LoginResult result = googleLoginService.registerOrLogin(code, state);
-        String redirectUrl = "";
+        String tempToken = googleLoginService.handleCallback(code, state);
+        
+        // FE로 redirect with temp token
+        String redirectUrl = clientProperties.getBaseUrl() + "/auth/callback?token=" + tempToken;
+        response.sendRedirect(redirectUrl);
+    }
+
+    /**
+     * Google 로그인 - FE에서 임시 토큰으로 호출, 실제 토큰 교환 및 쿠키 발급
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDto<Void>> googleLogin(
+            @RequestBody GoogleLoginRequest request,
+            HttpServletResponse httpServletResponse
+    ) {
+        LoginResult result = googleLoginService.processLogin(request.token());
+        
         switch (result) {
             case LoginResult.LoginSuccess(String refreshToken) -> {
                 ResponseCookie cookie = cookieUtil.bake("refresh_token", refreshToken);
-                response.addHeader("Set-Cookie", cookie.toString());
-                redirectUrl = clientProperties.getLoginSuccessUrl();
+                httpServletResponse.addHeader("Set-Cookie", cookie.toString());
             }
             case LoginResult.SignupRequired(String signupToken) -> {
                 ResponseCookie cookie = cookieUtil.bake("signup_token", signupToken);
-                response.addHeader("Set-Cookie", cookie.toString());
-                redirectUrl = clientProperties.getSignupSuccessUrl();
+                httpServletResponse.addHeader("Set-Cookie", cookie.toString());
             }
         }
-        response.sendRedirect(redirectUrl);
+        
+        ResponseDto<Void> responseDto = HttpUtil.success("login success");
+        return ResponseEntity.ok(responseDto);
     }
 }

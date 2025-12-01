@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("client")
 public class ClientProperties {
+    private String baseUrl;
     private String loginSuccessUrl;
     private String signupSuccessUrl;
 }
