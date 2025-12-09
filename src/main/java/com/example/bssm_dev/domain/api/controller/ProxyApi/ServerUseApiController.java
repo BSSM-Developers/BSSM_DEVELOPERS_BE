@@ -1,6 +1,6 @@
-package com.example.bssm_dev.domain.api.controller;
+package com.example.bssm_dev.domain.api.controller.ProxyApi;
 
-import com.example.bssm_dev.domain.api.service.UseApiService;
+import com.example.bssm_dev.domain.api.service.ServerUseApiService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/proxy/**")
-public class UseApiController {
+public class ServerUseApiController {
 
-    private final UseApiService useApiService;
+    private final ServerUseApiService serverUseApiService;
 
     /**
-     * 외부 API GET 요청 프록시
+     * 서버용 외부 API GET 요청 프록시 (secretKey 기반 인증)
      */
     @GetMapping
     public ResponseEntity<Object> useApiByGet(
@@ -22,12 +22,12 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.get(secretKey, token, request);
+        Object response = serverUseApiService.get(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 외부 API POST 요청 프록시
+     * 서버용 외부 API POST 요청 프록시 (secretKey 기반 인증)
      */
     @PostMapping
     public ResponseEntity<Object> useApiByPost(
@@ -35,12 +35,12 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.post(secretKey, token, request);
+        Object response = serverUseApiService.post(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 외부 API PATCH 요청 프록시
+     * 서버용 외부 API PATCH 요청 프록시 (secretKey 기반 인증)
      */
     @PatchMapping
     public ResponseEntity<Object> useApiByPatch(
@@ -48,12 +48,12 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.patch(secretKey, token, request);
+        Object response = serverUseApiService.patch(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 외부 API PUT 요청 프록시
+     * 서버용 외부 API PUT 요청 프록시 (secretKey 기반 인증)
      */
     @PutMapping
     public ResponseEntity<Object> useApiByPut(
@@ -61,13 +61,12 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-
-        Object response = useApiService.put(secretKey, token, request);
+        Object response = serverUseApiService.put(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 외부 API DELETE 요청 프록시
+     * 서버용 외부 API DELETE 요청 프록시 (secretKey 기반 인증)
      */
     @DeleteMapping
     public ResponseEntity<Object> useApiByDelete(
@@ -75,8 +74,7 @@ public class UseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.delete(secretKey, token, request);
+        Object response = serverUseApiService.delete(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
-
 }

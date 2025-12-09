@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.model;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.exception.InvalidSecretKeyException;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +42,13 @@ public class ApiToken {
     @Column(nullable = false)
     private String secretKey;
 
+    @OneToMany(mappedBy = "apiToken", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TokenDomain> tokenDomains = new ArrayList<>();
+
     @OneToMany(mappedBy = "apiToken")
     @BatchSize(size = 30)
+    @Builder.Default
     List<ApiUsage> apiUsageList = new ArrayList<>();
 
     public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID) {
@@ -53,6 +60,16 @@ public class ApiToken {
                 .build();
     }
 
+    public void addTokenDomain(String domain) {
+        TokenDomain tokenDomain = TokenDomain.of(this, domain);
+        this.tokenDomains.add(tokenDomain);
+    }
+
+    public void updateTokenDomains(List<String> domains) {
+        this.tokenDomains.clear();
+        domains.forEach(this::addTokenDomain);
+    }
+
     public void changeSecretKey(String secretKey) {
         this.secretKey = secretKey;
     }
@@ -61,10 +78,48 @@ public class ApiToken {
         this.apiTokenName = apiTokenName;
     }
 
-    public void validateSecretKey(String secretKey) {
-        boolean equalsSecretKey = this.secretKey.equals(secretKey);
-        if (!equalsSecretKey)
+    public void validateSecretKey(String plainSecretKey, PasswordEncoder passwordEncoder) {
+        if (!passwordEncoder.matches(plainSecretKey, this.secretKey)) {
             throw InvalidSecretKeyException.raise();
+        }
+    }
+
+    public void validateServerAccess(String plainSecretKey, PasswordEncoder passwordEncoder) {
+        if (plainSecretKey == null || plainSecretKey.isEmpty()) {
+            throw InvalidSecretKeyException.raise();
+        }
+        validateSecretKey(plainSecretKey, passwordEncoder);
+    }
+
+    public void validateBrowserAccess(String requestOrigin) {
+        if (tokenDomains == null || tokenDomains.isEmpty()) {
+            throw UnauthorizedDomainException.raise();
+        }
+        validateDomain(requestOrigin);
+    }
+
+    private void validateDomain(String requestOrigin) {
+        if (requestOrigin == null || requestOrigin.isEmpty()) {
+            throw UnauthorizedDomainException.raise();
+        }
+
+        String domain = extractDomain(requestOrigin);
+        boolean isAllowed = tokenDomains.stream()
+                .anyMatch(tokenDomain -> tokenDomain.matchesDomain(domain));
+
+        if (!isAllowed) {
+            throw UnauthorizedDomainException.raise();
+        }
+    }
+
+    private String extractDomain(String origin) {
+        String domain = origin.replaceAll("^https?://", "");
+        domain = domain.replaceAll(":\\d+$", "");
+        int slashIndex = domain.indexOf('/');
+        if (slashIndex != -1) {
+            domain = domain.substring(0, slashIndex);
+        }
+        return domain;
     }
 
     public boolean checkApiUsage(Api api) {
