@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,17 +78,17 @@ public class ApiToken {
         this.apiTokenName = apiTokenName;
     }
 
-    public void validateSecretKey(String secretKey) {
-        boolean equalsSecretKey = this.secretKey.equals(secretKey);
-        if (!equalsSecretKey)
-            throw InvalidSecretKeyException.raise();
-    }
-
-    public void validateServerAccess(String secretKey) {
-        if (secretKey == null || secretKey.isEmpty()) {
+    public void validateSecretKey(String plainSecretKey, PasswordEncoder passwordEncoder) {
+        if (!passwordEncoder.matches(plainSecretKey, this.secretKey)) {
             throw InvalidSecretKeyException.raise();
         }
-        validateSecretKey(secretKey);
+    }
+
+    public void validateServerAccess(String plainSecretKey, PasswordEncoder passwordEncoder) {
+        if (plainSecretKey == null || plainSecretKey.isEmpty()) {
+            throw InvalidSecretKeyException.raise();
+        }
+        validateSecretKey(plainSecretKey, passwordEncoder);
     }
 
     public void validateBrowserAccess(String requestOrigin) {

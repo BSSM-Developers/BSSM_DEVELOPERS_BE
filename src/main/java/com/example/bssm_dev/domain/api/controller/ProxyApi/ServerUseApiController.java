@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/proxy-server/**")
+@RequestMapping("/api/proxy/**")
 public class ServerUseApiController {
 
-    private final ServerUseApiService useApiService;
+    private final ServerUseApiService serverUseApiService;
 
     /**
      * 서버용 외부 API GET 요청 프록시 (secretKey 기반 인증)
@@ -22,7 +22,7 @@ public class ServerUseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.get(secretKey, token, request);
+        Object response = serverUseApiService.get(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -35,7 +35,7 @@ public class ServerUseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.post(secretKey, token, request);
+        Object response = serverUseApiService.post(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -48,7 +48,7 @@ public class ServerUseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.patch(secretKey, token, request);
+        Object response = serverUseApiService.patch(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -61,7 +61,7 @@ public class ServerUseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.put(secretKey, token, request);
+        Object response = serverUseApiService.put(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -74,7 +74,7 @@ public class ServerUseApiController {
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
-        Object response = useApiService.delete(secretKey, token, request);
+        Object response = serverUseApiService.delete(secretKey, token, request);
         return ResponseEntity.ok(response);
     }
 }

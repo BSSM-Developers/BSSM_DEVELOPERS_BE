@@ -8,6 +8,7 @@ import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
 import com.example.bssm_dev.domain.api.service.query.ApiUsageQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -16,10 +17,11 @@ import org.springframework.stereotype.Service;
 public class ServerUseApiService {
     private final ApiTokenQueryService apiTokenQueryService;
     private final ApiUsageQueryService apiUsageQueryService;
+    private final PasswordEncoder passwordEncoder;
 
     public Object get(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateServerAccess(secretKey);
+        apiToken.validateServerAccess(secretKey, passwordEncoder);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -31,7 +33,7 @@ public class ServerUseApiService {
 
     public Object post(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateServerAccess(secretKey);
+        apiToken.validateServerAccess(secretKey, passwordEncoder);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -43,7 +45,7 @@ public class ServerUseApiService {
 
     public Object patch(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateServerAccess(secretKey);
+        apiToken.validateServerAccess(secretKey, passwordEncoder);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -55,7 +57,7 @@ public class ServerUseApiService {
 
     public Object put(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateServerAccess(secretKey);
+        apiToken.validateServerAccess(secretKey, passwordEncoder);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -67,7 +69,7 @@ public class ServerUseApiService {
 
     public Object delete(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateServerAccess(secretKey);
+        apiToken.validateServerAccess(secretKey, passwordEncoder);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 

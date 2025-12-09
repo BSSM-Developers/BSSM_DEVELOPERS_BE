@@ -14,7 +14,7 @@ import java.util.List;
 public class ApiTokenMapper {
     private final ApiUsageMapper apiUsageMapper;
     
-    public SecretApiTokenResponse toSecretApiTokenResponse(ApiToken apiToken) {
+    public SecretApiTokenResponse toSecretApiTokenResponse(ApiToken apiToken, String plainSecretKey) {
         List<String> domains = apiToken.getTokenDomains().stream()
                 .map(tokenDomain -> tokenDomain.getDomain())
                 .toList();
@@ -23,7 +23,7 @@ public class ApiTokenMapper {
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
-                apiToken.getSecretKey(),
+                plainSecretKey,
                 domains
         );
     }
