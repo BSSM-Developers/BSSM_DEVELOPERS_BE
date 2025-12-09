@@ -24,7 +24,6 @@ public class ApiTokenMapper {
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
                 apiToken.getSecretKey(),
-                apiToken.getTokenType(),
                 domains
         );
     }
@@ -58,7 +57,6 @@ public class ApiTokenMapper {
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
-                apiToken.getTokenType(),
                 domains,
                 apiUsageMapper.toSummaryListResponse(apiToken.getApiUsageList())
         );

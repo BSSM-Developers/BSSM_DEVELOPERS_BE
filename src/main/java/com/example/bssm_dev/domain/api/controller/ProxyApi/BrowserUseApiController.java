@@ -1,6 +1,6 @@
 package com.example.bssm_dev.domain.api.controller.ProxyApi;
 
-import com.example.bssm_dev.domain.api.service.UseApiService;
+import com.example.bssm_dev.domain.api.service.BrowserUseApiService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/proxy-browser/**")
 public class BrowserUseApiController {
 
-    private final UseApiService useApiService;
+    private final BrowserUseApiService browserUseApiService;
 
     /**
      * 브라우저용 외부 API GET 요청 프록시 (도메인 기반 인증)
@@ -21,7 +21,7 @@ public class BrowserUseApiController {
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
-        Object response = useApiService.get(null, token, request);
+        Object response = browserUseApiService.get(token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -33,7 +33,7 @@ public class BrowserUseApiController {
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
-        Object response = useApiService.post(null, token, request);
+        Object response = browserUseApiService.post(token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -45,7 +45,7 @@ public class BrowserUseApiController {
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
-        Object response = useApiService.patch(null, token, request);
+        Object response = browserUseApiService.patch(token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -57,7 +57,7 @@ public class BrowserUseApiController {
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
-        Object response = useApiService.put(null, token, request);
+        Object response = browserUseApiService.put(token, request);
         return ResponseEntity.ok(response);
     }
 
@@ -69,7 +69,7 @@ public class BrowserUseApiController {
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
-        Object response = useApiService.delete(null, token, request);
+        Object response = browserUseApiService.delete(token, request);
         return ResponseEntity.ok(response);
     }
 }

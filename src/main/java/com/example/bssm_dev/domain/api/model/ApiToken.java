@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.model;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
 import com.example.bssm_dev.domain.api.exception.InvalidSecretKeyException;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -40,10 +41,6 @@ public class ApiToken {
     @Column(nullable = false)
     private String secretKey;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TokenType tokenType;
-
     @OneToMany(mappedBy = "apiToken", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TokenDomain> tokenDomains = new ArrayList<>();
@@ -53,13 +50,12 @@ public class ApiToken {
     @Builder.Default
     List<ApiUsage> apiUsageList = new ArrayList<>();
 
-    public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID, TokenType tokenType) {
+    public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID) {
         return ApiToken.builder()
                 .user(user)
                 .secretKey(secretKey)
                 .apiTokenName(apiTokenName)
                 .apiTokenUUID(apiTokenUUID)
-                .tokenType(tokenType)
                 .build();
     }
 
@@ -71,14 +67,6 @@ public class ApiToken {
     public void updateTokenDomains(List<String> domains) {
         this.tokenDomains.clear();
         domains.forEach(this::addTokenDomain);
-    }
-
-    public boolean isAllowedDomain(String requestDomain) {
-        if (tokenType == TokenType.SERVER) {
-            return true; // SERVER 타입은 도메인 검증 불필요
-        }
-        return tokenDomains.stream()
-                .anyMatch(tokenDomain -> tokenDomain.matchesDomain(requestDomain));
     }
 
     public void changeSecretKey(String secretKey) {
@@ -95,20 +83,23 @@ public class ApiToken {
             throw InvalidSecretKeyException.raise();
     }
 
-    public void validateAccess(String secretKey, String requestOrigin) {
-        if (tokenType == TokenType.SERVER) {
-            if (secretKey == null || secretKey.isEmpty()) {
-                throw InvalidSecretKeyException.raise();
-            }
-            validateSecretKey(secretKey);
-        } else if (tokenType == TokenType.BROWSER) {
-            validateDomain(requestOrigin);
+    public void validateServerAccess(String secretKey) {
+        if (secretKey == null || secretKey.isEmpty()) {
+            throw InvalidSecretKeyException.raise();
         }
+        validateSecretKey(secretKey);
+    }
+
+    public void validateBrowserAccess(String requestOrigin) {
+        if (tokenDomains == null || tokenDomains.isEmpty()) {
+            throw UnauthorizedDomainException.raise();
+        }
+        validateDomain(requestOrigin);
     }
 
     private void validateDomain(String requestOrigin) {
         if (requestOrigin == null || requestOrigin.isEmpty()) {
-            throw com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException.raise();
+            throw UnauthorizedDomainException.raise();
         }
 
         String domain = extractDomain(requestOrigin);
@@ -116,16 +107,13 @@ public class ApiToken {
                 .anyMatch(tokenDomain -> tokenDomain.matchesDomain(domain));
 
         if (!isAllowed) {
-            throw com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException.raise();
+            throw UnauthorizedDomainException.raise();
         }
     }
 
     private String extractDomain(String origin) {
-        // http:// 또는 https:// 제거
         String domain = origin.replaceAll("^https?://", "");
-        // 포트 번호 제거
         domain = domain.replaceAll(":\\d+$", "");
-        // 경로 제거
         int slashIndex = domain.indexOf('/');
         if (slashIndex != -1) {
             domain = domain.substring(0, slashIndex);

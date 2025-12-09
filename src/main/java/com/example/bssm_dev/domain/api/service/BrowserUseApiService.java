@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UseApiService {
+public class BrowserUseApiService {
     private final ApiTokenQueryService apiTokenQueryService;
     private final ApiUsageQueryService apiUsageQueryService;
 
-    public Object get(String secretKey, String token, HttpServletRequest request) {
+    public Object get(String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         String origin = request.getHeader("Origin");
-        apiToken.validateAccess(secretKey, origin);
+        apiToken.validateBrowserAccess(origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -31,10 +31,10 @@ public class UseApiService {
     }
 
 
-    public Object post(String secretKey, String token, HttpServletRequest request) {
+    public Object post(String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         String origin = request.getHeader("Origin");
-        apiToken.validateAccess(secretKey, origin);
+        apiToken.validateBrowserAccess(origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -44,10 +44,10 @@ public class UseApiService {
         return response;
     }
 
-    public Object patch(String secretKey, String token, HttpServletRequest request) {
+    public Object patch(String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         String origin = request.getHeader("Origin");
-        apiToken.validateAccess(secretKey, origin);
+        apiToken.validateBrowserAccess(origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -57,10 +57,10 @@ public class UseApiService {
         return response;
     }
 
-    public Object put(String secretKey, String token, HttpServletRequest request) {
+    public Object put(String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         String origin = request.getHeader("Origin");
-        apiToken.validateAccess(secretKey, origin);
+        apiToken.validateBrowserAccess(origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -70,10 +70,10 @@ public class UseApiService {
         return response;
     }
 
-    public Object delete(String secretKey, String token, HttpServletRequest request) {
+    public Object delete(String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
         String origin = request.getHeader("Origin");
-        apiToken.validateAccess(secretKey, origin);
+        apiToken.validateBrowserAccess(origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 

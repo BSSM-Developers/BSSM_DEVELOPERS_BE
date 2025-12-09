@@ -31,7 +31,6 @@ public class ApiTokenCommandController {
         SecretApiTokenResponse apiTokenResponse = apiTokenCommandService.createApiToken(
                 user,
                 request.apiTokenName(),
-                request.tokenType(),
                 request.domains()
         );
         ResponseDto<SecretApiTokenResponse> responseDto = HttpUtil.success("Successfully created API token", apiTokenResponse);
