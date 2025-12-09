@@ -1,4 +1,4 @@
-package com.example.bssm_dev.domain.api.controller;
+package com.example.bssm_dev.domain.api.controller.ProxyApi;
 
 import com.example.bssm_dev.domain.api.service.UseApiService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/proxy/**")
-public class UseApiController {
+public class ServerUseApiController {
 
     private final UseApiService useApiService;
 

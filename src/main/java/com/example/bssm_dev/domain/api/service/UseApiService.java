@@ -19,7 +19,8 @@ public class UseApiService {
 
     public Object get(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateSecretKey(secretKey);
+        String origin = request.getHeader("Origin");
+        apiToken.validateAccess(secretKey, origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -32,7 +33,8 @@ public class UseApiService {
 
     public Object post(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateSecretKey(secretKey);
+        String origin = request.getHeader("Origin");
+        apiToken.validateAccess(secretKey, origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -44,7 +46,8 @@ public class UseApiService {
 
     public Object patch(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateSecretKey(secretKey);
+        String origin = request.getHeader("Origin");
+        apiToken.validateAccess(secretKey, origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -56,7 +59,8 @@ public class UseApiService {
 
     public Object put(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateSecretKey(secretKey);
+        String origin = request.getHeader("Origin");
+        apiToken.validateAccess(secretKey, origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 
@@ -68,7 +72,8 @@ public class UseApiService {
 
     public Object delete(String secretKey, String token, HttpServletRequest request) {
         ApiToken apiToken = apiTokenQueryService.findByTokenClientId(token);
-        apiToken.validateSecretKey(secretKey);
+        String origin = request.getHeader("Origin");
+        apiToken.validateAccess(secretKey, origin);
 
         RequestInfo requestInfo = RequestInfo.of(request);
 

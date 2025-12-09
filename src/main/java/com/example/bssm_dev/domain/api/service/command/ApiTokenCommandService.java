@@ -6,11 +6,14 @@ import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
+import com.example.bssm_dev.domain.api.model.TokenType;
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import java.util.UUID;
 
@@ -21,13 +24,26 @@ public class ApiTokenCommandService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
 
-    public SecretApiTokenResponse createApiToken(User user, String apiTokenName) {
+    public SecretApiTokenResponse createApiToken(User user, String apiTokenName, TokenType tokenType, List<String> domains) {
+        validateTokenCreation(tokenType, domains);
+        
         String secretKey = generateSecretKey();
         String apiTokenUUID = generateUUID();
-        ApiToken apiToken = ApiToken.of(user, secretKey, apiTokenName, apiTokenUUID);
+        ApiToken apiToken = ApiToken.of(user, secretKey, apiTokenName, apiTokenUUID, tokenType);
+        
+        if (tokenType == TokenType.BROWSER && domains != null && !domains.isEmpty()) {
+            domains.forEach(apiToken::addTokenDomain);
+        }
+        
         apiTokenRepository.save(apiToken);
         SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken);
         return response;
+    }
+
+    private void validateTokenCreation(TokenType tokenType, List<String> domains) {
+        if (tokenType == TokenType.BROWSER && (domains == null || domains.isEmpty())) {
+            throw new IllegalArgumentException("BROWSER 타입 토큰은 도메인 목록이 필수입니다.");
+        }
     }
 
     public SecretApiTokenResponse reGenerateSecretKey(User user, Long tokenId) {
