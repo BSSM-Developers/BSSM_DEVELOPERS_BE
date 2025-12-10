@@ -66,8 +66,12 @@ public class DocsCreatedEventListener {
                 if (docsPage != null && docsPage.getEndpoint() != null) {
                     log.info("DocsPage found for mappedId={}: id={}, endpoint={}", 
                         block.getMappedId(), docsPage.getId(), docsPage.getEndpoint());
+                    
+                    // docsId와 mappedId를 조합하여 고유한 apiId 생성
+                    String apiId = event.docsId() + "-" + docsPage.getMappedId();
+                    
                     Api api = Api.of(
-                            docsPage.getId(),  // DocsPage의 id를 apiId로 사용
+                            apiId,
                             creator,
                             docsPage.getEndpoint(),
                             block.getMethod(),
@@ -78,7 +82,7 @@ public class DocsCreatedEventListener {
                     );
                     apis.add(api);
                     log.info("API added: {} {} - {} (apiId={})", 
-                        block.getMethod(), docsPage.getEndpoint(), block.getLabel(), docsPage.getId());
+                        block.getMethod(), docsPage.getEndpoint(), block.getLabel(), apiId);
                 } else {
                     log.warn("DocsPage or endpoint not found for API block with mappedId: {}", block.getMappedId());
                 }
