@@ -70,4 +70,13 @@ public class GlobalExceptionHandler {
         .body(errorResponse);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> illegalArgumentExceptionHandler(IllegalArgumentException e) {
+        log.error("IllegalArgumentException occurred: {}", e.getMessage(), e);
+        ErrorResponse errorResponse = HttpUtil.fail(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
 }
