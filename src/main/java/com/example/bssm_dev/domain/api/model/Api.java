@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Api {
     @Id
-    @Column(length = 255)
+    @Column(length = 500)
     private String apiId;
 
     @ManyToOne(fetch = FetchType.LAZY)
