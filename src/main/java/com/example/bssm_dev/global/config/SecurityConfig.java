@@ -39,6 +39,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
                 "https://bssmdev.com",
+                "https://dev.bssm-dev.com",  // 개발 서버
                 "http://localhost",      // 기본 포트 로컬 개발용
                 "https://localhost",     // 기본 포트 로컬 개발용 (HTTPS)
                 "http://localhost:*",     // 프론트 로컬 개발용
