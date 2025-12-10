@@ -36,4 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
+.idea
+.gradle
+.serena
 /src/main/resources/application-*.yaml
