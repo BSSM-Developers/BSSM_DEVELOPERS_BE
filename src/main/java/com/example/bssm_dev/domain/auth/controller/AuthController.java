@@ -49,7 +49,7 @@ public class AuthController {
                 ResponseCookie cookie = cookieUtil.bake("refresh_token", refreshToken);
                 httpServletResponse.addHeader("Set-Cookie", cookie.toString());
 
-                // Access Token은 응답 본문으로 반환 (FE에서 메모리/상태관리에 저장)
+                // Access Token은 응답 본문으로 반환
                 AccessTokenResponse response = AccessTokenResponse.of(accessToken);
                 ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("login success", response);
                 return ResponseEntity.ok(responseDto);
@@ -59,7 +59,7 @@ public class AuthController {
                 ResponseCookie cookie = cookieUtil.bake("signup_token", signupToken);
                 httpServletResponse.addHeader("Set-Cookie", cookie.toString());
 
-                ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("signup required", null);
+                ResponseDto<AccessTokenResponse> responseDto = HttpUtil.success("signup required");
                 return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseDto);
             }
         }

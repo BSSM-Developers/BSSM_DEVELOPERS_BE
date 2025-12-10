@@ -6,12 +6,15 @@ import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
+
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,13 +23,23 @@ import java.util.UUID;
 public class ApiTokenCommandService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public SecretApiTokenResponse createApiToken(User user, String apiTokenName) {
-        String secretKey = generateSecretKey();
+    public SecretApiTokenResponse createApiToken(User user, String apiTokenName, List<String> domains) {
+        String plainSecretKey = generateSecretKey();
+        String encodedSecretKey = passwordEncoder.encode(plainSecretKey);
         String apiTokenUUID = generateUUID();
-        ApiToken apiToken = ApiToken.of(user, secretKey, apiTokenName, apiTokenUUID);
+        
+        ApiToken apiToken = ApiToken.of(user, encodedSecretKey, apiTokenName, apiTokenUUID);
+        
+        if (domains != null && !domains.isEmpty()) {
+            domains.forEach(apiToken::addTokenDomain);
+        }
+        
         apiTokenRepository.save(apiToken);
-        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken);
+        
+        // 응답에는 평문 secretKey 포함 (사용자가 복사할 수 있도록)
+        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken, plainSecretKey);
         return response;
     }
 
@@ -37,9 +50,12 @@ public class ApiTokenCommandService {
         boolean equalsUser = user.equals(apiToken.getUser());
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
 
-        String secretKey = generateSecretKey();
-        apiToken.changeSecretKey(secretKey);
-        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken);
+        String plainSecretKey = generateSecretKey();
+        String encodedSecretKey = passwordEncoder.encode(plainSecretKey);
+        apiToken.changeSecretKey(encodedSecretKey);
+        
+        // 응답에는 평문 secretKey 포함
+        SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken, plainSecretKey);
         return response;
     }
 

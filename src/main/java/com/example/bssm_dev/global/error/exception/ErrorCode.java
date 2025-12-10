@@ -27,6 +27,7 @@ public enum ErrorCode {
     API_NOT_FOUND(404, "API를 찾을 수 없습니다."),
     API_TOKEN_NOT_FOUND(404, "API 토큰을 찾을 수 없습니다."),
     INVALID_SECRET_KEY(401, "유효하지 않은 시크릿 키입니다."),
+    UNAUTHORIZED_DOMAIN(403, "허용되지 않은 도메인에서의 요청입니다."),
     ENDPOINT_NOT_FOUND(404, "존재하지 않는 엔드포인트입니다."),
     EXTERNAL_API_ERROR(502, "API 호출 중 오류가 발생했습니다."),
     API_USE_REASON_NOT_FOUND(404, "API 사용 신청을 찾을 수 없습니다."),

@@ -28,8 +28,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns(
                         "https://bssmdev.com",
-                        "http://localhost:*",     
-                        "https://localhost:*"     
+                        "http://localhost",      // 기본 포트 로컬 개발용
+                        "https://localhost",     // 기본 포트 로컬 개발용 (HTTPS)
+                        "http://localhost:*",     // 프론트 로컬 개발용
+                        "https://localhost:*"     // 프론트 로컬 개발용 (HTTPS)
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
