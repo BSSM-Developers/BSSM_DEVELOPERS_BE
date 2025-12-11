@@ -13,8 +13,16 @@ public class RequestExtractor {
     public static String extractEndpoint(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         String endpoint = requestUri.substring("/api/proxy".length());
+        
+        // 쿼리 파라미터가 있으면 추가
+        String queryString = request.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+            endpoint = endpoint + "?" + queryString;
+        }
+        
         log.info("요청 URI = {}", requestUri);
-        log.info("endpoint = {}", endpoint);
+        log.info("쿼리 파라미터 = {}", queryString);
+        log.info("최종 endpoint = {}", endpoint);
         return endpoint;
     }
 
