@@ -27,7 +27,6 @@ public class RestRequester implements Requester {
                                         .setContentCompressionEnabled(true)
                                         .build()
                         )
-                        .setUserAgent("BSSM-DEV-API-Client/1.0")
                         .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =

@@ -45,6 +45,10 @@ public class RequestExtractor {
                 headerName.equalsIgnoreCase("bssm-dev-secret")) {
                 continue;
             }
+            // 대상 서버의 Host 헤더를 덮어쓰면 403이 발생할 수 있으므로 제외
+            if (headerName.equalsIgnoreCase("host")) {
+                continue;
+            }
             
             headerMap.put(headerName, request.getHeader(headerName));
         }
