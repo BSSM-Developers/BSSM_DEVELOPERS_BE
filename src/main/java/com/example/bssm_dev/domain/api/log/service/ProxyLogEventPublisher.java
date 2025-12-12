@@ -19,8 +19,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +48,7 @@ public class ProxyLogEventPublisher {
                 .id(document.getId())
                 .traceId(document.getTraceId())
                 .timestamp(document.getTimestamp())
+                .timezone(document.getTimezone())
                 .direction(document.getDirection())
                 .request(document.getRequest())
                 .response(responseLog)
@@ -85,6 +86,7 @@ public class ProxyLogEventPublisher {
                 .id(document.getId())
                 .traceId(document.getTraceId())
                 .timestamp(document.getTimestamp())
+                .timezone(document.getTimezone())
                 .direction(document.getDirection())
                 .request(document.getRequest())
                 .response(responseLog)
@@ -110,9 +112,11 @@ public class ProxyLogEventPublisher {
         ProxyRequestLog requestLog = buildRequestLog(requestInfo, servletRequest);
         ProxyOriginLog originLog = buildOrigin(servletRequest);
 
+        ZoneId zoneId = ZoneId.of("Asia/Seoul");
         return ProxyReqResLog.builder()
                 .traceId(UUID.randomUUID().toString())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .timestamp(Instant.now())
+                .timezone(zoneId.getId())
                 .direction(direction)
                 .request(requestLog)
                 .latencyMs(System.currentTimeMillis() - startedAtMillis)

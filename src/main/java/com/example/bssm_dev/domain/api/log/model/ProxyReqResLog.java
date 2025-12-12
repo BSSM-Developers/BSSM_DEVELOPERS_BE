@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 @Getter
@@ -19,7 +19,8 @@ public class ProxyReqResLog {
     @Id
     private String id;
     private String traceId;
-    private ZonedDateTime timestamp;
+    private Instant timestamp;
+    private String timezone;
     private ProxyLogDirection direction;
     private ProxyRequestLog request;
     private ProxyResponseLog response;
