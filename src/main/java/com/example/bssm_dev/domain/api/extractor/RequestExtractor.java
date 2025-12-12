@@ -19,6 +19,11 @@ public class RequestExtractor {
                     : "/api/proxy";
         String endpoint = requestUri.substring(basePath.length());
         
+        // 경로 앞부분이 "//"이면 정상 경로처럼 "/" 하나로 정규화
+        if (endpoint.startsWith("//")) {
+            endpoint = endpoint.replaceFirst("^/+", "/");
+        }
+        
         // 쿼리 파라미터가 있으면 추가
         String queryString = request.getQueryString();
         if (queryString != null && !queryString.isEmpty()) {
