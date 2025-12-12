@@ -76,6 +76,8 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**").hasRole("ADMIN")
                         .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/api/proxy/**").permitAll()
+                        .requestMatchers("/api/proxy-server/**").permitAll()
+                        .requestMatchers("/api/proxy-browser/**").permitAll()
                         .requestMatchers("/api/healthy/**").permitAll()
                         .anyRequest().authenticated()
                 )
