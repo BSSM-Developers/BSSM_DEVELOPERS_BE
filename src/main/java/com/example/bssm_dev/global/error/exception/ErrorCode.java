@@ -23,6 +23,7 @@ public enum ErrorCode {
     DOCS_PAGE_NOT_FOUND(404, "문서 페이지를 찾을 수 없습니다."),
     DOCS_SECTION_MISMATCH(400, "해당 섹션은 이 문서에 속하지 않습니다."),
     DOCS_PAGE_MISMATCH(400, "해당 페이지는 이 섹션에 속하지 않습니다."),
+    INVALID_SIDEBAR_MODULE(400, "유효하지 않은 사이드바 모듈입니다."),
     UNAUTHORIZED_DOCS_ACCESS(403, "해당 문서에 접근할 권한이 없습니다."),
     API_NOT_FOUND(404, "API를 찾을 수 없습니다."),
     API_TOKEN_NOT_FOUND(404, "API 토큰을 찾을 수 없습니다."),
@@ -49,4 +50,3 @@ public enum ErrorCode {
     private final int statusCode;
     private final String errorMessage;
 }
-
