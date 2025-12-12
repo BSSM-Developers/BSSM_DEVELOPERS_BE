@@ -6,14 +6,23 @@ import lombok.Getter;
 
 @Getter
 public class ExternalApiException extends RuntimeException {
-    private final ErrorCode errorCode = ErrorCode.EXTERNAL_API_ERROR;
+    private final ErrorCode errorCode;
     private final String errorMsg;
+    private final Integer upstreamStatusCode;
+    private final String upstreamBody;
 
-    private ExternalApiException(String errorMsg) {
+    private ExternalApiException(ErrorCode errorCode, String errorMsg, Integer upstreamStatusCode, String upstreamBody) {
+        this.errorCode = errorCode;
         this.errorMsg = errorMsg;
+        this.upstreamStatusCode = upstreamStatusCode;
+        this.upstreamBody = upstreamBody;
     }
 
     public static ExternalApiException raise(String errorMsg) {
-        return new ExternalApiException(errorMsg);
+        return new ExternalApiException(ErrorCode.EXTERNAL_API_ERROR, errorMsg, null, null);
+    }
+
+    public static ExternalApiException raise(int upstreamStatusCode, String upstreamBody, String errorMsg) {
+        return new ExternalApiException(null, errorMsg, upstreamStatusCode, upstreamBody);
     }
 }
