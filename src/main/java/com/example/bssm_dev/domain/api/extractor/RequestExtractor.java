@@ -12,7 +12,12 @@ import java.util.Map;
 public class RequestExtractor {
     public static String extractEndpoint(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
-        String endpoint = requestUri.substring("/api/proxy".length());
+        String basePath = requestUri.startsWith("/api/proxy-browser")
+                ? "/api/proxy-browser"
+                : requestUri.startsWith("/api/proxy-server")
+                    ? "/api/proxy-server"
+                    : "/api/proxy";
+        String endpoint = requestUri.substring(basePath.length());
         
         // 쿼리 파라미터가 있으면 추가
         String queryString = request.getQueryString();
@@ -22,6 +27,7 @@ public class RequestExtractor {
         
         log.info("요청 URI = {}", requestUri);
         log.info("쿼리 파라미터 = {}", queryString);
+        log.info("기준 경로 = {}", basePath);
         log.info("최종 endpoint = {}", endpoint);
         return endpoint;
     }
