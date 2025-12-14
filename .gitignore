@@ -42,3 +42,4 @@ out/
 /src/main/resources/application-*.yaml
 
 docker-compose.yaml
+.github/workflows
