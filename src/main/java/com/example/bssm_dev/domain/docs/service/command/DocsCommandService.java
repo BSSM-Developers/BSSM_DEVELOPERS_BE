@@ -18,12 +18,13 @@ import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional("mongoTransactionManager")
+@Transactional("mongoTransactionManager")
 public class DocsCommandService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;

@@ -31,18 +31,28 @@ public class ApiUsageQueryService {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public ApiUsage findByTokenAndEndpoint(ApiToken apiToken, RequestInfo requestInfo) {
+        String rawEndpoint = requestInfo.endpoint();
+        String endpointPath = stripQuery(rawEndpoint);
 
         // 정확히 일치하는 경로가 있는지 먼저 확인
-        Optional<ApiUsage> exactMatch = apiUsageRepository.findByApiTokenAndEndpoint(apiToken, requestInfo.endpoint());
+        Optional<ApiUsage> exactMatch = apiUsageRepository.findByApiTokenAndEndpoint(apiToken, rawEndpoint);
 
         Optional<ApiUsage> validExactMatch = exactMatch
                 .filter(match -> match.getMethod().equals(requestInfo.method().toString()));
         if (validExactMatch.isPresent()) {
             return validExactMatch.get();
         }
+
+        if (!rawEndpoint.equals(endpointPath)) {
+            Optional<ApiUsage> pathOnlyMatch = apiUsageRepository.findByApiTokenAndEndpoint(apiToken, endpointPath)
+                    .filter(match -> match.getMethod().equals(requestInfo.method().toString()));
+            if (pathOnlyMatch.isPresent()) {
+                return pathOnlyMatch.get();
+            }
+        }
         
         // endpoint에서 첫 번째 세그먼트 추출 (예: /objects/1 → /objects)
-        String endpointPrefix = extractEndpointPrefix(requestInfo.endpoint());
+        String endpointPrefix = extractEndpointPrefix(endpointPath);
         
         // LIKE로 후보군 조회 + method 필터링
         List<ApiUsage> candidates = apiUsageRepository.findCandidatesByPrefixAndMethod(
@@ -53,11 +63,19 @@ public class ApiUsageQueryService {
         
         // Java에서 정확한 패턴 매칭
         return candidates.stream()
-                .filter(usage -> pathMatcher.match(usage.getEndpoint(), requestInfo.endpoint()))
+                .filter(usage -> pathMatcher.match(usage.getEndpoint(), endpointPath))
                 .findFirst()
                 .orElseThrow(EndpointNotFoundException::raise);
     }
     
+    private String stripQuery(String endpoint) {
+        int idx = endpoint.indexOf('?');
+        if (idx >= 0) {
+            return endpoint.substring(0, idx);
+        }
+        return endpoint;
+    }
+
     private String extractEndpointPrefix(String endpoint) {
         // /objects/1/items/2 → /objects
         // /users/123 → /users
@@ -85,4 +103,3 @@ public class ApiUsageQueryService {
         return new CursorPage<>(responses, apiUsageSlice.hasNext());
     }
 }
-

@@ -2,6 +2,7 @@ package com.example.bssm_dev.global.error;
 
 
 import com.example.bssm_dev.domain.api.dto.response.ApiErrorResponse;
+import com.example.bssm_dev.domain.api.dto.response.ProxyErrorResponse;
 import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.global.error.exception.ErrorCode;
 import com.example.bssm_dev.global.error.exception.GlobalException;
@@ -32,7 +33,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExternalApiException.class)
-    public ResponseEntity<ApiErrorResponse> externalApiExceptionHanlder(ExternalApiException e) {
+    public ResponseEntity<?> externalApiExceptionHanlder(ExternalApiException e) {
+        if (e.getUpstreamStatusCode() != null) {
+            log.error("External API error passthrough status={}, body={}", e.getUpstreamStatusCode(), e.getUpstreamBody());
+            ProxyErrorResponse response = new ProxyErrorResponse(
+                    true,
+                    e.getUpstreamStatusCode(),
+                    e.getErrorMsg(),
+                    e.getUpstreamBody()
+            );
+            return ResponseEntity
+                    .status(e.getUpstreamStatusCode())
+                    .body(response);
+        }
+
         ErrorCode errorCode = e.getErrorCode();
         int statusCode = errorCode.getStatusCode();
         String errorMessage = errorCode.getErrorMessage();
@@ -41,7 +55,12 @@ public class GlobalExceptionHandler {
         log.error("stauts code {}, error message : {}", statusCode, errorMessage);
         log.error("cause : {}", cause);
 
-        ApiErrorResponse errorResponse = HttpUtil.fail(statusCode, errorMessage, cause);
+        ProxyErrorResponse errorResponse = new ProxyErrorResponse(
+                false,
+                statusCode,
+                errorMessage,
+                cause
+        );
         return ResponseEntity
                 .status(statusCode)
                 .body(errorResponse);

@@ -34,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        boolean shouldSkip = path.startsWith("/api/proxy");
+        boolean shouldSkip = path.startsWith("/api/proxy") || path.startsWith("/api/proxy-browser") || path.startsWith("/api/proxy-server");
         System.out.println("[JWT DEBUG] shouldNotFilter - path: " + path + ", shouldSkip: " + shouldSkip);
         return shouldSkip;
     }
