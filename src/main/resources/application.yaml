@@ -11,6 +11,8 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/bssm_dev
       auto-index-creation: true
+      transaction:
+        enabled: true
 
   mvc:
     pathmatch:

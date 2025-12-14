@@ -6,6 +6,7 @@ public record ApiTokenResponse(
         Long apiTokenId,
         String apiTokenName,
         String apiTokenClientId,
+        List<String> domains,
         List<ApiUsageSummaryResponse> registeredApis
 ) {
 }

@@ -18,13 +18,13 @@ public class TransactionConfig {
         return new JpaTransactionManager(emf);
     }
 
-//    @Bean(name = "mongoTransactionManager")
-//    @ConditionalOnProperty(
-//            name = "spring.data.mongodb.transaction.enabled",
-//            havingValue = "true",
-//            matchIfMissing = false
-//    )
-//    public MongoTransactionManager mongoTransactionManager(MongoTemplate mongoTemplate) {
-//        return new MongoTransactionManager(mongoTemplate.getMongoDatabaseFactory());
-//    }
+    @Bean(name = "mongoTransactionManager")
+    @ConditionalOnProperty(
+            name = "spring.data.mongodb.transaction.enabled",
+            havingValue = "true",
+            matchIfMissing = false
+    )
+    public MongoTransactionManager mongoTransactionManager(MongoTemplate mongoTemplate) {
+        return new MongoTransactionManager(mongoTemplate.getMongoDatabaseFactory());
+    }
 }

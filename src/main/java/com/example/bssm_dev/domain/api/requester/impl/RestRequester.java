@@ -10,6 +10,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.Map;
 
@@ -26,7 +27,6 @@ public class RestRequester implements Requester {
                                         .setContentCompressionEnabled(true)
                                         .build()
                         )
-                        .setUserAgent("BSSM-DEV-API-Client/1.0")
                         .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
@@ -60,6 +60,12 @@ public class RestRequester implements Requester {
 
     @Override
     public Object get(String endpoint, Map<String, String> headers) {
+        log.info("========== [External API Request] ==========");
+        log.info("Method: GET");
+        log.info("Endpoint: {}", endpoint);
+        log.info("Request Headers: {}", headers);
+        log.info("Request Body: (none)");
+        
         try {
             var requestSpec = restClient.get()
                     .uri(endpoint);
@@ -73,16 +79,29 @@ public class RestRequester implements Requester {
             String response = requestSpec
                     .retrieve()
                     .body(String.class);
-            log.info("response : {}", response );
+            
+            log.info("========== [External API Response] ==========");
+            log.info("Method: GET");
+            log.info("Endpoint: {}", endpoint);
+            log.info("Status: Success");
+            log.info("Response Body: {}", response);
+            log.info("=============================================");
+            
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw ExternalApiException.raise(e.getMessage());
+            logError("GET", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
     @Override
     public Object post(String endpoint, Object body, Map<String, String> headers) {
+        log.info("========== [External API Request] ==========");
+        log.info("Method: POST");
+        log.info("Endpoint: {}", endpoint);
+        log.info("Request Headers: {}", headers);
+        log.info("Request Body: {}", body);
+        
         try {
             var requestSpec = restClient.post()
                     .uri(endpoint);
@@ -99,16 +118,29 @@ public class RestRequester implements Requester {
             String response = requestSpec
                     .retrieve()
                     .body(String.class);
-            log.info("response : {}", response );
+            
+            log.info("========== [External API Response] ==========");
+            log.info("Method: POST");
+            log.info("Endpoint: {}", endpoint);
+            log.info("Status: Success");
+            log.info("Response Body: {}", response);
+            log.info("=============================================");
+            
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw ExternalApiException.raise(e.getMessage());
+            logError("POST", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
     @Override
     public Object put(String endpoint, Object body, Map<String, String> headers) {
+        log.info("========== [External API Request] ==========");
+        log.info("Method: PUT");
+        log.info("Endpoint: {}", endpoint);
+        log.info("Request Headers: {}", headers);
+        log.info("Request Body: {}", body);
+        
         try {
             var requestSpec = restClient.put()
                     .uri(endpoint);
@@ -121,19 +153,32 @@ public class RestRequester implements Requester {
                 });
             }
 
-            Object response = requestSpec
+            String response = requestSpec
                     .retrieve()
                     .body(String.class);
-            log.info("response : {}", response );
-            return response;
+            
+            log.info("========== [External API Response] ==========");
+            log.info("Method: PUT");
+            log.info("Endpoint: {}", endpoint);
+            log.info("Status: Success");
+            log.info("Response Body: {}", response);
+            log.info("=============================================");
+            
+            return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw ExternalApiException.raise(e.getMessage());
+            logError("PUT", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
     @Override
     public Object patch(String endpoint, Object body, Map<String, String> headers) {
+        log.info("========== [External API Request] ==========");
+        log.info("Method: PATCH");
+        log.info("Endpoint: {}", endpoint);
+        log.info("Request Headers: {}", headers);
+        log.info("Request Body: {}", body);
+        
         try {
             var requestSpec = restClient.patch()
                     .uri(endpoint);
@@ -146,19 +191,32 @@ public class RestRequester implements Requester {
                 });
             }
 
-            Object response = requestSpec
+            String response = requestSpec
                     .retrieve()
                     .body(String.class);
-            log.info("response : {}", response );
-            return response;
+            
+            log.info("========== [External API Response] ==========");
+            log.info("Method: PATCH");
+            log.info("Endpoint: {}", endpoint);
+            log.info("Status: Success");
+            log.info("Response Body: {}", response);
+            log.info("=============================================");
+            
+            return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw ExternalApiException.raise(e.getMessage());
+            logError("PATCH", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
     @Override
     public Object delete(String endpoint, Map<String, String> headers) {
+        log.info("========== [External API Request] ==========");
+        log.info("Method: DELETE");
+        log.info("Endpoint: {}", endpoint);
+        log.info("Request Headers: {}", headers);
+        log.info("Request Body: (none)");
+        
         try {
             var requestSpec = restClient.delete()
                     .uri(endpoint);
@@ -169,14 +227,45 @@ public class RestRequester implements Requester {
                 });
             }
             
-            Object response = requestSpec
+            String response = requestSpec
                     .retrieve()
                     .body(String.class);
-            log.info("response : {}", response );
-            return response;
+            
+            log.info("========== [External API Response] ==========");
+            log.info("Method: DELETE");
+            log.info("Endpoint: {}", endpoint);
+            log.info("Status: Success");
+            log.info("Response Body: {}", response);
+            log.info("=============================================");
+            
+            return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error(e.getMessage(), e);
-            throw ExternalApiException.raise(e.getMessage());
+            logError("DELETE", endpoint, e);
+            throw wrapExternal(e);
         }
+    }
+
+    private void logError(String method, String endpoint, Exception e) {
+        log.error("========== [External API Error] ==========");
+        log.error("Method: {}", method);
+        log.error("Endpoint: {}", endpoint);
+        if (e instanceof HttpStatusCodeException statusEx) {
+            log.error("Status: {}", statusEx.getStatusCode());
+            log.error("Response Body: {}", statusEx.getResponseBodyAsString());
+        } else {
+            log.error("Error: {}", e.getMessage(), e);
+        }
+        log.error("==========================================");
+    }
+
+    private ExternalApiException wrapExternal(Exception e) {
+        if (e instanceof HttpStatusCodeException statusEx) {
+            return ExternalApiException.raise(
+                    statusEx.getStatusCode().value(),
+                    statusEx.getResponseBodyAsString(),
+                    statusEx.getMessage()
+            );
+        }
+        return ExternalApiException.raise(e.getMessage());
     }
 }

@@ -12,9 +12,28 @@ import java.util.Map;
 public class RequestExtractor {
     public static String extractEndpoint(HttpServletRequest request) {
         String requestUri = request.getRequestURI();
-        String endpoint = requestUri.substring("/api/proxy".length());
+        String basePath = requestUri.startsWith("/api/proxy-browser")
+                ? "/api/proxy-browser"
+                : requestUri.startsWith("/api/proxy-server")
+                    ? "/api/proxy-server"
+                    : "/api/proxy";
+        String endpoint = requestUri.substring(basePath.length());
+        
+        // 경로 앞부분이 "//"이면 정상 경로처럼 "/" 하나로 정규화
+        if (endpoint.startsWith("//")) {
+            endpoint = endpoint.replaceFirst("^/+", "/");
+        }
+        
+        // 쿼리 파라미터가 있으면 추가
+        String queryString = request.getQueryString();
+        if (queryString != null && !queryString.isEmpty()) {
+            endpoint = endpoint + "?" + queryString;
+        }
+        
         log.info("요청 URI = {}", requestUri);
-        log.info("endpoint = {}", endpoint);
+        log.info("쿼리 파라미터 = {}", queryString);
+        log.info("기준 경로 = {}", basePath);
+        log.info("최종 endpoint = {}", endpoint);
         return endpoint;
     }
 
@@ -29,6 +48,10 @@ public class RequestExtractor {
             // bssm-dev 내부 인증 헤더는 제외
             if (headerName.equalsIgnoreCase("bssm-dev-token") || 
                 headerName.equalsIgnoreCase("bssm-dev-secret")) {
+                continue;
+            }
+            // 대상 서버의 Host 헤더를 덮어쓰면 403이 발생할 수 있으므로 제외
+            if (headerName.equalsIgnoreCase("host")) {
                 continue;
             }
             

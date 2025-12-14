@@ -31,7 +31,7 @@
 //import static org.mockito.Mockito.*;
 //
 ///**
-// * UseApiService 테스트
+// * ServerUseApiService 테스트
 // *
 // * Token: e2f7df2d-b32f-4903-8dda-69857c019339
 // * Secret: cb42fa582a6143989d0998e463e51c27
@@ -57,7 +57,7 @@
 //@ExtendWith(MockitoExtension.class)
 //class UseApiServiceTest {
 //    @InjectMocks
-//    private UseApiService useApiService;
+//    private ServerUseApiService useApiService;
 //
 //    @Mock
 //    private ApiTokenQueryService apiTokenQueryService;

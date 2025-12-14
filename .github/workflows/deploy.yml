@@ -2,11 +2,11 @@ name: Deploy BDV (proxmox-minimal)
 
 on:
   push:
-    branches: [ master ]     
+    branches: [ 'release-*' ]     
   workflow_dispatch:
 
 concurrency:
-  group: deploy-${{ vars.SVC }}-prod
+  group: deploy-${{ vars.SVC }}-dev
   cancel-in-progress: false
 
 permissions:
