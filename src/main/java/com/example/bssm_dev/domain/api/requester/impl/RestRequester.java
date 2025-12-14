@@ -10,6 +10,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.Map;
 
@@ -26,7 +27,6 @@ public class RestRequester implements Requester {
                                         .setContentCompressionEnabled(true)
                                         .build()
                         )
-                        .setUserAgent("BSSM-DEV-API-Client/1.0")
                         .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
@@ -89,12 +89,8 @@ public class RestRequester implements Requester {
             
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error("========== [External API Error] ==========");
-            log.error("Method: GET");
-            log.error("Endpoint: {}", endpoint);
-            log.error("Error: {}", e.getMessage(), e);
-            log.error("==========================================");
-            throw ExternalApiException.raise(e.getMessage());
+            logError("GET", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
@@ -132,12 +128,8 @@ public class RestRequester implements Requester {
             
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error("========== [External API Error] ==========");
-            log.error("Method: POST");
-            log.error("Endpoint: {}", endpoint);
-            log.error("Error: {}", e.getMessage(), e);
-            log.error("==========================================");
-            throw ExternalApiException.raise(e.getMessage());
+            logError("POST", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
@@ -174,12 +166,8 @@ public class RestRequester implements Requester {
             
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error("========== [External API Error] ==========");
-            log.error("Method: PUT");
-            log.error("Endpoint: {}", endpoint);
-            log.error("Error: {}", e.getMessage(), e);
-            log.error("==========================================");
-            throw ExternalApiException.raise(e.getMessage());
+            logError("PUT", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
@@ -216,12 +204,8 @@ public class RestRequester implements Requester {
             
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error("========== [External API Error] ==========");
-            log.error("Method: PATCH");
-            log.error("Endpoint: {}", endpoint);
-            log.error("Error: {}", e.getMessage(), e);
-            log.error("==========================================");
-            throw ExternalApiException.raise(e.getMessage());
+            logError("PATCH", endpoint, e);
+            throw wrapExternal(e);
         }
     }
 
@@ -256,12 +240,32 @@ public class RestRequester implements Requester {
             
             return parseResponse(response);
         } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            log.error("========== [External API Error] ==========");
-            log.error("Method: DELETE");
-            log.error("Endpoint: {}", endpoint);
-            log.error("Error: {}", e.getMessage(), e);
-            log.error("==========================================");
-            throw ExternalApiException.raise(e.getMessage());
+            logError("DELETE", endpoint, e);
+            throw wrapExternal(e);
         }
+    }
+
+    private void logError(String method, String endpoint, Exception e) {
+        log.error("========== [External API Error] ==========");
+        log.error("Method: {}", method);
+        log.error("Endpoint: {}", endpoint);
+        if (e instanceof HttpStatusCodeException statusEx) {
+            log.error("Status: {}", statusEx.getStatusCode());
+            log.error("Response Body: {}", statusEx.getResponseBodyAsString());
+        } else {
+            log.error("Error: {}", e.getMessage(), e);
+        }
+        log.error("==========================================");
+    }
+
+    private ExternalApiException wrapExternal(Exception e) {
+        if (e instanceof HttpStatusCodeException statusEx) {
+            return ExternalApiException.raise(
+                    statusEx.getStatusCode().value(),
+                    statusEx.getResponseBodyAsString(),
+                    statusEx.getMessage()
+            );
+        }
+        return ExternalApiException.raise(e.getMessage());
     }
 }

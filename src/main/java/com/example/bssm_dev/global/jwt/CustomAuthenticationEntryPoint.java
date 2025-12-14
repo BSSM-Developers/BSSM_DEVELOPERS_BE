@@ -22,7 +22,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         String path = request.getServletPath();
         
-        // /api/proxy/** 경로는 그냥 통과
+        // /api/proxy**, /api/proxy-server**, /api/proxy-browser** 경로는 그냥 통과
         if (path.startsWith("/api/proxy")) {
             return;
         }

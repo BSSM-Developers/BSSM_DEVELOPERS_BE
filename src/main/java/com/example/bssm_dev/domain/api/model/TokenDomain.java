@@ -31,6 +31,21 @@ public class TokenDomain {
     }
 
     public boolean matchesDomain(String requestDomain) {
-        return this.domain.equals(requestDomain);
+        String normalizedStored = normalizeDomain(this.domain);
+        String normalizedRequest = normalizeDomain(requestDomain);
+        return normalizedStored.equals(normalizedRequest);
+    }
+
+    private String normalizeDomain(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        String domain = value.replaceAll("^https?://", "");
+        domain = domain.replaceAll(":\\d+$", "");
+        int slashIndex = domain.indexOf('/');
+        if (slashIndex != -1) {
+            domain = domain.substring(0, slashIndex);
+        }
+        return domain;
     }
 }
