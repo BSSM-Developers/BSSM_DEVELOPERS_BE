@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional("transactionManager")
 public class ApiUseReasonCommandService {
     private final ApiUseReasonRepository apiUseReasonRepository;
     private final ApiUseReasonMapper apiUseReasonMapper;

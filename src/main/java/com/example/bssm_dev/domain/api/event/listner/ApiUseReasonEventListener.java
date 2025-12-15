@@ -18,7 +18,7 @@ public class ApiUseReasonEventListener {
     private final ApiUsageCommandService apiUsageCommandService;
 
     @EventListener
-    @Transactional
+    @Transactional("transactionManager")
     @Async
     public void handleApiUseReasonCreated(ApiUseReasonCreatedEvent event) {
         Api api = event.getApi();
