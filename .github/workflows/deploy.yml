@@ -2,7 +2,7 @@ name: Deploy BDV (proxmox-minimal)
 
 on:
   push:
-    branches: [ 'release-*' ]     
+    branches: [ 'master' ]     
   workflow_dispatch:
 
 concurrency:
