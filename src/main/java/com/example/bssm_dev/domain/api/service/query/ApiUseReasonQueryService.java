@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 public class ApiUseReasonQueryService {
     private final ApiUseReasonRepository apiUseReasonRepository;
     private final ApiUseReasonMapper apiUseReasonMapper;

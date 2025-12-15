@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(value = "mongoTransactionManager", readOnly = true)
 public class DocsQueryService {
     private final DocsRepository docsRepository;
     private final DocsMapper docsMapper;

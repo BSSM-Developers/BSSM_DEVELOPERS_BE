@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 public class SignupQueryService {
 
     private final SignupRequestRepository signupRequestRepository;
