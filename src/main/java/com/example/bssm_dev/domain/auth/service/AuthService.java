@@ -20,7 +20,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final static String REFRESH_TOKEN = "REFRESH_TOKEN";
 
-    @Transactional
+    @Transactional("transactionManager")
     public TokenResponse reissue(String refreshToken) {
         try {
             String tokenType = jwtProvider.getTokenType(refreshToken);
@@ -51,7 +51,7 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void logout(String refreshToken) {
         refreshTokenRepository.findById(refreshToken)
                 .ifPresent(refreshTokenRepository::delete);

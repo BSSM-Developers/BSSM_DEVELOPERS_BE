@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional("transactionManager")
 public class ApiUsageCommandService {
     private final ApiUsageRepository apiUsageRepository;
     private final ApiUsageMapper apiUsageMapper;

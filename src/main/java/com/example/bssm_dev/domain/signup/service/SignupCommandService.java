@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional("transactionManager")
 public class SignupCommandService {
 
     private final SignupRequestRepository signupRequestRepository;
