@@ -3,38 +3,38 @@ package com.example.bssm_dev.domain.api.requester.impl;
 import com.example.bssm_dev.domain.api.exception.ExternalApiException;
 import com.example.bssm_dev.domain.api.requester.Requester;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class RestRequester implements Requester {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public RestRequester(String domainUrl) {
-        CloseableHttpClient httpClient =
-                HttpClients.custom()
-                        .setDefaultRequestConfig(
-                                org.apache.hc.client5.http.config.RequestConfig.custom()
-                                        .setContentCompressionEnabled(true)
-                                        .build()
-                        )
-                        .build();
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                .responseTimeout(Duration.ofSeconds(30))
+                .doOnConnected(conn ->
+                        conn.addHandlerLast(new ReadTimeoutHandler(30, TimeUnit.SECONDS))
+                                .addHandlerLast(new WriteTimeoutHandler(30, TimeUnit.SECONDS))
+                );
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                new HttpComponentsClientHttpRequestFactory(httpClient);
-        
-        this.restClient = RestClient.builder()
+        this.webClient = WebClient.builder()
                 .baseUrl(domainUrl)
-                .requestFactory(requestFactory)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }
 
@@ -59,199 +59,201 @@ public class RestRequester implements Requester {
     }
 
     @Override
-    public Object get(String endpoint, Map<String, String> headers) {
+    public Mono<Object> get(String endpoint, Map<String, String> headers) {
         log.info("========== [External API Request] ==========");
         log.info("Method: GET");
         log.info("Endpoint: {}", endpoint);
         log.info("Request Headers: {}", headers);
         log.info("Request Body: (none)");
-        
-        try {
-            var requestSpec = restClient.get()
-                    .uri(endpoint);
 
-            if (headers != null) {
-                requestSpec = requestSpec.headers(httpHeaders -> {
-                    headers.forEach(httpHeaders::add);
+        return webClient.get()
+                .uri(endpoint)
+                .headers(httpHeaders -> {
+                    if (headers != null) {
+                        headers.forEach(httpHeaders::add);
+                    }
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(response -> {
+                    log.info("========== [External API Response] ==========");
+                    log.info("Method: GET");
+                    log.info("Endpoint: {}", endpoint);
+                    log.info("Status: Success");
+                    log.info("Response Body: {}", response);
+                    log.info("=============================================");
+                })
+                .map(this::parseResponse)
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    logError("GET", endpoint, e);
+                    return wrapExternal(e);
+                })
+                .onErrorMap(IllegalArgumentException.class, e -> {
+                    logError("GET", endpoint, e);
+                    return wrapExternal(e);
                 });
-            }
-
-            String response = requestSpec
-                    .retrieve()
-                    .body(String.class);
-            
-            log.info("========== [External API Response] ==========");
-            log.info("Method: GET");
-            log.info("Endpoint: {}", endpoint);
-            log.info("Status: Success");
-            log.info("Response Body: {}", response);
-            log.info("=============================================");
-            
-            return parseResponse(response);
-        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            logError("GET", endpoint, e);
-            throw wrapExternal(e);
-        }
     }
 
     @Override
-    public Object post(String endpoint, Object body, Map<String, String> headers) {
+    public Mono<Object> post(String endpoint, Object body, Map<String, String> headers) {
         log.info("========== [External API Request] ==========");
         log.info("Method: POST");
         log.info("Endpoint: {}", endpoint);
         log.info("Request Headers: {}", headers);
         log.info("Request Body: {}", body);
-        
-        try {
-            var requestSpec = restClient.post()
-                    .uri(endpoint);
-            
-            if (body != null) requestSpec = requestSpec.body(body);
-            
-            if (headers != null) {
-                requestSpec = requestSpec.headers(httpHeaders -> {
-                    headers.forEach(httpHeaders::add);
-                });
-            }
 
-            
-            String response = requestSpec
-                    .retrieve()
-                    .body(String.class);
-            
-            log.info("========== [External API Response] ==========");
-            log.info("Method: POST");
-            log.info("Endpoint: {}", endpoint);
-            log.info("Status: Success");
-            log.info("Response Body: {}", response);
-            log.info("=============================================");
-            
-            return parseResponse(response);
-        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            logError("POST", endpoint, e);
-            throw wrapExternal(e);
-        }
+        var builder = webClient.post().uri(endpoint);
+
+        var withBody = (body != null) ? builder.bodyValue(body) : builder;
+
+        return withBody
+                .headers(httpHeaders -> {
+                    if (headers != null) {
+                        headers.forEach(httpHeaders::add);
+                    }
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(response -> {
+                    log.info("========== [External API Response] ==========");
+                    log.info("Method: POST");
+                    log.info("Endpoint: {}", endpoint);
+                    log.info("Status: Success");
+                    log.info("Response Body: {}", response);
+                    log.info("=============================================");
+                })
+                .map(this::parseResponse)
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    logError("POST", endpoint, e);
+                    return wrapExternal(e);
+                })
+                .onErrorMap(IllegalArgumentException.class, e -> {
+                    logError("POST", endpoint, e);
+                    return wrapExternal(e);
+                });
     }
 
     @Override
-    public Object put(String endpoint, Object body, Map<String, String> headers) {
+    public Mono<Object> put(String endpoint, Object body, Map<String, String> headers) {
         log.info("========== [External API Request] ==========");
         log.info("Method: PUT");
         log.info("Endpoint: {}", endpoint);
         log.info("Request Headers: {}", headers);
         log.info("Request Body: {}", body);
-        
-        try {
-            var requestSpec = restClient.put()
-                    .uri(endpoint);
-            
-            if (body != null) requestSpec = requestSpec.body(body);
-            
-            if (headers != null) {
-                requestSpec = requestSpec.headers(httpHeaders -> {
-                    headers.forEach(httpHeaders::add);
-                });
-            }
 
-            String response = requestSpec
-                    .retrieve()
-                    .body(String.class);
-            
-            log.info("========== [External API Response] ==========");
-            log.info("Method: PUT");
-            log.info("Endpoint: {}", endpoint);
-            log.info("Status: Success");
-            log.info("Response Body: {}", response);
-            log.info("=============================================");
-            
-            return parseResponse(response);
-        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            logError("PUT", endpoint, e);
-            throw wrapExternal(e);
-        }
+        var builder = webClient.put().uri(endpoint);
+
+        var withBody = (body != null) ? builder.bodyValue(body) : builder;
+
+        return withBody
+                .headers(httpHeaders -> {
+                    if (headers != null) {
+                        headers.forEach(httpHeaders::add);
+                    }
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(response -> {
+                    log.info("========== [External API Response] ==========");
+                    log.info("Method: PUT");
+                    log.info("Endpoint: {}", endpoint);
+                    log.info("Status: Success");
+                    log.info("Response Body: {}", response);
+                    log.info("=============================================");
+                })
+                .map(this::parseResponse)
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    logError("PUT", endpoint, e);
+                    return wrapExternal(e);
+                })
+                .onErrorMap(IllegalArgumentException.class, e -> {
+                    logError("PUT", endpoint, e);
+                    return wrapExternal(e);
+                });
     }
 
     @Override
-    public Object patch(String endpoint, Object body, Map<String, String> headers) {
+    public Mono<Object> patch(String endpoint, Object body, Map<String, String> headers) {
         log.info("========== [External API Request] ==========");
         log.info("Method: PATCH");
         log.info("Endpoint: {}", endpoint);
         log.info("Request Headers: {}", headers);
         log.info("Request Body: {}", body);
-        
-        try {
-            var requestSpec = restClient.patch()
-                    .uri(endpoint);
-            
-            if (body != null) requestSpec = requestSpec.body(body);
-            
-            if (headers != null) {
-                requestSpec = requestSpec.headers(httpHeaders -> {
-                    headers.forEach(httpHeaders::add);
-                });
-            }
 
-            String response = requestSpec
-                    .retrieve()
-                    .body(String.class);
-            
-            log.info("========== [External API Response] ==========");
-            log.info("Method: PATCH");
-            log.info("Endpoint: {}", endpoint);
-            log.info("Status: Success");
-            log.info("Response Body: {}", response);
-            log.info("=============================================");
-            
-            return parseResponse(response);
-        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            logError("PATCH", endpoint, e);
-            throw wrapExternal(e);
-        }
+        var builder = webClient.patch().uri(endpoint);
+
+        var withBody = (body != null) ? builder.bodyValue(body) : builder;
+
+        return withBody
+                .headers(httpHeaders -> {
+                    if (headers != null) {
+                        headers.forEach(httpHeaders::add);
+                    }
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(response -> {
+                    log.info("========== [External API Response] ==========");
+                    log.info("Method: PATCH");
+                    log.info("Endpoint: {}", endpoint);
+                    log.info("Status: Success");
+                    log.info("Response Body: {}", response);
+                    log.info("=============================================");
+                })
+                .map(this::parseResponse)
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    logError("PATCH", endpoint, e);
+                    return wrapExternal(e);
+                })
+                .onErrorMap(IllegalArgumentException.class, e -> {
+                    logError("PATCH", endpoint, e);
+                    return wrapExternal(e);
+                });
     }
 
     @Override
-    public Object delete(String endpoint, Map<String, String> headers) {
+    public Mono<Object> delete(String endpoint, Map<String, String> headers) {
         log.info("========== [External API Request] ==========");
         log.info("Method: DELETE");
         log.info("Endpoint: {}", endpoint);
         log.info("Request Headers: {}", headers);
         log.info("Request Body: (none)");
-        
-        try {
-            var requestSpec = restClient.delete()
-                    .uri(endpoint);
-            
-            if (headers != null) {
-                requestSpec = requestSpec.headers(httpHeaders -> {
-                    headers.forEach(httpHeaders::add);
+
+        return webClient.delete()
+                .uri(endpoint)
+                .headers(httpHeaders -> {
+                    if (headers != null) {
+                        headers.forEach(httpHeaders::add);
+                    }
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(response -> {
+                    log.info("========== [External API Response] ==========");
+                    log.info("Method: DELETE");
+                    log.info("Endpoint: {}", endpoint);
+                    log.info("Status: Success");
+                    log.info("Response Body: {}", response);
+                    log.info("=============================================");
+                })
+                .map(this::parseResponse)
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    logError("DELETE", endpoint, e);
+                    return wrapExternal(e);
+                })
+                .onErrorMap(IllegalArgumentException.class, e -> {
+                    logError("DELETE", endpoint, e);
+                    return wrapExternal(e);
                 });
-            }
-            
-            String response = requestSpec
-                    .retrieve()
-                    .body(String.class);
-            
-            log.info("========== [External API Response] ==========");
-            log.info("Method: DELETE");
-            log.info("Endpoint: {}", endpoint);
-            log.info("Status: Success");
-            log.info("Response Body: {}", response);
-            log.info("=============================================");
-            
-            return parseResponse(response);
-        } catch (HttpClientErrorException | HttpServerErrorException | IllegalArgumentException e) {
-            logError("DELETE", endpoint, e);
-            throw wrapExternal(e);
-        }
     }
 
     private void logError(String method, String endpoint, Exception e) {
         log.error("========== [External API Error] ==========");
         log.error("Method: {}", method);
         log.error("Endpoint: {}", endpoint);
-        if (e instanceof HttpStatusCodeException statusEx) {
-            log.error("Status: {}", statusEx.getStatusCode());
-            log.error("Response Body: {}", statusEx.getResponseBodyAsString());
+        if (e instanceof WebClientResponseException webClientEx) {
+            log.error("Status: {}", webClientEx.getStatusCode());
+            log.error("Response Body: {}", webClientEx.getResponseBodyAsString());
         } else {
             log.error("Error: {}", e.getMessage(), e);
         }
@@ -259,11 +261,11 @@ public class RestRequester implements Requester {
     }
 
     private ExternalApiException wrapExternal(Exception e) {
-        if (e instanceof HttpStatusCodeException statusEx) {
+        if (e instanceof WebClientResponseException webClientEx) {
             return ExternalApiException.raise(
-                    statusEx.getStatusCode().value(),
-                    statusEx.getResponseBodyAsString(),
-                    statusEx.getMessage()
+                    webClientEx.getStatusCode().value(),
+                    webClientEx.getResponseBodyAsString(),
+                    webClientEx.getMessage()
             );
         }
         return ExternalApiException.raise(e.getMessage());

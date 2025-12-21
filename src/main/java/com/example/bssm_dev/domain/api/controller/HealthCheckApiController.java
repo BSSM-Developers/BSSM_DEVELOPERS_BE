@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,15 +21,16 @@ public class HealthCheckApiController {
      * API 헬스체크 with Endpoint, Method
      */
     @PostMapping
-    public ResponseEntity<ResponseDto<ApiHealthCheckResponse>> healthCheckWithApiId(
+    public Mono<ResponseEntity<ResponseDto<ApiHealthCheckResponse>>> healthCheckWithApiId(
             @RequestParam String endpoint,
             @RequestParam String method,
             @RequestParam String domain,
             HttpServletRequest httpServletRequest
     ) {
-        ApiHealthCheckResponse healthCheckResponse = healthCheckApiService.check(endpoint, method, domain, httpServletRequest);
-
-        ResponseDto<ApiHealthCheckResponse> responseDto = HttpUtil.success("heath check ok", healthCheckResponse);
-        return ResponseEntity.ok(responseDto);
+        return healthCheckApiService.check(endpoint, method, domain, httpServletRequest)
+                .map(healthCheckResponse -> {
+                    ResponseDto<ApiHealthCheckResponse> responseDto = HttpUtil.success("heath check ok", healthCheckResponse);
+                    return ResponseEntity.ok(responseDto);
+                });
     }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,70 +20,70 @@ public class ServerUseApiController {
      * 서버용 외부 API GET 요청 프록시 (secretKey 기반 인증)
      */
     @GetMapping
-    public ResponseEntity<Object> useApiByGet(
+    public Mono<ResponseEntity<Object>> useApiByGet(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         logProxyRequest(request, token, secretKey);
-        Object response = serverUseApiService.get(secretKey, token, request);
-        return ResponseEntity.ok(response);
+        return serverUseApiService.get(secretKey, token, request)
+                .map(ResponseEntity::ok);
     }
 
     /**
      * 서버용 외부 API POST 요청 프록시 (secretKey 기반 인증)
      */
     @PostMapping
-    public ResponseEntity<Object> useApiByPost(
+    public Mono<ResponseEntity<Object>> useApiByPost(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         logProxyRequest(request, token, secretKey);
-        Object response = serverUseApiService.post(secretKey, token, request);
-        return ResponseEntity.ok(response);
+        return serverUseApiService.post(secretKey, token, request)
+                .map(ResponseEntity::ok);
     }
 
     /**
      * 서버용 외부 API PATCH 요청 프록시 (secretKey 기반 인증)
      */
     @PatchMapping
-    public ResponseEntity<Object> useApiByPatch(
+    public Mono<ResponseEntity<Object>> useApiByPatch(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         logProxyRequest(request, token, secretKey);
-        Object response = serverUseApiService.patch(secretKey, token, request);
-        return ResponseEntity.ok(response);
+        return serverUseApiService.patch(secretKey, token, request)
+                .map(ResponseEntity::ok);
     }
 
     /**
      * 서버용 외부 API PUT 요청 프록시 (secretKey 기반 인증)
      */
     @PutMapping
-    public ResponseEntity<Object> useApiByPut(
+    public Mono<ResponseEntity<Object>> useApiByPut(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         logProxyRequest(request, token, secretKey);
-        Object response = serverUseApiService.put(secretKey, token, request);
-        return ResponseEntity.ok(response);
+        return serverUseApiService.put(secretKey, token, request)
+                .map(ResponseEntity::ok);
     }
 
     /**
      * 서버용 외부 API DELETE 요청 프록시 (secretKey 기반 인증)
      */
     @DeleteMapping
-    public ResponseEntity<Object> useApiByDelete(
+    public Mono<ResponseEntity<Object>> useApiByDelete(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token,
             @RequestHeader("bssm-dev-secret") String secretKey
     ) {
         logProxyRequest(request, token, secretKey);
-        Object response = serverUseApiService.delete(secretKey, token, request);
-        return ResponseEntity.ok(response);
+        return serverUseApiService.delete(secretKey, token, request)
+                .map(ResponseEntity::ok);
     }
 
     private void logProxyRequest(HttpServletRequest request, String token, String secretKey) {
