@@ -6,6 +6,13 @@ spring:
   application:
     name: bssm_dev
 
+  # JPA DataSource Configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bssm_dev?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false
+    username: bdv
+    password: Kdoornega0128!
+
   # MongoDB Configuration
   data:
     mongodb:
@@ -13,6 +20,12 @@ spring:
       auto-index-creation: true
       transaction:
         enabled: true
+
+  # R2DBC Configuration
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/bssm_dev
+    username: bdv
+    password: Kdoornega0128!
 
   mvc:
     pathmatch:
