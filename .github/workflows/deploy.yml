@@ -1,88 +1,112 @@
 name: Deploy BDV (proxmox-minimal)
 
-on:
-  push:
-    branches: [ 'release-*' ]     
-  workflow_dispatch:
+  on:
+    push:
+      branches: [ 'release-*' ]
+    workflow_dispatch:
 
-concurrency:
-  group: deploy-${{ vars.SVC }}-dev
-  cancel-in-progress: false
+  concurrency:
+    group: deploy-${{ vars.SVC }}-dev-${{ matrix.module }}
+    cancel-in-progress: false
 
-permissions:
-  contents: read
+  permissions:
+    contents: read
 
-jobs:
-  deploy:
-    runs-on: [ self-hosted ]   
+  jobs:
+    deploy:
+      runs-on: [ self-hosted ]
 
-    env:
-      CTID:     ${{ vars.DEV_CTID }}        
-      SVC:      ${{ vars.SVC }}         
-      APP_DIR:  ${{ vars.APP_DIR }}     
-      JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
+      strategy:
+        matrix:
+          module: [ app, proxy-service ]
 
-    steps:
-      - uses: actions/checkout@v4
+      env:
+        CTID: ${{ vars.DEV_CTID }}
 
-      - name: Verify inputs (fail fast)
-        run: |
-          : "${CTID:?CTID is empty}"
-          : "${SVC:?SVC is empty}"
-          : "${APP_DIR:?APP_DIR is empty}"
-          : "${JAR_NAME:?JAR_NAME is empty}"
+      steps:
+        - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: gradle
+        - name: Set module vars
+          id: mod
+          run: |
+            case "${{ matrix.module }}" in
+              app)
+                echo "svc=${{ vars.APP_SVC }}" >> $GITHUB_OUTPUT
+                echo "app_dir=${{ vars.APP_DIR_APP }}" >> $GITHUB_OUTPUT
+                echo "jar_name=${{ vars.APP_JAR_NAME || 'app.jar' }}" >> $GITHUB_OUTPUT
+                echo "jar_path=app/build/libs/*.jar" >> $GITHUB_OUTPUT
+                echo "gradle_task=:app:bootJar" >> $GITHUB_OUTPUT
+                ;;
+              proxy-service)
+                echo "svc=${{ vars.PROXY_SVC }}" >> $GITHUB_OUTPUT
+                echo "app_dir=${{ vars.PROXY_DIR }}" >> $GITHUB_OUTPUT
+                echo "jar_name=${{ vars.PROXY_JAR_NAME || 'proxy.jar' }}" >> $GITHUB_OUTPUT
+                echo "jar_path=proxy-service/build/libs/*.jar" >> $GITHUB_OUTPUT
+                echo "gradle_task=:proxy-service:bootJar" >> $GITHUB_OUTPUT
+                ;;
+              *)
+                echo "Unknown module: ${{ matrix.module }}"
+                exit 1
+                ;;
+            esac
 
+        - name: Verify inputs (fail fast)
+          run: |
+            : "${CTID:?CTID is empty}"
+            : "${{ steps.mod.outputs.svc }}:?SVC is empty"
+            : "${{ steps.mod.outputs.app_dir }}:?APP_DIR is empty"
+            : "${{ steps.mod.outputs.jar_name }}:?JAR_NAME is empty"
 
-      - name: Build (Gradle bootJar)
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean bootJar --no-daemon
+        - name: Set up JDK 21
+          uses: actions/setup-java@v4
+          with:
+            distribution: temurin
+            java-version: '21'
+            cache: gradle
 
-      - name: Locate built JAR
-        id: jar
-        run: |
-          JAR_PATH=$(find . -type f -name "*.jar" -path "*/build/libs/*" | sort | tail -n 1)
-          if [ -z "$JAR_PATH" ]; then
-            echo "No JAR found under */build/libs/*"
-            exit 1
-          fi
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-          echo "Using: $JAR_PATH"
+        - name: Build (Gradle bootJar)
+          run: |
+            chmod +x ./gradlew
+            ./gradlew clean ${{ steps.mod.outputs.gradle_task }} --no-daemon
 
-      - name: Push artifact to CT (only JAR)
-        run: |
-          sudo /usr/sbin/pct push "$CTID" "${{ steps.jar.outputs.jar_path }}" "/tmp/${JAR_NAME}"
-          
-      - name: Deploy inside CT & restart
-        run: |
-          sudo /usr/sbin/pct exec "$CTID" -- bash -lc "
-            set -euo pipefail
-      
-            APP_DIR='${APP_DIR}'
-            JAR_NAME='${JAR_NAME}'
-            SRC=\"/tmp/\$JAR_NAME\"
-            DST=\"\$APP_DIR/\$JAR_NAME\"
-      
-            install -d -m 755 \"\$APP_DIR\"
-      
-            if [ -f \"\$DST\" ]; then
-              cp -f \"\$DST\" \"\$DST.bak\" || true
+        - name: Locate built JAR
+          id: jar
+          run: |
+            JAR_PATH=$(ls -1 ${{ steps.mod.outputs.jar_path }} | sort | tail -n 1)
+            if [ -z "$JAR_PATH" ]; then
+              echo "No JAR found under ${{ steps.mod.outputs.jar_path }}"
+              exit 1
             fi
-      
-            cp \"\$SRC\" \"\$DST.tmp\"
-            mv -f \"\$DST.tmp\" \"\$DST\"
-            rm -f \"\$SRC\"
-      
-            chown bssm-dev:bssm-dev \"\$DST\"
-            chmod 640 \"\$DST\"
-      
-            systemctl daemon-reload
-            systemctl restart \"${SVC}.service\"
-          "
+            echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+            echo "Using: $JAR_PATH"
+
+        - name: Push artifact to CT (only JAR)
+          run: |
+            sudo /usr/sbin/pct push "$CTID" "${{ steps.jar.outputs.jar_path }}" "/tmp/${{ steps.mod.outputs.jar_name }}"
+
+        - name: Deploy inside CT & restart
+          run: |
+            sudo /usr/sbin/pct exec "$CTID" -- bash -lc "
+              set -euo pipefail
+
+              APP_DIR='${{ steps.mod.outputs.app_dir }}'
+              JAR_NAME='${{ steps.mod.outputs.jar_name }}'
+              SRC=\"/tmp/\$JAR_NAME\"
+              DST=\"\$APP_DIR/\$JAR_NAME\"
+
+              install -d -m 755 \"\$APP_DIR\"
+
+              if [ -f \"\$DST\" ]; then
+                cp -f \"\$DST\" \"\$DST.bak\" || true
+              fi
+
+              cp \"\$SRC\" \"\$DST.tmp\"
+              mv -f \"\$DST.tmp\" \"\$DST\"
+              rm -f \"\$SRC\"
+
+              chown bssm-dev:bssm-dev \"\$DST\"
+              chmod 640 \"\$DST\"
+
+              systemctl daemon-reload
+              systemctl restart \"${{ steps.mod.outputs.svc }}.service\"
+            "
