@@ -11,6 +11,7 @@ import com.example.bssm_dev.domain.api.service.query.ApiUsageReactiveQueryServic
 import com.example.bssm_dev.domain.api.service.query.TokenDomainReactiveQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -23,28 +24,28 @@ public class BrowserUseApiService {
     private final TokenDomainReactiveQueryService tokenDomainReactiveQueryService;
     private final ProxyLogEventPublisher proxyLogEventPublisher;
 
-    public Mono<Object> get(String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> get(String token, HttpServletRequest request) {
         return handleRequest(token, request);
     }
 
 
-    public Mono<Object> post(String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> post(String token, HttpServletRequest request) {
         return handleRequest(token, request);
     }
 
-    public Mono<Object> patch(String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> patch(String token, HttpServletRequest request) {
         return handleRequest(token, request);
     }
 
-    public Mono<Object> put(String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> put(String token, HttpServletRequest request) {
         return handleRequest(token, request);
     }
 
-    public Mono<Object> delete(String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> delete(String token, HttpServletRequest request) {
         return handleRequest(token, request);
     }
 
-    private Mono<Object> handleRequest(String token, HttpServletRequest request) {
+    private Mono<ResponseEntity<byte[]>> handleRequest(String token, HttpServletRequest request) {
         String origin = request.getHeader("Origin");
         RequestInfo requestInfo = RequestInfo.of(request);
         long startedAt = System.currentTimeMillis();
@@ -63,7 +64,7 @@ public class BrowserUseApiService {
                                                     apiToken,
                                                     requestInfo,
                                                     request,
-                                                    response,
+                                                    response.getBody(),
                                                     startedAt
                                             );
                                         })

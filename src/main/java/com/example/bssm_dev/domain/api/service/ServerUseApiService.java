@@ -10,6 +10,7 @@ import com.example.bssm_dev.domain.api.service.query.ApiTokenReactiveQueryServic
 import com.example.bssm_dev.domain.api.service.query.ApiUsageReactiveQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -23,27 +24,27 @@ public class ServerUseApiService {
     private final PasswordEncoder passwordEncoder;
     private final ProxyLogEventPublisher proxyLogEventPublisher;
 
-    public Mono<Object> get(String secretKey, String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> get(String secretKey, String token, HttpServletRequest request) {
         return handleRequest(secretKey, token, request);
     }
 
-    public Mono<Object> post(String secretKey, String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> post(String secretKey, String token, HttpServletRequest request) {
         return handleRequest(secretKey, token, request);
     }
 
-    public Mono<Object> patch(String secretKey, String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> patch(String secretKey, String token, HttpServletRequest request) {
         return handleRequest(secretKey, token, request);
     }
 
-    public Mono<Object> put(String secretKey, String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> put(String secretKey, String token, HttpServletRequest request) {
         return handleRequest(secretKey, token, request);
     }
 
-    public Mono<Object> delete(String secretKey, String token, HttpServletRequest request) {
+    public Mono<ResponseEntity<byte[]>> delete(String secretKey, String token, HttpServletRequest request) {
         return handleRequest(secretKey, token, request);
     }
 
-    private Mono<Object> handleRequest(String secretKey, String token, HttpServletRequest request) {
+    private Mono<ResponseEntity<byte[]>> handleRequest(String secretKey, String token, HttpServletRequest request) {
         RequestInfo requestInfo = RequestInfo.of(request);
         long startedAt = System.currentTimeMillis();
 
@@ -59,7 +60,7 @@ public class ServerUseApiService {
                                                     apiToken,
                                                     requestInfo,
                                                     request,
-                                                    response,
+                                                    response.getBody(),
                                                     startedAt
                                             );
                                         })

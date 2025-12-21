@@ -16,8 +16,9 @@ public class HealthCheckApiService {
         RequestInfo requestInfo = RequestInfo.of(httpServletRequest);
         return ApiRequestExecutor.request(endpoint, method, domain, requestInfo)
                 .map(response -> {
-                    boolean healthy = response != null;
-                    return ApiHealthCheckResponse.of(healthy, response);
+                    boolean healthy = response != null && !response.getStatusCode().isError();
+                    byte[] body = response != null ? response.getBody() : null;
+                    return ApiHealthCheckResponse.of(healthy, body);
                 })
                 .onErrorResume(e -> Mono.just(ApiHealthCheckResponse.of(false, null)));
     }
