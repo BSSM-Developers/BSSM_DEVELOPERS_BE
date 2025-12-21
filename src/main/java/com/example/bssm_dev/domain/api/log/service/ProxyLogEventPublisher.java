@@ -6,6 +6,7 @@ import com.example.bssm_dev.domain.api.log.model.ProxyLogDirection;
 import com.example.bssm_dev.domain.api.log.model.ProxyReqResLog;
 import com.example.bssm_dev.domain.api.log.model.ProxyResult;
 import com.example.bssm_dev.domain.api.model.ApiToken;
+import com.example.bssm_dev.domain.api.model.r2dbc.ApiTokenR2dbc;
 import com.example.bssm_dev.domain.api.model.vo.RequestInfo;
 import com.example.bssm_dev.domain.api.log.model.ProxyReqResLog.ProxyRequestLog;
 import com.example.bssm_dev.domain.api.log.model.ProxyReqResLog.ProxyResponseLog;
@@ -67,20 +68,88 @@ public class ProxyLogEventPublisher {
             ApiToken apiToken,
             RequestInfo requestInfo,
             HttpServletRequest servletRequest,
-            Exception exception,
+            Throwable throwable,
             long startedAtMillis
     ) {
         ProxyReqResLog document = buildBase(direction, apiToken, requestInfo, servletRequest, startedAtMillis, ProxyResult.ERROR);
 
         int status = 500;
         String responseBody = null;
-        if (exception instanceof ExternalApiException externalApiException && externalApiException.getUpstreamStatusCode() != null) {
+        if (throwable instanceof ExternalApiException externalApiException && externalApiException.getUpstreamStatusCode() != null) {
             status = externalApiException.getUpstreamStatusCode();
             responseBody = externalApiException.getUpstreamBody();
         }
 
         ProxyResponseLog responseLog = buildResponseLog(status, responseBody);
-        ProxyErrorLog errorLog = buildErrorLog(exception, status);
+        ProxyErrorLog errorLog = buildErrorLog(throwable, status);
+
+        document = ProxyReqResLog.builder()
+                .id(document.getId())
+                .traceId(document.getTraceId())
+                .timestamp(document.getTimestamp())
+                .timezone(document.getTimezone())
+                .direction(document.getDirection())
+                .request(document.getRequest())
+                .response(responseLog)
+                .latencyMs(document.getLatencyMs())
+                .tokenId(document.getTokenId())
+                .userId(document.getUserId())
+                .origin(document.getOrigin())
+                .result(document.getResult())
+                .error(errorLog)
+                .build();
+
+        eventPublisher.publishEvent(new ProxyLogEvent(document));
+    }
+
+    // R2DBC용 오버로드 메서드
+    public void publishSuccess(
+            ProxyLogDirection direction,
+            ApiTokenR2dbc apiToken,
+            RequestInfo requestInfo,
+            HttpServletRequest servletRequest,
+            Object responseBody,
+            long startedAtMillis
+    ) {
+        ProxyReqResLog document = buildBase(direction, apiToken.getApiTokenId(), apiToken.getUserId(), requestInfo, servletRequest, startedAtMillis, ProxyResult.SUCCESS);
+        ProxyResponseLog responseLog = buildResponseLog(200, responseBody);
+        document = ProxyReqResLog.builder()
+                .id(document.getId())
+                .traceId(document.getTraceId())
+                .timestamp(document.getTimestamp())
+                .timezone(document.getTimezone())
+                .direction(document.getDirection())
+                .request(document.getRequest())
+                .response(responseLog)
+                .latencyMs(document.getLatencyMs())
+                .tokenId(document.getTokenId())
+                .userId(document.getUserId())
+                .origin(document.getOrigin())
+                .result(document.getResult())
+                .error(document.getError())
+                .build();
+        eventPublisher.publishEvent(new ProxyLogEvent(document));
+    }
+
+    public void publishError(
+            ProxyLogDirection direction,
+            ApiTokenR2dbc apiToken,
+            RequestInfo requestInfo,
+            HttpServletRequest servletRequest,
+            Throwable throwable,
+            long startedAtMillis
+    ) {
+        ProxyReqResLog document = buildBase(direction, apiToken.getApiTokenId(), apiToken.getUserId(), requestInfo, servletRequest, startedAtMillis, ProxyResult.ERROR);
+
+        int status = 500;
+        String responseBody = null;
+        if (throwable instanceof ExternalApiException externalApiException && externalApiException.getUpstreamStatusCode() != null) {
+            status = externalApiException.getUpstreamStatusCode();
+            responseBody = externalApiException.getUpstreamBody();
+        }
+
+        ProxyResponseLog responseLog = buildResponseLog(status, responseBody);
+        ProxyErrorLog errorLog = buildErrorLog(throwable, status);
 
         document = ProxyReqResLog.builder()
                 .id(document.getId())
@@ -127,6 +196,33 @@ public class ProxyLogEventPublisher {
                 .build();
     }
 
+    private ProxyReqResLog buildBase(
+            ProxyLogDirection direction,
+            Long tokenId,
+            Long userId,
+            RequestInfo requestInfo,
+            HttpServletRequest servletRequest,
+            long startedAtMillis,
+            ProxyResult result
+    ) {
+        ProxyRequestLog requestLog = buildRequestLog(requestInfo, servletRequest);
+        ProxyOriginLog originLog = buildOrigin(servletRequest);
+
+        ZoneId zoneId = ZoneId.of("Asia/Seoul");
+        return ProxyReqResLog.builder()
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .timezone(zoneId.getId())
+                .direction(direction)
+                .request(requestLog)
+                .latencyMs(System.currentTimeMillis() - startedAtMillis)
+                .tokenId(tokenId)
+                .userId(userId)
+                .origin(originLog)
+                .result(result)
+                .build();
+    }
+
     private ProxyRequestLog buildRequestLog(RequestInfo requestInfo, HttpServletRequest servletRequest) {
         Map<String, String> headers = sanitizeHeaders(requestInfo.headers());
         TruncatedBody truncatedBody = truncateBody(requestInfo.body());
@@ -164,15 +260,15 @@ public class ProxyLogEventPublisher {
                 .build();
     }
 
-    private ProxyErrorLog buildErrorLog(Exception exception, Integer code) {
-        if (exception == null) {
+    private ProxyErrorLog buildErrorLog(Throwable throwable, Integer code) {
+        if (throwable == null) {
             return null;
         }
         return ProxyErrorLog.builder()
-                .type(exception.getClass().getSimpleName())
-                .message(exception.getMessage())
+                .type(throwable.getClass().getSimpleName())
+                .message(throwable.getMessage())
                 .code(code)
-                .stack(exception.getStackTrace().length > 0 ? exception.getStackTrace()[0].toString() : null)
+                .stack(throwable.getStackTrace().length > 0 ? throwable.getStackTrace()[0].toString() : null)
                 .build();
     }
 

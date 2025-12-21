@@ -7,14 +7,19 @@ import com.example.bssm_dev.domain.api.model.vo.RequestInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
 public class HealthCheckApiService {
-    public ApiHealthCheckResponse check(String endpoint, String method, String domain, HttpServletRequest httpServletRequest) {
+    public Mono<ApiHealthCheckResponse> check(String endpoint, String method, String domain, HttpServletRequest httpServletRequest) {
         RequestInfo requestInfo = RequestInfo.of(httpServletRequest);
-        Object response = ApiRequestExecutor.request(endpoint, method, domain, requestInfo);
-        boolean healthy = response != null;
-        return ApiHealthCheckResponse.of(healthy, response);
+        return ApiRequestExecutor.request(endpoint, method, domain, requestInfo)
+                .map(response -> {
+                    boolean healthy = response != null && !response.getStatusCode().isError();
+                    byte[] body = response != null ? response.getBody() : null;
+                    return ApiHealthCheckResponse.of(healthy, body);
+                })
+                .onErrorResume(e -> Mono.just(ApiHealthCheckResponse.of(false, null)));
     }
 }

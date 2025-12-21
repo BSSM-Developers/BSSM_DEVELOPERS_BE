@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,65 +20,60 @@ public class BrowserUseApiController {
      * 브라우저용 외부 API GET 요청 프록시 (도메인 기반 인증)
      */
     @GetMapping
-    public ResponseEntity<Object> useApiByGet(
+    public Mono<ResponseEntity<byte[]>> useApiByGet(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
         logProxyRequest(request, token);
-        Object response = browserUseApiService.get(token, request);
-        return ResponseEntity.ok(response);
+        return browserUseApiService.get(token, request);
     }
 
     /**
      * 브라우저용 외부 API POST 요청 프록시 (도메인 기반 인증)
      */
     @PostMapping
-    public ResponseEntity<Object> useApiByPost(
+    public Mono<ResponseEntity<byte[]>> useApiByPost(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
         logProxyRequest(request, token);
-        Object response = browserUseApiService.post(token, request);
-        return ResponseEntity.ok(response);
+        return browserUseApiService.post(token, request);
     }
 
     /**
      * 브라우저용 외부 API PATCH 요청 프록시 (도메인 기반 인증)
      */
     @PatchMapping
-    public ResponseEntity<Object> useApiByPatch(
+    public Mono<ResponseEntity<byte[]>> useApiByPatch(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
         logProxyRequest(request, token);
-        Object response = browserUseApiService.patch(token, request);
-        return ResponseEntity.ok(response);
+        return browserUseApiService.patch(token, request);
     }
 
     /**
      * 브라우저용 외부 API PUT 요청 프록시 (도메인 기반 인증)
      */
     @PutMapping
-    public ResponseEntity<Object> useApiByPut(
+    public Mono<ResponseEntity<byte[]>> useApiByPut(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
         logProxyRequest(request, token);
-        Object response = browserUseApiService.put(token, request);
-        return ResponseEntity.ok(response);
+        return browserUseApiService.put(token, request);
     }
 
     /**
      * 브라우저용 외부 API DELETE 요청 프록시 (도메인 기반 인증)
      */
     @DeleteMapping
-    public ResponseEntity<Object> useApiByDelete(
+    public Mono<ResponseEntity<byte[]>> useApiByDelete(
             HttpServletRequest request,
             @RequestHeader("bssm-dev-token") String token
     ) {
         logProxyRequest(request, token);
-        Object response = browserUseApiService.delete(token, request);
-        return ResponseEntity.ok(response);
+        return browserUseApiService.delete(token, request);
     }
 
     private void logProxyRequest(HttpServletRequest request, String token) {
