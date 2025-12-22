@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.api.extractor;
 
+import com.example.bssm_dev.domain.api.exception.UnsupportedProxyBasePathException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -55,12 +56,12 @@ public class RequestExtractor {
     }
 
     private static String resolveBasePath(String requestUri) {
-        if (requestUri.startsWith("/api/proxy-browser")) {
-            return "/api/proxy-browser";
+        if (requestUri.startsWith("/proxy-browser")) {
+            return "/proxy-browser";
         }
-        if (requestUri.startsWith("/api/proxy-server")) {
-            return "/api/proxy-server";
+        if (requestUri.startsWith("/proxy-server")) {
+            return "/proxy-server";
         }
-        return "/api/proxy";
+        throw UnsupportedProxyBasePathException.raise();
     }
 }
