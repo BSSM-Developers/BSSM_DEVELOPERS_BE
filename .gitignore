@@ -43,3 +43,5 @@ out/
 
 docker-compose.yaml
 .github/workflows/**
+**/src/main/resources/**
+**/src/test/resources/**
