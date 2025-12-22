@@ -45,7 +45,8 @@ public enum ErrorCode {
     DOCS_NOT_CUSTOM_TYPE(400, "해당 문서는 커스텀 타입이 아닙니다."),
     DOCS_SECTION_REQUIRED(400, "문서에는 최소 1개 이상의 섹션이 필요합니다."),
     DOCS_SIDEBAR_NOT_FOUND(404, "문서 사이드바를 찾을 수 없습니다."),
-    UNSUPPORTED_PROXY_BASE_PATH(400, "지원하지 않는 프록시 경로입니다.");
+    UNSUPPORTED_PROXY_BASE_PATH(400, "지원하지 않는 프록시 경로입니다."),
+    TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.");
 
 
     private final int statusCode;
