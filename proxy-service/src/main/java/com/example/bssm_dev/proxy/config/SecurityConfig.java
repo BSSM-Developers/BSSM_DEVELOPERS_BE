@@ -51,10 +51,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        .pathMatchers("/api/proxy/**").permitAll()
-                        .pathMatchers("/api/proxy-server/**").permitAll()
-                        .pathMatchers("/api/proxy-browser/**").permitAll()
-                        .pathMatchers("/api/healthy/**").permitAll()
+                        .pathMatchers("/proxy/**").permitAll()
+                        .pathMatchers("/proxy-server/**").permitAll()
+                        .pathMatchers("/proxy-browser/**").permitAll()
+                        .pathMatchers("/healthy/**").permitAll()
                         .anyExchange().permitAll()
                 )
                 .build();
