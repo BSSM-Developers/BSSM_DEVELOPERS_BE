@@ -5,16 +5,16 @@ on:
     branches: [ 'release-*' ]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-dev-${{ matrix.module }}
-  cancel-in-progress: false
-
 permissions:
   contents: read
 
 jobs:
   deploy:
     runs-on: [ self-hosted ]
+
+    concurrency:
+      group: deploy-dev-${{ matrix.module }}
+      cancel-in-progress: false
 
     strategy:
       matrix:
@@ -78,7 +78,6 @@ jobs:
             exit 1
           fi
           echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-          echo "Using: $JAR_PATH"
 
       - name: Push artifact to CT (only JAR)
         run: |
