@@ -92,7 +92,7 @@ public class ServerUseApiController {
         String query = request.getURI().getQuery();
         String pathWithQuery = (query == null || query.isBlank()) ? path : path + "?" + query;
 
-        log.info(
+        log.debug(
                 "[Proxy][Server] {} {} token={} secret={} ip={} ua={}",
                 request.getMethod(),
                 pathWithQuery,
