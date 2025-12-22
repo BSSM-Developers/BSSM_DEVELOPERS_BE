@@ -6,7 +6,7 @@ name: Deploy BDV (proxmox-minimal)
     workflow_dispatch:
 
   concurrency:
-    group: deploy-${{ vars.SVC }}-dev-${{ matrix.module }}
+    group: deploy-dev-${{ matrix.module }}
     cancel-in-progress: false
 
   permissions:
@@ -33,14 +33,14 @@ name: Deploy BDV (proxmox-minimal)
               app)
                 echo "svc=${{ vars.APP_SVC }}" >> $GITHUB_OUTPUT
                 echo "app_dir=${{ vars.APP_DIR_APP }}" >> $GITHUB_OUTPUT
-                echo "jar_name=${{ vars.APP_JAR_NAME || 'app.jar' }}" >> $GITHUB_OUTPUT
+                echo "jar_name=${{ vars.APP_JAR_NAME }}" >> $GITHUB_OUTPUT
                 echo "jar_path=app/build/libs/*.jar" >> $GITHUB_OUTPUT
                 echo "gradle_task=:app:bootJar" >> $GITHUB_OUTPUT
                 ;;
               proxy-service)
                 echo "svc=${{ vars.PROXY_SVC }}" >> $GITHUB_OUTPUT
                 echo "app_dir=${{ vars.PROXY_DIR }}" >> $GITHUB_OUTPUT
-                echo "jar_name=${{ vars.PROXY_JAR_NAME || 'proxy.jar' }}" >> $GITHUB_OUTPUT
+                echo "jar_name=${{ vars.PROXY_JAR_NAME }}" >> $GITHUB_OUTPUT
                 echo "jar_path=proxy-service/build/libs/*.jar" >> $GITHUB_OUTPUT
                 echo "gradle_task=:proxy-service:bootJar" >> $GITHUB_OUTPUT
                 ;;
