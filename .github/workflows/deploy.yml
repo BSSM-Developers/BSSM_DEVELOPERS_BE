@@ -2,11 +2,11 @@ name: Deploy BDV (proxmox-minimal)
 
 on:
   push:
-    branches: [ master ]     
+    branches: [ 'release-*' ]     
   workflow_dispatch:
 
 concurrency:
-  group: deploy-${{ vars.SVC }}-prod
+  group: deploy-${{ vars.SVC }}-dev
   cancel-in-progress: false
 
 permissions:
@@ -17,7 +17,7 @@ jobs:
     runs-on: [ self-hosted ]   
 
     env:
-      CTID:     ${{ vars.CTID }}        
+      CTID:     ${{ vars.DEV_CTID }}        
       SVC:      ${{ vars.SVC }}         
       APP_DIR:  ${{ vars.APP_DIR }}     
       JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
