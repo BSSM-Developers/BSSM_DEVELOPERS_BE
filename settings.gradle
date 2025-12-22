@@ -1,1 +1,5 @@
 rootProject.name = 'bssm_dev'
+
+include 'app'
+include 'proxy-service'
+include 'common'

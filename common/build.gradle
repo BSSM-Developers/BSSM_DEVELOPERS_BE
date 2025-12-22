@@ -1,0 +1,14 @@
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'bssm_dev_common'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
