@@ -19,10 +19,10 @@ public class RequestExtractor {
             endpoint = endpoint.replaceFirst("^/+", "/");
         }
 
-        log.info("요청 URI = {}", requestUri);
-        log.info("쿼리 파라미터 = {}", queryString);
-        log.info("기준 경로 = {}", resolveBasePath(requestUri));
-        log.info("최종 endpoint = {}", endpoint);
+        log.debug("요청 URI = {}", requestUri);
+        log.debug("쿼리 파라미터 = {}", queryString);
+        log.debug("기준 경로 = {}", resolveBasePath(requestUri));
+        log.debug("최종 endpoint = {}", endpoint);
         return endpoint;
     }
 
