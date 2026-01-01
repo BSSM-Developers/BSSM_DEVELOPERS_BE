@@ -19,6 +19,8 @@ public class Docs {
     private DocumentType type;
     private String domain;
     private Long writerId;
+    @Builder.Default
+    private Long tokenCount = 0L;
 
     public boolean isMyDocs(User user) {
         return this.writerId.equals(user.getUserId());
