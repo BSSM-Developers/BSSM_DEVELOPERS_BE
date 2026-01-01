@@ -33,10 +33,8 @@ public class DocsQueryService {
         Pageable pageable = PageRequest.of(0, size + 1);
         
         Slice<Docs> docsSlice = docsRepository.fetchDocs(docsType, cursor, pageable);
-        List<Docs> docsList = docsSlice.getContent();
-
-        boolean hasNext = docsList.size() > size;
-        List<Docs> content = hasNext ? docsList.subList(0, size) : docsList;
+        List<Docs> content = docsSlice.getContent();
+        boolean hasNext = docsSlice.hasNext();
 
         Map<Long, User> userMap = getUserMapByWriterids(content);
 
@@ -46,13 +44,39 @@ public class DocsQueryService {
     }
 
     public CursorPage<DocsListResponse> getMyDocs(User currentUser, DocumentType docsType, String cursor, Integer size) {
-        Pageable pageable = PageRequest.of(0, size + 1);
+        Pageable pageable = PageRequest.of(0, size);
         
         Slice<Docs> docsSlice = docsRepository.fetchMyDocs(currentUser.getUserId(), docsType, cursor, pageable);
-        List<Docs> docsList = docsSlice.getContent();
+        List<Docs> content = docsSlice.getContent();
+        boolean hasNext = docsSlice.hasNext();
 
-        boolean hasNext = docsList.size() > size;
-        List<Docs> content = hasNext ? docsList.subList(0, size) : docsList;
+        String writerName = currentUser.getName();
+        List<DocsListResponse> responses = docsMapper.toDocsListResponse(writerName, content);
+        return new CursorPage<>(responses, hasNext);
+    }
+
+
+    public CursorPage<DocsListResponse> getPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Docs> docsSlice = docsRepository.fetchPopularDocs(docsType, tokenCount, cursor, pageable);
+        List<Docs> content = docsSlice.getContent();
+
+        boolean hasNext = docsSlice.hasNext();
+
+        Map<Long, User> userMap = getUserMapByWriterids(content);
+
+        List<DocsListResponse> responses = docsMapper.toDocsListResponse(userMap, content);
+
+        return new CursorPage<>(responses, hasNext);
+    }
+
+    public CursorPage<DocsListResponse> getMyPopularDocs(User currentUser, DocumentType docsType, Long tokenCount, String cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Docs> docsSlice = docsRepository.fetchMyPopularDocs(currentUser.getUserId(), docsType, tokenCount, cursor, pageable);
+        List<Docs> content = docsSlice.getContent();
+        boolean hasNext = docsSlice.hasNext();
 
         String writerName = currentUser.getName();
         List<DocsListResponse> responses = docsMapper.toDocsListResponse(writerName, content);
