@@ -10,6 +10,6 @@ import lombok.Getter;
 public record ApiUseReasonCreatedEvent (
         ApiUseReason apiUseReason,
         Api api,
-        ApiToken currentApiToken,
+        ApiToken currentApiToken
 ) {
 }
