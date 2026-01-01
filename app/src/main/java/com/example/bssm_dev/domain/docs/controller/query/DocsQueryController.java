@@ -48,4 +48,38 @@ public class DocsQueryController {
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved my docs", response);
         return ResponseEntity.ok(responseDto);
     }
+
+
+    /**
+     * 문서 인기순 조회 by 커서 기반 페이지네이션
+     */
+    @GetMapping("/popular")
+    public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getPopularDocs(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long tokenCount,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer size
+    ) {
+        DocumentType docsType = DocumentType.fromString(type);
+        CursorPage<DocsListResponse> response = docsQueryService.getPopularDocs(docsType, tokenCount, cursor, size);
+        ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved popular docs", response);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * 내가 작성한 문서 인기순 조회 by 커서 기반 페이지네이션
+     */
+    @GetMapping("/my/popular")
+    public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getMyPopularDocs(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Long tokenCount,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @CurrentUser User currentUser
+    ) {
+        DocumentType docsType = DocumentType.fromString(type);
+        CursorPage<DocsListResponse> response = docsQueryService.getMyPopularDocs(currentUser, docsType, tokenCount, cursor, size);
+        ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved my popular docs", response);
+        return ResponseEntity.ok(responseDto);
+    }
 }

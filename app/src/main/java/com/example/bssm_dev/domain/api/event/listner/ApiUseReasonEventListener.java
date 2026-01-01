@@ -21,17 +21,17 @@ public class ApiUseReasonEventListener {
     @Transactional("transactionManager")
     @Async
     public void handleApiUseReasonCreated(ApiUseReasonCreatedEvent event) {
-        Api api = event.getApi();
+        Api api = event.api();
 
         Boolean apiAutoApproval = api.getAutoApproval();
         boolean isAutoApproval = apiAutoApproval != null && apiAutoApproval;
 
         if (isAutoApproval) {
             log.info("자동 승인 처리 중");
-            ApiUseReason apiUseReason = event.getApiUseReason();
+            ApiUseReason apiUseReason = event.apiUseReason();
             apiUsageCommandService.createApiUsage(
                     api,
-                    event.getCurrentApiToken(),
+                    event.currentApiToken(),
                     apiUseReason
             );
             apiUseReason.approved();

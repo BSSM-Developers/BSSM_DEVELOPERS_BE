@@ -12,23 +12,23 @@ public final class RestRequesterLogUtil {
     }
 
     public static void logSuccess(String method, String endpoint, ResponseEntity<byte[]> response) {
-        log.info("========== [External API Response] ==========");
-        log.info("Method: {}", method);
-        log.info("Endpoint: {}", endpoint);
-        log.info("Status: {}", response.getStatusCode().value());
-        log.info("Response Body Length: {}", response.getBody() != null ? response.getBody().length : 0);
-        log.info("=============================================");
+        log.debug("========== [External API Response] ==========");
+        log.debug("Method: {}", method);
+        log.debug("Endpoint: {}", endpoint);
+        log.debug("Status: {}", response.getStatusCode().value());
+        log.debug("Response Body Length: {}", response.getBody() != null ? response.getBody().length : 0);
+        log.debug("=============================================");
     }
 
     public static void logRequest(String method, String endpoint, Object body, java.util.Map<String, String> headers) {
-        log.info("========== [External API Request] ==========");
-        log.info("Method: {}", method);
-        log.info("Endpoint: {}", endpoint);
-        log.info("Request Headers: {}", headers);
+        log.debug("========== [External API Request] ==========");
+        log.debug("Method: {}", method);
+        log.debug("Endpoint: {}", endpoint);
+        log.debug("Request Headers: {}", headers);
         if (body == null) {
-            log.info("Request Body: (none)");
+            log.debug("Request Body: (none)");
         } else {
-            log.info("Request Body: {}", body);
+            log.debug("Request Body: {}", body);
         }
     }
 

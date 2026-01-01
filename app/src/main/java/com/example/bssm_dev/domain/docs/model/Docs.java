@@ -19,6 +19,8 @@ public class Docs {
     private DocumentType type;
     private String domain;
     private Long writerId;
+    @Builder.Default
+    private Long tokenCount = 0L;
 
     public boolean isMyDocs(User user) {
         return this.writerId.equals(user.getUserId());
@@ -33,5 +35,9 @@ public class Docs {
         this.description = description;
         this.domain = domain;
         this.repositoryUrl = repositoryUrl;
+    }
+
+    public void incrementTokenCount() {
+        this.tokenCount++;
     }
 }
