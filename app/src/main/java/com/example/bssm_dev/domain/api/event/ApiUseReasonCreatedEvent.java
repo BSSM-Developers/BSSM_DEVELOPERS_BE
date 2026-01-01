@@ -7,10 +7,9 @@ import com.example.bssm_dev.domain.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class ApiUseReasonCreatedEvent {
-    private final ApiUseReason apiUseReason;
-    private final Api api;
-    private final ApiToken currentApiToken;
+public record ApiUseReasonCreatedEvent (
+        ApiUseReason apiUseReason,
+        Api api,
+        ApiToken currentApiToken,
+) {
 }
