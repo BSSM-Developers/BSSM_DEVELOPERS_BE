@@ -10,4 +10,9 @@ public interface DocsQueryRepository {
     
     Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, String cursor, Pageable pageable);
 
+
+    Slice<Docs> fetchPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Pageable pageable);
+
+    Slice<Docs> fetchMyPopularDocs(Long writerId, DocumentType docsType, Long tokenCount, String cursor, Pageable pageable);
+
 }

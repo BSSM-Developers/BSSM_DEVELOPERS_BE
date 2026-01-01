@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.service.query;
 
+import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.docs.dto.response.DocsPageResponse;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageMapper;
@@ -20,5 +21,10 @@ public class DocsPageQueryService {
                 .orElseThrow(DocsPageNotFoundException::raise);
         
         return docsPageMapper.toDocsPageResponse(docsPage);
+    }
+
+    public DocsPage findById(String apiId) {
+        return docsPageRepository.findById(apiId)
+                .orElseThrow(DocsPageNotFoundException::raise);
     }
 }

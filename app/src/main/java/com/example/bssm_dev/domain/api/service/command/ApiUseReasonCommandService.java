@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.dto.request.CreateApiUseReasonRequest;
+import com.example.bssm_dev.domain.api.event.ApiUseReasonApprovedEvent;
 import com.example.bssm_dev.domain.api.event.ApiUseReasonCreatedEvent;
 import com.example.bssm_dev.domain.api.exception.ApiUsageAlreadyExistsException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
@@ -72,6 +73,13 @@ public class ApiUseReasonCommandService {
 
         apiUsageCommandService.save(apiToken, api, apiUseReason);
         apiUseReason.approved();
+        eventPublisher.publishEvent(
+                new ApiUseReasonApprovedEvent(
+                        apiUseReason,
+                        api,
+                        apiToken
+                )
+        );
     }
 
 

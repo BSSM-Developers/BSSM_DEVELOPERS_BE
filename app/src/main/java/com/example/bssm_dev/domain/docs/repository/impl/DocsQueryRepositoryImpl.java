@@ -76,4 +76,67 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
 
         return new SliceImpl<>(results, pageable, hasNext);
     }
+
+
+    @Override
+    public Slice<Docs> fetchPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
+        Query query = new Query();
+
+        if (docsType != null) {
+            query.addCriteria(Criteria.where("type").is(docsType));
+        }
+
+        if (tokenCount != null && cursor != null) {
+            // tokenCount가 같으면 _id로 비교
+            Criteria cursorCriteria = new Criteria().orOperator(
+                    Criteria.where("tokenCount").lt(tokenCount),
+                    Criteria.where("tokenCount").is(tokenCount).and("_id").lt(new ObjectId(cursor))
+            );
+            query.addCriteria(cursorCriteria);
+        }
+
+        query.with(Sort.by(Sort.Order.desc("tokenCount"), Sort.Order.desc("_id")));
+        query.limit(pageable.getPageSize() + 1);
+
+        List<Docs> results = mongoTemplate.find(query, Docs.class);
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.removeLast();
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    @Override
+    public Slice<Docs> fetchMyPopularDocs(Long writerId, DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
+        Query query = new Query();
+
+        query.addCriteria(Criteria.where("writerId").is(writerId));
+
+        if (docsType != null) {
+            query.addCriteria(Criteria.where("type").is(docsType));
+        }
+
+        if (tokenCount != null && cursor != null) {
+            // tokenCount가 같으면 _id로 비교
+            Criteria cursorCriteria = new Criteria().orOperator(
+                    Criteria.where("tokenCount").lt(tokenCount),
+                    Criteria.where("tokenCount").is(tokenCount).and("_id").lt(new ObjectId(cursor))
+            );
+            query.addCriteria(cursorCriteria);
+        }
+
+        query.with(Sort.by(Sort.Order.desc("tokenCount"), Sort.Order.desc("_id")));
+        query.limit(pageable.getPageSize() + 1);
+
+        List<Docs> results = mongoTemplate.find(query, Docs.class);
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.removeLast();
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
+    }
 }
