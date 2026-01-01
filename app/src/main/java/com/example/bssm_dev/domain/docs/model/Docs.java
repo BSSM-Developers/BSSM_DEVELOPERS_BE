@@ -36,4 +36,8 @@ public class Docs {
         this.domain = domain;
         this.repositoryUrl = repositoryUrl;
     }
+
+    public void incrementTokenCount() {
+        this.tokenCount++;
+    }
 }

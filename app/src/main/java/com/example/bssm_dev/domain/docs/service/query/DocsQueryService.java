@@ -6,6 +6,7 @@ import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
+import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.user.model.User;
 import com.example.bssm_dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +70,11 @@ public class DocsQueryService {
                         Collectors.toMap(User::getUserId, user -> user)
                 );
         return userMap;
+    }
+
+
+    public Docs findById(String docsId) {
+        return docsRepository.findById(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
     }
 }
