@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ import java.time.format.DateTimeFormatter;
 public class RedisApiRateLimiterService implements ApiRateLimiterService {
     private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
     private final ApiTokenStateUpdateService apiTokenStateUpdateService;
+    
+    @Value("${api.rate-limit.threshold-multiplier:200}")
+    private int thresholdMultiplier;
     
     private static final String KEY_PREFIX = "api:ratelimit:";
     private static final String CONCURRENT_PREFIX = "api:concurrent:";
@@ -98,7 +102,7 @@ public class RedisApiRateLimiterService implements ApiRateLimiterService {
         ).flatMap(tuple -> {
             long concurrent = tuple.getT1();
             long requestCount = tuple.getT2();
-            long threshold = concurrent * 60;
+            long threshold = concurrent * thresholdMultiplier;  // 설정값 사용
             
             if (requestCount > threshold) {
                 return apiTokenStateUpdateService.transitionState(apiTokenId);
