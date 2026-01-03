@@ -143,4 +143,8 @@ public class ApiToken {
             throw ApiTokenBlockedException.raise();
         }
     }
+
+    public void unblock() {
+        this.state = ApiTokenState.NORMAL;
+    }
 }
