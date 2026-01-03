@@ -2,7 +2,6 @@ package com.example.bssm_dev.domain.user.model;
 
 import com.example.bssm_dev.domain.user.model.type.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +23,10 @@ public class User {
         this.name = name;
         this.profile = profile;
         this.role = role;
+    }
+
+    public boolean isAdmin() {
+        return UserRole.ROLE_ADMIN.equals(this.role);
     }
 
     public static User of(String email, String name, String profile, UserRole role) {

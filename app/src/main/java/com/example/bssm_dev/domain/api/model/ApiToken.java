@@ -1,8 +1,10 @@
 package com.example.bssm_dev.domain.api.model;
 
 import com.example.bssm_dev.domain.api.dto.response.ApiUsageSummaryResponse;
+import com.example.bssm_dev.domain.api.exception.ApiTokenBlockedException;
 import com.example.bssm_dev.domain.api.exception.InvalidSecretKeyException;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException;
+import com.example.bssm_dev.domain.api.model.type.ApiTokenState;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -41,6 +43,11 @@ public class ApiToken {
 
     @Column(nullable = false)
     private String secretKey;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ApiTokenState state = ApiTokenState.NORMAL;
 
     @OneToMany(mappedBy = "apiToken", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -129,5 +136,15 @@ public class ApiToken {
 
     public boolean isOwner(User user) {
         return this.user.equals(user);
+    }
+
+    public void validateNotBlocked() {
+        if (this.state == ApiTokenState.BLOCKED) {
+            throw ApiTokenBlockedException.raise();
+        }
+    }
+
+    public void unblock() {
+        this.state = ApiTokenState.NORMAL;
     }
 }
