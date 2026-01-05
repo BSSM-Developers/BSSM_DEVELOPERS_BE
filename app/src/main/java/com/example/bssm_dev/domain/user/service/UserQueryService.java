@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.user.service;
 
 import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
+import com.example.bssm_dev.domain.user.dto.response.UserResponse;
 import com.example.bssm_dev.domain.user.exception.UserNotFoundException;
 import com.example.bssm_dev.domain.user.mapper.UserMapper;
 import com.example.bssm_dev.domain.user.model.User;
@@ -30,5 +31,9 @@ public class UserQueryService {
     public User findById(Long userId) {
         return  userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::raise);
+    }
+
+    public UserResponse getCurrentUser(User user) {
+        return userMapper.toUserResponse(user);
     }
 }

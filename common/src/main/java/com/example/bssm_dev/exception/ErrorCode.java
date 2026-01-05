@@ -46,7 +46,14 @@ public enum ErrorCode {
     DOCS_SECTION_REQUIRED(400, "문서에는 최소 1개 이상의 섹션이 필요합니다."),
     DOCS_SIDEBAR_NOT_FOUND(404, "문서 사이드바를 찾을 수 없습니다."),
     UNSUPPORTED_PROXY_BASE_PATH(400, "지원하지 않는 프록시 경로입니다."),
-    TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.");
+    TOO_MANY_REQUESTS(429, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
+    API_TOKEN_BLOCKED(403, "요청 제한 정책 위반으로 API 토큰이 차단되었습니다. 차단 해제는 BSSM Developers 공식 홈페이지를 통해 요청할 수 있습니다."),
+    UNBLOCK_REQUEST_NOT_FOUND(404, "차단 해제 요청을 찾을 수 없습니다."),
+    UNAUTHORIZED_UNBLOCK_REQUEST_ACCESS(403, "해당 차단 해제 요청에 접근할 권한이 없습니다."),
+    UNBLOCK_REQUEST_ALREADY_PROCESSED(400, "이미 처리된 차단 해제 요청입니다."),
+    UNBLOCK_REQUEST_ALREADY_EXISTS(400, "이미 대기 중인 차단 해제 요청이 있습니다."),
+    API_TOKEN_NOT_BLOCKED(400, "차단되지 않은 API 토큰입니다."),
+    UNAUTHORIZED_ACCESS(403, "권한이 없습니다.");
 
 
     private final int statusCode;
