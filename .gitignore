@@ -45,3 +45,6 @@ docker-compose.yaml
 .github/workflows/**
 **/src/main/resources/**
 **/src/test/resources/**
+
+build-and-push-latest.sh
+build-and-push.sh
