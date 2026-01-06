@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
  * Redis String + INCR + TTL 방식으로 분 단위 요청 제한 추적
  */
 @Service
-@Profile("!dev")
+@Profile("prod")
 @RequiredArgsConstructor
 public class RedisApiRateLimiterService implements ApiRateLimiterService {
     private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;

@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Service
-@Profile("dev")
+@Profile("!prod")
 public class MockRateLimiterService implements ApiRateLimiterService {
     
     @Override
