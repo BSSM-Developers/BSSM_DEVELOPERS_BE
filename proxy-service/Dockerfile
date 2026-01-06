@@ -1,5 +1,5 @@
 # Build stage
-FROM gradle:8.5-jdk21 AS builder
+FROM --platform=linux/amd64 gradle:8.5-jdk21 AS builder
 
 WORKDIR /build
 
@@ -15,7 +15,7 @@ COPY proxy-service ./proxy-service
 RUN ./gradlew :proxy-service:bootJar --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:21-jre
+FROM --platform=linux/amd64 eclipse-temurin:21-jre
 
 WORKDIR /app
 
