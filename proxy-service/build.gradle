@@ -2,6 +2,12 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 description = 'bssm_dev_proxy_service'
 
+
+
+springBoot {
+    mainClass = "com.example.bssm_dev.proxy.ProxyServiceApplication"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

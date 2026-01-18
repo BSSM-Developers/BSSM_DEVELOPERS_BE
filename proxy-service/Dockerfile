@@ -9,7 +9,7 @@ COPY gradle ./gradle
 
 # Copy all modules (including common)
 COPY common ./common
-COPY proxy-service ./proxy-service
+COPY proxy-service ./proxy-servic
 
 # Build the application (common will be built as dependency)
 RUN ./gradlew :proxy-service:bootJar --no-daemon
