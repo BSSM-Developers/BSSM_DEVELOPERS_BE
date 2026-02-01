@@ -5,29 +5,37 @@ import reactor.core.Disposable;
 import reactor.core.publisher.MonoSink;
 
 import java.time.Duration;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.time.Instant;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SemaphoreRequestQueue implements RequestQueue {
+/**
+ * HRN(Highest Response Ratio Next) 기반 Request Queue 구현.
+ * 사용자의 실패 횟수에 따른 priority와 대기 시간을 고려하여 스케줄링합니다.
+ * 
+ * Response Ratio = (대기시간 + 서비스시간) / 서비스시간
+ * 여기서는 간단히: effectivePriority = basePriority + (waitTimeSeconds * 0.1)
+ */
+public class HrnRequestQueue implements RequestQueue {
     private final Semaphore semaphore;
     private final Duration timeout;
-    private final ConcurrentLinkedQueue<Waiter> waiters = new ConcurrentLinkedQueue<>();
+    private final PriorityBlockingQueue<Waiter> waiters;
 
-    public SemaphoreRequestQueue(int maxInflight, Duration timeout) {
+    public HrnRequestQueue(int maxInflight, Duration timeout) {
         this.semaphore = new Semaphore(maxInflight);
         this.timeout = timeout;
+        this.waiters = new PriorityBlockingQueue<>();
     }
 
     @Override
     public Mono<Boolean> tryAcquire(String clientId, double priority) {
-        // FIFO 방식: clientId와 priority는 무시됨
         return Mono.defer(() -> {
             if (semaphore.tryAcquire()) {
                 return Mono.just(true);
             }
             return Mono.<Boolean>create(sink -> {
-                Waiter waiter = new Waiter(sink);
+                Waiter waiter = new Waiter(sink, clientId, priority);
                 waiters.offer(waiter);
 
                 Disposable timeoutTask = Mono.delay(timeout)
@@ -63,13 +71,19 @@ public class SemaphoreRequestQueue implements RequestQueue {
         });
     }
 
-    private static final class Waiter {
+    private static final class Waiter implements Comparable<Waiter> {
         private final AtomicBoolean completed = new AtomicBoolean(false);
         private final MonoSink<Boolean> sink;
+        private final String clientId;
+        private final double basePriority;
+        private final Instant enqueueTime;
         private Disposable timeoutTask;
 
-        private Waiter(MonoSink<Boolean> sink) {
+        private Waiter(MonoSink<Boolean> sink, String clientId, double basePriority) {
             this.sink = sink;
+            this.clientId = clientId;
+            this.basePriority = basePriority;
+            this.enqueueTime = Instant.now();
         }
 
         private void setTimeoutTask(Disposable timeoutTask) {
@@ -85,6 +99,23 @@ public class SemaphoreRequestQueue implements RequestQueue {
             }
             sink.success(value);
             return true;
+        }
+
+        /**
+         * HRN 알고리즘에 따른 effective priority 계산.
+         * 높은 priority와 오래 기다린 요청이 먼저 처리됩니다.
+         */
+        private double getEffectivePriority() {
+            long waitTimeMillis = Duration.between(enqueueTime, Instant.now()).toMillis();
+            double waitTimeSeconds = waitTimeMillis / 1000.0;
+            // HRN: 대기시간이 길수록 priority 증가 (aging 효과)
+            return basePriority + (waitTimeSeconds * 0.1);
+        }
+
+        @Override
+        public int compareTo(Waiter other) {
+            // 높은 effective priority가 먼저 (내림차순)
+            return Double.compare(other.getEffectivePriority(), this.getEffectivePriority());
         }
     }
 }

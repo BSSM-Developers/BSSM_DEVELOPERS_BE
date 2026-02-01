@@ -10,4 +10,9 @@ import java.time.Duration;
 public class ProxyQueueProperties {
     private int maxInflight = 80;
     private Duration acquireTimeout = Duration.ofSeconds(1);
+
+    // HRN Priority settings
+    private double basePriority = 1.0;
+    private double priorityIncrement = 0.2;
+    private double maxPriority = 3.0;
 }

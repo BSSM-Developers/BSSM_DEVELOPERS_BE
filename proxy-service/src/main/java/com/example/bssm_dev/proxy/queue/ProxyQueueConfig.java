@@ -10,7 +10,7 @@ public class ProxyQueueConfig {
 
     @Bean
     public RequestQueue requestQueue(ProxyQueueProperties properties) {
-        return new SemaphoreRequestQueue(
+        return new HrnRequestQueue(
                 properties.getMaxInflight(),
                 properties.getAcquireTimeout()
         );

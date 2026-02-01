@@ -16,8 +16,11 @@ import com.example.bssm_dev.proxy.error.TooManyRequestsException;
 public class ProxyRequestQueueFilter implements WebFilter {
     private static final String PROXY_BROWSER = "/proxy-browser";
     private static final String PROXY_SERVER = "/proxy-server";
+    private static final String TOKEN_HEADER = "bssm-dev-token";
 
     private final RequestQueue requestQueue;
+    private final UserPriorityService userPriorityService;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
@@ -25,17 +28,21 @@ public class ProxyRequestQueueFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
-        return Mono.usingWhen(
-                requestQueue.tryAcquire(),
-                acquired -> {
-                    if (!acquired) {
-                        return Mono.error(new TooManyRequestsException());
-                    }
-                    return chain.filter(exchange);
-                },
-                acquired -> acquired ? requestQueue.release() : Mono.empty(),
-                (acquired, err) -> acquired ? requestQueue.release() : Mono.empty(),
-                acquired -> acquired ? requestQueue.release() : Mono.empty()
-        );
+        String clientId = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
+
+        return userPriorityService.getPriority(clientId)
+                .flatMap(priority -> Mono.usingWhen(
+                        requestQueue.tryAcquire(clientId, priority),
+                        acquired -> {
+                            if (!acquired) {
+                                return userPriorityService.incrementFailure(clientId)
+                                        .then(Mono.error(new TooManyRequestsException()));
+                            }
+                            return chain.filter(exchange);
+                        },
+                        acquired -> acquired ? requestQueue.release() : Mono.empty(),
+                        (acquired, err) -> acquired ? requestQueue.release() : Mono.empty(),
+                        acquired -> acquired ? requestQueue.release() : Mono.empty()
+                ));
     }
 }
