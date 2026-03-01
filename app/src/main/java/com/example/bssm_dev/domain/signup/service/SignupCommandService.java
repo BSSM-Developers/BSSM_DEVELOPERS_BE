@@ -8,9 +8,11 @@ import com.example.bssm_dev.domain.signup.exception.UnauthorizedSignupAccessExce
 import com.example.bssm_dev.domain.signup.mapper.SignupFormMapper;
 import com.example.bssm_dev.domain.signup.model.SignupForm;
 import com.example.bssm_dev.domain.signup.model.SignupToken;
+import com.example.bssm_dev.domain.signup.event.SignupApprovedEvent;
 import com.example.bssm_dev.domain.signup.repository.SignupRequestRepository;
 import com.example.bssm_dev.domain.signup.repository.SignupTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class SignupCommandService {
     private final SignupRequestRepository signupRequestRepository;
     private final SignupTokenRepository signupTokenRepository;
     private final SignupFormMapper signupRequestMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public String createSignupRequest(SignupRequest signupRequestDto) {
         boolean isSignupRequestExists = signupRequestRepository.existsByEmail(signupRequestDto.email());
@@ -62,6 +65,12 @@ public class SignupCommandService {
                 .orElseThrow(SignupRequestNotFoundException::raise);
 
         signupForm.approve();
+        
+        eventPublisher.publishEvent(new SignupApprovedEvent(
+                signupForm.getEmail(),
+                signupForm.getName(),
+                signupForm.getProfile()
+        ));
     }
 
     public void rejectSignupRequest(Long signupRequestId) {
