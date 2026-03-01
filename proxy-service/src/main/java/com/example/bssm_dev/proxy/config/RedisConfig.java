@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 public class RedisConfig {
@@ -20,6 +23,25 @@ public class RedisConfig {
                 .value(serializer)
                 .hashKey(serializer)
                 .hashValue(serializer)
+                .build();
+        
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
+
+    @Bean
+    public ReactiveRedisTemplate<String, Object> reactiveRedisObjectTemplate(
+            ReactiveRedisConnectionFactory connectionFactory,
+            ObjectMapper objectMapper) {
+        StringRedisSerializer keySerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer<Object> valueSerializer = 
+                new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
+        
+        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
+                .<String, Object>newSerializationContext()
+                .key(keySerializer)
+                .value(valueSerializer)
+                .hashKey(keySerializer)
+                .hashValue(valueSerializer)
                 .build();
         
         return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);

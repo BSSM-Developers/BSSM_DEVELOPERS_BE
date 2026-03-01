@@ -2,6 +2,12 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 description = 'bssm_dev_proxy_service'
 
+
+
+springBoot {
+    mainClass = "com.example.bssm_dev.proxy.ProxyServiceApplication"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -17,6 +23,7 @@ dependencies {
     implementation 'io.asyncer:r2dbc-mysql:1.0.5'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+    implementation "org.apache.commons:commons-pool2"
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.apache.logging.log4j:log4j-to-slf4j'
 
