@@ -38,7 +38,8 @@ public class ApiTokenMapper {
         return new ApiTokenListResponse(
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
-                apiToken.getApiTokenUUID()
+                apiToken.getApiTokenUUID(),
+                apiToken.getState()
         );
     }
 
@@ -57,6 +58,7 @@ public class ApiTokenMapper {
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
+                apiToken.getState(),
                 domains,
                 apiUsageMapper.toSummaryListResponse(apiToken.getApiUsageList())
         );
