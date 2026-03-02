@@ -28,11 +28,11 @@ public class DocsMapper {
     public Docs toCustomDocs(CreateCustomDocsRequest request, User creator) {
         Docs docs = Docs.builder()
                 .title(request.title())
-                .repositoryUrl(request.repositoryUrl())
                 .description(request.description())
+                .repositoryUrl("")
                 .domain("")
                 .type(DocumentType.CUSTOMIZE)
-                .autoApproval(request.autoApproval())
+                .autoApproval(false)
                 .writerId(creator.getUserId())
                 .build();
         return docs;
