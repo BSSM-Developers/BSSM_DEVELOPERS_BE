@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.repository.ApiRepository;
+import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.SideBar;
 import com.example.bssm_dev.domain.docs.model.SideBarBlock;
@@ -67,7 +68,7 @@ public class ApiCommandService {
                         block.getMappedId(), block.getLabel(), block.getMethod());
 
                 // DocsPage 전체 가져오기
-                DocsPage docsPage = findDocsPageByMappedId(block.getMappedId(), docsPages);
+                ContentDocsPage docsPage = findDocsPageByMappedId(block.getMappedId(), docsPages);
 
                 if (docsPage != null && docsPage.getEndpoint() != null) {
                     log.info("DocsPage found for mappedId={}: id={}, endpoint={}",
@@ -96,7 +97,7 @@ public class ApiCommandService {
         }
     }
 
-    private DocsPage findDocsPageByMappedId(String mappedId, List<DocsPage> docsPages) {
+    private ContentDocsPage findDocsPageByMappedId(String mappedId, List<DocsPage> docsPages) {
         if (mappedId == null || docsPages == null) {
             log.warn("mappedId or docsPages is null");
             return null;
@@ -104,12 +105,14 @@ public class ApiCommandService {
 
         log.debug("Searching for mappedId: {} in {} pages", mappedId, docsPages.size());
         for (DocsPage page : docsPages) {
-            log.debug("Checking page: id={}, mappedId={}, endpoint={}",
-                    page.getId(), page.getMappedId(), page.getEndpoint());
+            if (!(page instanceof ContentDocsPage contentPage)) continue;
 
-            if (mappedId.equals(page.getMappedId())) {
-                log.debug("Match found for mappedId: {}, endpoint: {}", mappedId, page.getEndpoint());
-                return page;
+            log.debug("Checking page: id={}, mappedId={}, endpoint={}",
+                    contentPage.getId(), contentPage.getMappedId(), contentPage.getEndpoint());
+
+            if (mappedId.equals(contentPage.getMappedId())) {
+                log.debug("Match found for mappedId: {}, endpoint: {}", mappedId, contentPage.getEndpoint());
+                return contentPage;
             }
         }
         log.warn("No matching page found for mappedId: {}", mappedId);
