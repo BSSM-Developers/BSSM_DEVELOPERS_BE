@@ -10,7 +10,5 @@ import java.util.Optional;
 public interface DocsPageRepository extends MongoRepository<DocsPage, String> {
     Optional<DocsPage> findByDocsIdAndMappedId(String docsId, String mappedId);
 
-    Optional<DocsPage> findByEndpoint(String endpoint);
-
     void deleteByDocsId(String docsId);
 }
