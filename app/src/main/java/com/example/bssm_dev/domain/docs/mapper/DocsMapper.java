@@ -30,7 +30,7 @@ public class DocsMapper {
                 .title(request.title())
                 .repositoryUrl(request.repositoryUrl())
                 .description(request.description())
-                .domain(request.domain())
+                .domain("")
                 .type(DocumentType.CUSTOMIZE)
                 .autoApproval(request.autoApproval())
                 .writerId(creator.getUserId())
