@@ -6,7 +6,6 @@ public record ApiUsageResponse(
         String name,
         String endpoint,
         String apiName,
-        String apiDomain,
         String apiMethod,
         String apiUseReasonId,
         String apiUseState
