@@ -3,6 +3,8 @@ package com.example.bssm_dev.domain.api.service.query;
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.api.dto.response.ApiUseReasonResponse;
 import com.example.bssm_dev.domain.api.exception.ApiUseReasonNotFoundException;
+import com.example.bssm_dev.domain.api.exception.UnauthorizedApiUseReasonAccessException;
+import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.mapper.ApiUseReasonMapper;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.model.type.ApiUseState;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ApiUseReasonQueryService {
     private final ApiUseReasonRepository apiUseReasonRepository;
     private final ApiUseReasonMapper apiUseReasonMapper;
+    private final ApiQueryService apiQueryService;
 
     public ApiUseReason findById(Long apiUseReasonId) {
         return apiUseReasonRepository.findById(apiUseReasonId)
@@ -53,6 +56,21 @@ public class ApiUseReasonQueryService {
         return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
     }
     
+    public CursorPage<ApiUseReasonResponse> getApiUseReasonsByApiId(User user, String apiId, Long cursor, Integer size) {
+        Api api = apiQueryService.findById(apiId);
+
+        boolean isCreator = api.isCreator(user);
+        if (!isCreator) {
+            throw UnauthorizedApiUseReasonAccessException.raise();
+        }
+
+        Pageable pageable = PageRequest.of(0, size);
+        Slice<ApiUseReason> apiUseReasonSlice = apiUseReasonRepository.findAllByApiIdWithCursor(apiId, cursor, pageable);
+
+        List<ApiUseReasonResponse> responses = apiUseReasonMapper.toListResponse(apiUseReasonSlice);
+        return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
+    }
+
     private Slice<ApiUseReason> fetchApiUseReasonSlice(
             ApiUseState state,
             Long cursor, 

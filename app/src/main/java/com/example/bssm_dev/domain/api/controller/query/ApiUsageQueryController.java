@@ -22,7 +22,7 @@ public class ApiUsageQueryController {
     private final ApiUsageQueryService apiUsageQueryService;
 
     /**
-     * 본인이 등록한 API에 대한 사용 신청 목록 조회
+     * 본인이 등록한 API에 대한 사용 목록 조회
      */
     @GetMapping("/by-api/{apiId}")
     public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsagesByApiId(
