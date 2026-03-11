@@ -63,33 +63,16 @@ public class ApiTokenR2dbc {
         if (tokenDomains == null || tokenDomains.isEmpty()) {
             throw UnauthorizedDomainException.raise();
         }
-        validateDomain(requestOrigin, tokenDomains);
-    }
-
-    private void validateDomain(String requestOrigin, List<TokenDomainR2dbc> tokenDomains) {
         if (requestOrigin == null || requestOrigin.isEmpty()) {
             throw UnauthorizedDomainException.raise();
         }
-
-        String domain = extractDomain(requestOrigin);
         boolean isAllowed = tokenDomains.stream()
-                .anyMatch(tokenDomain -> tokenDomain.matchesDomain(domain));
-
+                .anyMatch(tokenDomain -> tokenDomain.matchesOrigin(requestOrigin));
         if (!isAllowed) {
             throw UnauthorizedDomainException.raise();
         }
     }
 
-    private String extractDomain(String origin) {
-        String domain = origin.replaceAll("^https?://", "");
-        domain = domain.replaceAll(":\\\\d+$", "");
-        int slashIndex = domain.indexOf('/');
-        if (slashIndex != -1) {
-            domain = domain.substring(0, slashIndex);
-        }
-        return domain;
-    }
-    
     /**
      * 차단 정책에 따라 상태를 다음 단계로 전환
      * NORMAL → WARNING → BLOCKED
