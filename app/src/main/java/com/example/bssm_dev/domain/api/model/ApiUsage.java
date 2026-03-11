@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.model;
 
 import com.example.bssm_dev.domain.api.model.key.ApiUsageId;
+import com.example.bssm_dev.domain.api.model.type.ApiUseState;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,12 +54,24 @@ public class ApiUsage {
         this.endpoint = endpoint;
     }
 
-    public String getDomain() {
-        return api.getDomain();
+    public String getApiId() {
+        return api.getApiId();
     }
 
     public String getMethod() {
-        return this.api.getMethod();
+        return api.getMethod();
+    }
+
+    public Long getApiTokenId() {
+        return apiToken.getApiTokenId();
+    }
+
+    public Long getApiUseReasonId() {
+        return apiUseReason.getApiUseReasonId();
+    }
+
+    public ApiUseState getApiUseState() {
+        return apiUseReason.getApiUseState();
     }
 
     public boolean equalsApi(Api api) {

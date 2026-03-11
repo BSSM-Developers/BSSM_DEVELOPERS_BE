@@ -9,7 +9,7 @@ public record ApiTokenResponse(
         String apiTokenName,
         String apiTokenClientId,
         ApiTokenState state,
-        List<String> domains,
+        List<String> origins,
         List<ApiUsageSummaryResponse> registeredApis
 ) {
 }

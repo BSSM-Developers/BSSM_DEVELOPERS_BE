@@ -5,6 +5,7 @@ import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.request.ChangeApiTokenNameRequest;
 import com.example.bssm_dev.domain.api.dto.request.CreateApiTokenRequest;
+import com.example.bssm_dev.domain.api.dto.request.UpdateApiTokenOriginsRequest;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.service.command.ApiTokenCommandService;
@@ -31,7 +32,7 @@ public class ApiTokenCommandController {
         SecretApiTokenResponse apiTokenResponse = apiTokenCommandService.createApiToken(
                 user,
                 request.apiTokenName(),
-                request.domains()
+                request.origins()
         );
         ResponseDto<SecretApiTokenResponse> responseDto = HttpUtil.success("Successfully created API token", apiTokenResponse);
         return ResponseEntity.ok(responseDto);
@@ -47,6 +48,20 @@ public class ApiTokenCommandController {
     ) {
         SecretApiTokenResponse apiTokenResponse = apiTokenCommandService.reGenerateSecretKey(user, tokenId);
         ResponseDto<SecretApiTokenResponse> responseDto = HttpUtil.success("Successfully regenerated API token secret key", apiTokenResponse);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * API Token Origins 업데이트
+     */
+    @PatchMapping("/{tokenId}/origins")
+    public ResponseEntity<ResponseDto<Void>> updateApiTokenOrigins(
+            @CurrentUser User user,
+            @PathVariable("tokenId") Long tokenId,
+            @RequestBody UpdateApiTokenOriginsRequest request
+    ) {
+        apiTokenCommandService.updateTokenOrigins(user, tokenId, request.origins());
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully updated API token origins");
         return ResponseEntity.ok(responseDto);
     }
 

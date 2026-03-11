@@ -10,6 +10,7 @@ import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,21 @@ public class ApiUseReasonQueryController {
         return ResponseEntity.ok(responseDto);
     }
     
+    /**
+     * 본인이 등록한 API에 대한 사용 신청 목록 조회
+     */
+    @GetMapping("/by-api/{apiId}")
+    public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonsByApiId(
+            @CurrentUser User user,
+            @PathVariable String apiId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer size
+    ) {
+        CursorPage<ApiUseReasonResponse> response = apiUseReasonQueryService.getApiUseReasonsByApiId(user, apiId, cursor, size);
+        ResponseDto<CursorPage<ApiUseReasonResponse>> responseDto = HttpUtil.success("Successfully retrieved API use reasons", response);
+        return ResponseEntity.ok(responseDto);
+    }
+
     /**
      * 어드민 - 모든 API Use Reason 조회 (상태별 필터링)
      */

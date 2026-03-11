@@ -46,7 +46,20 @@ public interface ApiUseReasonRepository extends JpaRepository<ApiUseReason, Long
            "ORDER BY aur.apiUseReasonId DESC")
     Slice<ApiUseReason> findByStateWithCursor(
             @Param("state") ApiUseState state,
-            @Param("cursor") Long cursor, 
+            @Param("cursor") Long cursor,
+            Pageable pageable
+    );
+
+    @Query("SELECT aur FROM ApiUseReason aur " +
+           "JOIN FETCH aur.writer w " +
+           "JOIN FETCH aur.api a " +
+           "JOIN FETCH aur.apiToken at " +
+           "WHERE a.apiId = :apiId " +
+           "AND aur.apiUseReasonId < COALESCE(:cursor, 9223372036854775807) " +
+           "ORDER BY aur.apiUseReasonId DESC")
+    Slice<ApiUseReason> findAllByApiIdWithCursor(
+            @Param("apiId") String apiId,
+            @Param("cursor") Long cursor,
             Pageable pageable
     );
 }
