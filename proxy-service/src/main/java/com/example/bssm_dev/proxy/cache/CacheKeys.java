@@ -20,4 +20,8 @@ public final class CacheKeys {
     public static String apiUsage(Long apiTokenId, String endpoint) {
         return API_USAGE_PREFIX + apiTokenId + ":" + endpoint;
     }
+
+    public static String apiUsageList(Long apiTokenId) {
+        return API_USAGE_PREFIX + apiTokenId;
+    }
 }
