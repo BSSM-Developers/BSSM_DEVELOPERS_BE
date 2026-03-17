@@ -14,8 +14,6 @@ import com.example.bssm_dev.proxy.error.TooManyRequestsException;
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 @RequiredArgsConstructor
 public class ProxyRequestQueueFilter implements WebFilter {
-    private static final String PROXY_BROWSER = "/proxy-browser";
-    private static final String PROXY_SERVER = "/proxy-server";
     private static final String TOKEN_HEADER = "bssm-dev-token";
 
     private final RequestQueue requestQueue;
@@ -23,12 +21,10 @@ public class ProxyRequestQueueFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String path = exchange.getRequest().getPath().value();
-        if (!path.startsWith(PROXY_BROWSER) && !path.startsWith(PROXY_SERVER)) {
+        String clientId = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
+        if (clientId == null || clientId.isBlank()) {
             return chain.filter(exchange);
         }
-
-        String clientId = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
 
         return userPriorityService.getPriority(clientId)
                 .flatMap(priority -> Mono.usingWhen(
