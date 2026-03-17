@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+@Slf4j
 @Table("api_token")
 @Getter
 @NoArgsConstructor
@@ -61,35 +63,24 @@ public class ApiTokenR2dbc {
 
     public void validateBrowserAccess(String requestOrigin, List<TokenDomainR2dbc> tokenDomains) {
         if (tokenDomains == null || tokenDomains.isEmpty()) {
+            log.warn("[DomainValidation] apiTokenId={} requestOrigin={} allowedDomains=[] - 등록된 도메인 없음",
+                    apiTokenId, requestOrigin);
             throw UnauthorizedDomainException.raise();
         }
-        validateDomain(requestOrigin, tokenDomains);
-    }
-
-    private void validateDomain(String requestOrigin, List<TokenDomainR2dbc> tokenDomains) {
         if (requestOrigin == null || requestOrigin.isEmpty()) {
+            log.warn("[DomainValidation] apiTokenId={} requestOrigin=null allowedDomains={} - Origin 헤더 없음",
+                    apiTokenId, tokenDomains.stream().map(TokenDomainR2dbc::getOrigin).toList());
             throw UnauthorizedDomainException.raise();
         }
-
-        String domain = extractDomain(requestOrigin);
         boolean isAllowed = tokenDomains.stream()
-                .anyMatch(tokenDomain -> tokenDomain.matchesDomain(domain));
-
+                .anyMatch(tokenDomain -> tokenDomain.matchesOrigin(requestOrigin));
         if (!isAllowed) {
+            log.warn("[DomainValidation] apiTokenId={} requestOrigin={} allowedDomains={} - 도메인 불일치",
+                    apiTokenId, requestOrigin, tokenDomains.stream().map(TokenDomainR2dbc::getOrigin).toList());
             throw UnauthorizedDomainException.raise();
         }
     }
 
-    private String extractDomain(String origin) {
-        String domain = origin.replaceAll("^https?://", "");
-        domain = domain.replaceAll(":\\\\d+$", "");
-        int slashIndex = domain.indexOf('/');
-        if (slashIndex != -1) {
-            domain = domain.substring(0, slashIndex);
-        }
-        return domain;
-    }
-    
     /**
      * 차단 정책에 따라 상태를 다음 단계로 전환
      * NORMAL → WARNING → BLOCKED

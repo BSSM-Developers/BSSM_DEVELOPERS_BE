@@ -20,7 +20,8 @@ public class SemaphoreRequestQueue implements RequestQueue {
     }
 
     @Override
-    public Mono<Boolean> tryAcquire() {
+    public Mono<Boolean> tryAcquire(String clientId, double priority) {
+        // FIFO 방식: clientId와 priority는 무시됨
         return Mono.defer(() -> {
             if (semaphore.tryAcquire()) {
                 return Mono.just(true);

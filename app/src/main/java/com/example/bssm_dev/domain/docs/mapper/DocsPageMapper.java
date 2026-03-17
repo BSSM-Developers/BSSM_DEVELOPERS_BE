@@ -3,39 +3,48 @@ package com.example.bssm_dev.domain.docs.mapper;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.response.DocsPageBlockResponse;
 import com.example.bssm_dev.domain.docs.dto.response.DocsPageResponse;
+import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPageBlock;
+import com.example.bssm_dev.domain.docs.model.ReferenceDocsPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class DocsPageMapper {
     private final DocsPageBlockMapper docsPageBlockMapper;
 
-    public DocsPage toDocsPage(CreateDocsPageRequest request, Docs newDocs) {
-        DocsPage docsPage = DocsPage.builder()
+    public DocsPage toDocsPage(CreateDocsPageRequest request, Docs docs) {
+        if (request.sourceDocsId() != null) {
+            return ReferenceDocsPage.builder()
+                    .mappedId(request.id())
+                    .docsId(docs.getId())
+                    .sourceDocsId(request.sourceDocsId())
+                    .sourceMappedId(request.sourceMappedId())
+                    .build();
+        }
+
+        return ContentDocsPage.builder()
                 .mappedId(request.id())
-                .docsId(newDocs.getId())
-                .docsBlocks(
-                        docsPageBlockMapper.toDocsPageBlocks(request.blocks())
-                )
-                .endpoint(request.endpoint())  // API 페이지인 경우에만 값이 있음
+                .docsId(docs.getId())
+                .docsBlocks(request.blocks() != null
+                        ? docsPageBlockMapper.toDocsPageBlocks(request.blocks())
+                        : List.of())
+                .endpoint(request.endpoint())
                 .build();
-        return docsPage;
     }
 
-    public List<DocsPage> toDocsPages(List<CreateDocsPageRequest> requests, Docs newDocs) {
+    public List<DocsPage> toDocsPages(List<CreateDocsPageRequest> requests, Docs docs) {
         return requests.stream()
-                .map(docsPage -> toDocsPage(docsPage, newDocs))
+                .map(request -> toDocsPage(request, docs))
                 .toList();
     }
 
-    public DocsPageResponse toDocsPageResponse(DocsPage docsPage) {
+    public DocsPageResponse toDocsPageResponse(ContentDocsPage docsPage) {
         List<DocsPageBlockResponse> blockResponses = docsPage.getDocsBlocks().stream()
                 .map(this::toBlockResponse)
                 .toList();
@@ -48,7 +57,7 @@ public class DocsPageMapper {
                 blockResponses
         );
     }
-    
+
     private DocsPageBlockResponse toBlockResponse(DocsPageBlock block) {
         return new DocsPageBlockResponse(
                 block.getId(),

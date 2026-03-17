@@ -5,6 +5,7 @@ import com.example.bssm_dev.domain.docs.dto.request.DocsCreateRequest;
 import com.example.bssm_dev.domain.docs.dto.request.DocsUpdateRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
+import com.example.bssm_dev.domain.docs.exception.DocsTitleAlreadyExistsException;
 import com.example.bssm_dev.domain.docs.init.CustomDocsInitializer;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
@@ -36,6 +37,7 @@ public class DocsCommandService {
 
 
     public void createOriginalDocs(DocsCreateRequest request, User creator) {
+        validateTitleUnique(request.title());
         Docs docs = docsMapper.toOriginalDocs(request, creator);
 
         Docs newDocs = docsRepository.save(docs);
@@ -48,6 +50,7 @@ public class DocsCommandService {
     }
 
     public void createCustomDocs(CreateCustomDocsRequest request, User creator) {
+        validateTitleUnique(request.title());
         Docs docs = docsMapper.toCustomDocs(request, creator);
 
         String docsId = docsRepository.save(docs).getId();
@@ -57,6 +60,7 @@ public class DocsCommandService {
 
     public void updateDocs(String docsId, UpdateDocsRequest request, User user) {
         Docs docs = getMyDocs(docsId, user);
+        validateTitleUniqueExcluding(request.title(), docsId);
 
         docs.updateDocs(
                 request.title(),
@@ -76,6 +80,8 @@ public class DocsCommandService {
 
     public void replaceDocs(String docsId, DocsUpdateRequest request, User user) {
         Docs docs = getMyDocs(docsId, user);
+        validateTitleUniqueExcluding(request.title(), docsId);
+
         docs.updateDocs(
                 request.title(),
                 request.description(),
@@ -98,6 +104,18 @@ public class DocsCommandService {
         docsRepository.delete(docs);
         docsSideBarCommandService.delete(docsId);
         docsPageCommandService.delete(docsId);
+    }
+
+    private void validateTitleUnique(String title) {
+        if (docsRepository.existsByTitle(title)) {
+            throw DocsTitleAlreadyExistsException.raise();
+        }
+    }
+
+    private void validateTitleUniqueExcluding(String title, String excludeDocsId) {
+        if (docsRepository.existsByTitleAndIdNot(title, excludeDocsId)) {
+            throw DocsTitleAlreadyExistsException.raise();
+        }
     }
 
     private Docs getMyDocs(String docsId, User user) {

@@ -7,7 +7,7 @@ public record SecretApiTokenResponse(
         String apiTokenName,
         String apiTokenClientId,
         String secretKey,
-        List<String> domains
+        List<String> origins
 ) {
 }
 

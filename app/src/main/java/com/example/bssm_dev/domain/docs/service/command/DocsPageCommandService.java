@@ -4,11 +4,14 @@ import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
+import com.example.bssm_dev.domain.docs.exception.DocsReferencePageNotEditableException;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageBlockMapper;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageMapper;
+import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPageBlock;
+import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
@@ -26,10 +29,12 @@ public class DocsPageCommandService {
     private final DocsPageBlockMapper docsPageBlockMapper;
     private final DocsRepository docsRepository;
 
-    public List<DocsPage> save(List<CreateDocsPageRequest> requests, Docs newDocs) {
-        List<DocsPage> docsPages = docsPageMapper.toDocsPages(requests, newDocs);
-        List<DocsPage> newDocsPages = docsPageRepository.saveAll(docsPages);
-        return newDocsPages;
+    public List<DocsPage> save(List<CreateDocsPageRequest> requests, Docs docs) {
+        if (docs.getType() == DocumentType.CUSTOMIZE) {
+            DocsValidator.checkCustomDocsPages(requests);
+        }
+        List<DocsPage> docsPages = docsPageMapper.toDocsPages(requests, docs);
+        return docsPageRepository.saveAll(docsPages);
     }
 
     public void save(DocsPage docsPage) {
@@ -48,9 +53,13 @@ public class DocsPageCommandService {
         DocsPage docsPage = docsPageRepository.findByDocsIdAndMappedId(docsId, mappedId)
                 .orElseThrow(DocsPageNotFoundException::raise);
 
-        List<DocsPageBlock> updatedBlocks = docsPageBlockMapper.toDocsPageBlocks(request.docsBlocks());
-        docsPage.updateDocsBlocks(updatedBlocks);
+        if (!(docsPage instanceof ContentDocsPage contentPage)) {
+            throw DocsReferencePageNotEditableException.raise();
+        }
 
-        docsPageRepository.save(docsPage);
+        List<DocsPageBlock> updatedBlocks = docsPageBlockMapper.toDocsPageBlocks(request.docsBlocks());
+        contentPage.updateDocsBlocks(updatedBlocks);
+
+        docsPageRepository.save(contentPage);
     }
 }

@@ -15,8 +15,8 @@ public class ApiTokenMapper {
     private final ApiUsageMapper apiUsageMapper;
     
     public SecretApiTokenResponse toSecretApiTokenResponse(ApiToken apiToken, String plainSecretKey) {
-        List<String> domains = apiToken.getTokenDomains().stream()
-                .map(tokenDomain -> tokenDomain.getDomain())
+        List<String> origins = apiToken.getTokenDomains().stream()
+                .map(tokenDomain -> tokenDomain.getOrigin())
                 .toList();
         
         return new SecretApiTokenResponse(
@@ -24,7 +24,7 @@ public class ApiTokenMapper {
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
                 plainSecretKey,
-                domains
+                origins
         );
     }
 
@@ -38,7 +38,8 @@ public class ApiTokenMapper {
         return new ApiTokenListResponse(
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
-                apiToken.getApiTokenUUID()
+                apiToken.getApiTokenUUID(),
+                apiToken.getState()
         );
     }
 
@@ -49,15 +50,16 @@ public class ApiTokenMapper {
     }
 
     public ApiTokenResponse toApiTokenResponse(ApiToken apiToken) {
-        List<String> domains = apiToken.getTokenDomains().stream()
-                .map(tokenDomain -> tokenDomain.getDomain())
+        List<String> origins = apiToken.getTokenDomains().stream()
+                .map(tokenDomain -> tokenDomain.getOrigin())
                 .toList();
         
         return new ApiTokenResponse(
                 apiToken.getApiTokenId(),
                 apiToken.getApiTokenName(),
                 apiToken.getApiTokenUUID(),
-                domains,
+                apiToken.getState(),
+                origins,
                 apiUsageMapper.toSummaryListResponse(apiToken.getApiUsageList())
         );
     }

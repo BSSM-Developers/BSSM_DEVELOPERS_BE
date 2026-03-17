@@ -67,14 +67,14 @@ public class ApiToken {
                 .build();
     }
 
-    public void addTokenDomain(String domain) {
-        TokenDomain tokenDomain = TokenDomain.of(this, domain);
+    public void addTokenOrigin(String origin) {
+        TokenDomain tokenDomain = TokenDomain.of(this, origin);
         this.tokenDomains.add(tokenDomain);
     }
 
-    public void updateTokenDomains(List<String> domains) {
+    public void updateTokenOrigins(List<String> origins) {
         this.tokenDomains.clear();
-        domains.forEach(this::addTokenDomain);
+        origins.forEach(this::addTokenOrigin);
     }
 
     public void changeSecretKey(String secretKey) {
@@ -102,31 +102,14 @@ public class ApiToken {
         if (tokenDomains == null || tokenDomains.isEmpty()) {
             throw UnauthorizedDomainException.raise();
         }
-        validateDomain(requestOrigin);
-    }
-
-    private void validateDomain(String requestOrigin) {
         if (requestOrigin == null || requestOrigin.isEmpty()) {
             throw UnauthorizedDomainException.raise();
         }
-
-        String domain = extractDomain(requestOrigin);
         boolean isAllowed = tokenDomains.stream()
-                .anyMatch(tokenDomain -> tokenDomain.matchesDomain(domain));
-
+                .anyMatch(tokenDomain -> tokenDomain.matchesOrigin(requestOrigin));
         if (!isAllowed) {
             throw UnauthorizedDomainException.raise();
         }
-    }
-
-    private String extractDomain(String origin) {
-        String domain = origin.replaceAll("^https?://", "");
-        domain = domain.replaceAll(":\\d+$", "");
-        int slashIndex = domain.indexOf('/');
-        if (slashIndex != -1) {
-            domain = domain.substring(0, slashIndex);
-        }
-        return domain;
     }
 
     public boolean checkApiUsage(Api api) {

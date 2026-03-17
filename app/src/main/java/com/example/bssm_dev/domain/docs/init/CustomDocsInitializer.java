@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.docs.init;
 
 import com.example.bssm_dev.common.util.RandomNumberGenerateUtil;
+import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPageBlock;
 import com.example.bssm_dev.domain.docs.model.SideBar;
@@ -30,7 +31,7 @@ public class CustomDocsInitializer {
     }
 
     public static DocsPage initDocsPage(String docsId) {
-        return DocsPage.builder()
+        return ContentDocsPage.builder()
                 .mappedId(DOCS_MAPPED_ID)
                 .docsId(docsId)
                 .docsBlocks(DOCS_PAGE_BLOCKS)

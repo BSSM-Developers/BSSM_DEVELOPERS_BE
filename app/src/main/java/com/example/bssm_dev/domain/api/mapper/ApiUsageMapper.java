@@ -26,15 +26,14 @@ public class ApiUsageMapper {
     
     public ApiUsageResponse toResponse(ApiUsage apiUsage) {
         return new ApiUsageResponse(
-                apiUsage.getApiToken().getApiTokenId(),
-                apiUsage.getApi().getApiId(),
+                apiUsage.getApiTokenId(),
+                apiUsage.getApiId(),
                 apiUsage.getName(),
                 apiUsage.getEndpoint(),
-                apiUsage.getApi().getName(),
-                apiUsage.getApi().getDomain(),
-                apiUsage.getApi().getMethod(),
-                apiUsage.getApiUseReason().getApiUseReasonId().toString(),
-                apiUsage.getApiUseReason().getApiUseState().name()
+                apiUsage.getName(),
+                apiUsage.getMethod(),
+                apiUsage.getApiUseReasonId().toString(),
+                apiUsage.getApiUseState().name()
         );
     }
     
@@ -46,11 +45,11 @@ public class ApiUsageMapper {
     
     public ApiUsageSummaryResponse toSummaryResponse(ApiUsage apiUsage) {
         return new ApiUsageSummaryResponse(
-                apiUsage.getApi().getApiId(),
+                apiUsage.getApiId(),
                 apiUsage.getName(),
                 apiUsage.getEndpoint(),
-                apiUsage.getApi().getMethod(),
-                apiUsage.getApiUseReason().getApiUseState().name()
+                apiUsage.getMethod(),
+                apiUsage.getApiUseState().name()
         );
     }
     

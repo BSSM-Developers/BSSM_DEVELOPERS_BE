@@ -7,7 +7,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface DocsRepository extends MongoRepository<Docs, String>, DocsQueryRepository{
-    
+
+    boolean existsByTitle(String title);
+    boolean existsByTitleAndIdNot(String title, String id);
+
     // 모든 문서 조회 (type 필터 없음)
     Slice<Docs> findAllByOrderByIdDesc(Pageable pageable);
     Slice<Docs> findByIdLessThanOrderByIdDesc(String cursor, Pageable pageable);

@@ -1,25 +1,18 @@
 package com.example.bssm_dev.domain.docs.model;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.List;
 
 @Document(collection = "docs_page")
-@Builder
+@SuperBuilder
 @Getter
-public class DocsPage {
+@NoArgsConstructor
+public abstract class DocsPage {
     @Id
     private String id;
     private String mappedId;
     private String docsId;
-    private List<DocsPageBlock> docsBlocks;
-
-    private String endpoint;
-
-    public void updateDocsBlocks(List<DocsPageBlock> docsBlocks) {
-        this.docsBlocks = docsBlocks;
-    }
 }
-

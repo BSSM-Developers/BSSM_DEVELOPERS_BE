@@ -25,22 +25,32 @@ public class ApiTokenCommandService {
     private final ApiTokenMapper apiTokenMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public SecretApiTokenResponse createApiToken(User user, String apiTokenName, List<String> domains) {
+    public SecretApiTokenResponse createApiToken(User user, String apiTokenName, List<String> origins) {
         String plainSecretKey = generateSecretKey();
         String encodedSecretKey = passwordEncoder.encode(plainSecretKey);
         String apiTokenUUID = generateUUID();
-        
+
         ApiToken apiToken = ApiToken.of(user, encodedSecretKey, apiTokenName, apiTokenUUID);
-        
-        if (domains != null && !domains.isEmpty()) {
-            domains.forEach(apiToken::addTokenDomain);
+
+        if (origins != null && !origins.isEmpty()) {
+            origins.forEach(apiToken::addTokenOrigin);
         }
-        
+
         apiTokenRepository.save(apiToken);
-        
+
         // 응답에는 평문 secretKey 포함 (사용자가 복사할 수 있도록)
         SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken, plainSecretKey);
         return response;
+    }
+
+    public void updateTokenOrigins(User user, Long tokenId, List<String> origins) {
+        ApiToken apiToken = apiTokenRepository.findById(tokenId)
+                .orElseThrow(ApiTokenNotFoundException::raise);
+
+        boolean equalsUser = user.equals(apiToken.getUser());
+        if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
+
+        apiToken.updateTokenOrigins(origins != null ? origins : List.of());
     }
 
     public SecretApiTokenResponse reGenerateSecretKey(User user, Long tokenId) {

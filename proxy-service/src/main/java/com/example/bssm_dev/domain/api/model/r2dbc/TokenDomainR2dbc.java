@@ -22,24 +22,16 @@ public class TokenDomainR2dbc {
     private Long apiTokenId;
 
     @Column("domain")
-    private String domain;
+    private String origin;
 
-    public boolean matchesDomain(String requestDomain) {
-        String normalizedStored = normalizeDomain(this.domain);
-        String normalizedRequest = normalizeDomain(requestDomain);
-        return normalizedStored.equals(normalizedRequest);
+    public boolean matchesOrigin(String requestOrigin) {
+        return normalizeOrigin(this.origin).equals(normalizeOrigin(requestOrigin));
     }
 
-    private String normalizeDomain(String value) {
+    private String normalizeOrigin(String value) {
         if (value == null || value.isBlank()) {
             return "";
         }
-        String domain = value.replaceAll("^https?://", "");
-        domain = domain.replaceAll(":\\d+$", "");
-        int slashIndex = domain.indexOf('/');
-        if (slashIndex != -1) {
-            domain = domain.substring(0, slashIndex);
-        }
-        return domain;
+        return value.toLowerCase().replaceAll("/+$", "");
     }
 }
