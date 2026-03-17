@@ -9,6 +9,7 @@ import com.example.bssm_dev.domain.user.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +28,18 @@ public class UserQueryController {
     ) {
         UserResponse response = userQueryService.getCurrentUser(user);
         ResponseDto<UserResponse> responseDto = HttpUtil.success("Successfully retrieved current user", response);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * ID로 사용자 정보 조회
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseDto<UserResponse>> getUserById(
+            @PathVariable Long userId
+    ) {
+        UserResponse response = userQueryService.getUserById(userId);
+        ResponseDto<UserResponse> responseDto = HttpUtil.success("Successfully retrieved user", response);
         return ResponseEntity.ok(responseDto);
     }
 }

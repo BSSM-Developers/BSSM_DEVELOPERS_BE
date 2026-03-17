@@ -33,6 +33,12 @@ public class UserQueryService {
                 .orElseThrow(UserNotFoundException::raise);
     }
 
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::raise);
+        return userMapper.toUserResponse(user);
+    }
+
     public UserResponse getCurrentUser(User user) {
         return userMapper.toUserResponse(user);
     }
