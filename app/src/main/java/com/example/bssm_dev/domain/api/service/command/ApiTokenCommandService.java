@@ -65,6 +65,7 @@ public class ApiTokenCommandService {
         String plainSecretKey = generateSecretKey();
         String encodedSecretKey = passwordEncoder.encode(plainSecretKey);
         apiToken.changeSecretKey(encodedSecretKey);
+        apiTokenRepository.save(apiToken);
         redisTemplate.delete("proxy:api_token:" + apiToken.getApiTokenUUID());
 
         // 응답에는 평문 secretKey 포함
