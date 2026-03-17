@@ -10,6 +10,7 @@ import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class ApiTokenCommandService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
     private final PasswordEncoder passwordEncoder;
+    private final StringRedisTemplate redisTemplate;
 
     public SecretApiTokenResponse createApiToken(User user, String apiTokenName, List<String> origins) {
         String plainSecretKey = generateSecretKey();
@@ -63,7 +65,8 @@ public class ApiTokenCommandService {
         String plainSecretKey = generateSecretKey();
         String encodedSecretKey = passwordEncoder.encode(plainSecretKey);
         apiToken.changeSecretKey(encodedSecretKey);
-        
+        redisTemplate.delete("proxy:api_token:" + apiToken.getApiTokenUUID());
+
         // 응답에는 평문 secretKey 포함
         SecretApiTokenResponse response = apiTokenMapper.toSecretApiTokenResponse(apiToken, plainSecretKey);
         return response;
