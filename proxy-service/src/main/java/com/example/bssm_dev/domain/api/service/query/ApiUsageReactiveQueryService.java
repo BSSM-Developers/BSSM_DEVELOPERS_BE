@@ -18,12 +18,20 @@ public class ApiUsageReactiveQueryService {
     private final ReactiveCacheService cacheService;
 
     public Mono<ApiUsageR2dbc> findByTokenAndEndpoint(ApiTokenR2dbc apiToken, RequestInfo requestInfo) {
-        String endpoint = requestInfo.endpoint();
-        String cacheKey = CacheKeys.apiUsage(apiToken.getApiTokenId(), endpoint);
-        return cacheService.getCacheOrFetch(
+        String actualPath = requestInfo.endpoint().split("\\?")[0];
+        String cacheKey = CacheKeys.apiUsageList(apiToken.getApiTokenId());
+        return cacheService.getCacheOrFetchList(
                 cacheKey,
-                () -> apiUsageR2dbcRepository.findByApiTokenIdAndEndpoint(apiToken.getApiTokenId(), endpoint),
+                () -> apiUsageR2dbcRepository.findAllByApiTokenId(apiToken.getApiTokenId()),
                 ApiUsageR2dbc.class
-        ).switchIfEmpty(Mono.error(ApiUsageNotFoundException::raise));
+        )
+        .filter(usage -> matchesTemplate(usage.getEndpoint(), actualPath))
+        .next()
+        .switchIfEmpty(Mono.error(ApiUsageNotFoundException::raise));
+    }
+
+    private boolean matchesTemplate(String template, String actualPath) {
+        String regex = template.replaceAll("\\{[^}]+}", "[^/?]+");
+        return actualPath.matches(regex);
     }
 }

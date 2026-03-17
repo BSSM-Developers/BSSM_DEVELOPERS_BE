@@ -5,6 +5,7 @@ import com.example.bssm_dev.exception.ErrorCode;
 import com.example.bssm_dev.exception.GlobalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 @RequiredArgsConstructor
@@ -29,10 +31,24 @@ public class ProxyWebExceptionHandler implements WebExceptionHandler {
             return Mono.error(ex);
         }
         if (!(ex instanceof GlobalException globalException)) {
+            log.error("[UnhandledException] {} {} origin={} token={} - {}: {}",
+                    exchange.getRequest().getMethod(),
+                    exchange.getRequest().getPath(),
+                    exchange.getRequest().getHeaders().getOrigin(),
+                    maskToken(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
+                    ex.getClass().getSimpleName(),
+                    ex.getMessage(), ex);
             return Mono.error(ex);
         }
 
         ErrorCode errorCode = globalException.getErrorCode();
+        log.warn("[GlobalException] {} {} origin={} token={} - {}: {}",
+                exchange.getRequest().getMethod(),
+                exchange.getRequest().getPath(),
+                exchange.getRequest().getHeaders().getOrigin(),
+                maskToken(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
+                globalException.getClass().getSimpleName(),
+                errorCode.getErrorMessage());
         ProxyErrorResponse response = new ProxyErrorResponse(
                 false,
                 errorCode.getStatusCode(),
@@ -54,5 +70,11 @@ public class ProxyWebExceptionHandler implements WebExceptionHandler {
                             Mono.just(httpResponse.bufferFactory().wrap(fallback))
                     );
                 });
+    }
+
+    private String maskToken(String token) {
+        if (token == null || token.isBlank()) return "null";
+        if (token.length() <= 6) return "***";
+        return token.substring(0, 3) + "***" + token.substring(token.length() - 3);
     }
 }
