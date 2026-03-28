@@ -50,4 +50,16 @@ public class ApiTokenQueryController {
         ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully retrieved API token detail", response);
         return ResponseEntity.ok(responseDto);
     }
+
+    /**
+     * client-id로 API Token 조회 (인증 불필요)
+     */
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<ResponseDto<ApiTokenResponse>> getApiTokenDetailByClientId(
+            @PathVariable String clientId
+    ) {
+        ApiTokenResponse response = apiTokenQueryService.getApiTokenDetailByClientId(clientId);
+        ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully retrieved API token detail", response);
+        return ResponseEntity.ok(responseDto);
+    }
 }

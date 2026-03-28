@@ -95,6 +95,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/proxy-server/**").permitAll()
                         .requestMatchers("/api/proxy-browser/**").permitAll()
                         .requestMatchers("/api/healthy/**").permitAll()
+                        .requestMatchers("/api/token/client/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
