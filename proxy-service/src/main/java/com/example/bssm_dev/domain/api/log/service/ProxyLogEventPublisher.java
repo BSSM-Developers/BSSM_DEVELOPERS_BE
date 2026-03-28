@@ -220,8 +220,25 @@ public class ProxyLogEventPublisher {
         if (bodyBytes == null) {
             return new TruncatedBody(null, false, 0L);
         }
+        // 바이너리 데이터를 UTF-8로 강제 변환하면 로그가 깨지므로
+        // 유효한 UTF-8 텍스트인지 먼저 확인한다
+        if (!isValidUtf8Text(bodyBytes)) {
+            return new TruncatedBody("[binary data]", false, (long) bodyBytes.length);
+        }
         String asString = new String(bodyBytes, StandardCharsets.UTF_8);
         return truncateBody(asString);
+    }
+
+    private boolean isValidUtf8Text(byte[] bytes) {
+        try {
+            java.nio.charset.CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+            decoder.decode(java.nio.ByteBuffer.wrap(bytes));
+            return true;
+        } catch (java.nio.charset.CharacterCodingException e) {
+            return false;
+        }
     }
 
     private TruncatedBody truncateBody(Object body) {
