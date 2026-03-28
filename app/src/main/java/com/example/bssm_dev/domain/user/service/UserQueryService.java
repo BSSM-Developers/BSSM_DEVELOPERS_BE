@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.user.service;
 
 import com.example.bssm_dev.domain.user.dto.response.UserLoginResponse;
 import com.example.bssm_dev.domain.user.dto.response.UserResponse;
+import java.util.List;
 import com.example.bssm_dev.domain.user.exception.UserNotFoundException;
 import com.example.bssm_dev.domain.user.mapper.UserMapper;
 import com.example.bssm_dev.domain.user.model.User;
@@ -31,6 +32,18 @@ public class UserQueryService {
     public User findById(Long userId) {
         return  userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::raise);
+    }
+
+    public List<UserResponse> getUsersByIds(List<Long> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
+
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::raise);
+        return userMapper.toUserResponse(user);
     }
 
     public UserResponse getCurrentUser(User user) {
