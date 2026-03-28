@@ -56,7 +56,10 @@ public enum ErrorCode {
     UNAUTHORIZED_ACCESS(403, "권한이 없습니다."),
     DOCS_REFERENCE_PAGE_NOT_EDITABLE(400, "참조 페이지는 직접 수정할 수 없습니다."),
     DOCS_CUSTOM_API_PAGE_MUST_BE_REFERENCE(400, "커스텀 문서의 API 페이지는 참조 페이지여야 합니다."),
-    DOCS_TITLE_ALREADY_EXISTS(400, "이미 사용 중인 문서 제목입니다.");
+    DOCS_TITLE_ALREADY_EXISTS(400, "이미 사용 중인 문서 제목입니다."),
+    INVALID_DOMAIN_URL(400, "유효하지 않은 도메인 URL입니다. https:// 로 시작하는 공개 도메인만 허용됩니다."),
+    BLOCKED_INTERNAL_DOMAIN(400, "내부 네트워크 주소로의 요청은 허용되지 않습니다."),
+    BLOCKED_CONTENT_TYPE(502, "허용되지 않는 Content-Type의 응답입니다.");
 
 
     private final int statusCode;

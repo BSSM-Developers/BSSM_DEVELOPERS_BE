@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.api.service.command;
 
+import com.example.bssm_dev.common.util.DomainValidator;
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
@@ -33,6 +34,9 @@ public class ApiCommandService {
             Boolean autoApproval
     ) {
         log.info("Creating APIs for docsId: {}", docsId);
+
+        // SSRF 방어: API 등록 시점에 domain 검증 (Layer 1)
+        DomainValidator.validate(domain);
 
         List<Api> apis = new ArrayList<>();
         extractApisFromSidebar(sideBar.getSideBarBlocks(), docsPages, creator, domain, repositoryUrl, autoApproval, apis);
