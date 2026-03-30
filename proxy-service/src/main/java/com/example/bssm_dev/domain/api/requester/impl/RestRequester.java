@@ -28,6 +28,9 @@ public class RestRequester implements Requester {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                 .responseTimeout(Duration.ofSeconds(30))
+                // 리다이렉트 비활성화: 3xx 응답을 자동으로 따라가지 않음
+                // 악성 서버가 내부 주소(예: http://169.254.169.254/)로 리다이렉트하는 SSRF 우회 차단
+                .followRedirect(false)
                 .doOnConnected(conn ->
                         conn.addHandlerLast(new ReadTimeoutHandler(30, TimeUnit.SECONDS))
                                 .addHandlerLast(new WriteTimeoutHandler(30, TimeUnit.SECONDS))

@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.api.executor;
 
+import com.example.bssm_dev.common.util.DomainValidator;
 import com.example.bssm_dev.domain.api.model.r2dbc.ApiUsageR2dbc;
 import com.example.bssm_dev.domain.api.model.type.MethodType;
 import com.example.bssm_dev.domain.api.model.vo.RequestInfo;
@@ -33,6 +34,10 @@ public class ApiRequestExecutor {
     }
 
     private static Mono<ResponseEntity<byte[]>> request(String endpoint, String apiDomain, MethodType methodType, Object body, java.util.Map<String, String> headers) {
+        // SSRF 방어: 프록시 실행 직전 domain 검증 (이중 방어선)
+        // DB에 저장된 값도 신뢰하지 않고 매 요청마다 검증
+        DomainValidator.validate(apiDomain);
+
         RestRequester requester = RestRequester.of(apiDomain);
         return switch (methodType) {
             case GET -> requester.get(endpoint, headers);

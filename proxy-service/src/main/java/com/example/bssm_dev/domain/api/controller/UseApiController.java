@@ -13,13 +13,12 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/**")
 public class UseApiController {
 
     private final BrowserUseApiService browserUseApiService;
     private final ServerUseApiService serverUseApiService;
 
-    @GetMapping
+    @GetMapping("/**")
     public Mono<ResponseEntity<byte[]>> useApiByGet(
             ServerHttpRequest request,
             @RequestHeader("bssm-dev-token") String token,
@@ -33,7 +32,7 @@ public class UseApiController {
         );
     }
 
-    @PostMapping
+    @PostMapping("/**")
     public Mono<ResponseEntity<byte[]>> useApiByPost(
             ServerHttpRequest request,
             @RequestHeader("bssm-dev-token") String token,
@@ -47,7 +46,7 @@ public class UseApiController {
         );
     }
 
-    @PatchMapping
+    @PatchMapping("/**")
     public Mono<ResponseEntity<byte[]>> useApiByPatch(
             ServerHttpRequest request,
             @RequestHeader("bssm-dev-token") String token,
@@ -61,7 +60,7 @@ public class UseApiController {
         );
     }
 
-    @PutMapping
+    @PutMapping("/**")
     public Mono<ResponseEntity<byte[]>> useApiByPut(
             ServerHttpRequest request,
             @RequestHeader("bssm-dev-token") String token,
@@ -75,7 +74,7 @@ public class UseApiController {
         );
     }
 
-    @DeleteMapping
+    @DeleteMapping("/**")
     public Mono<ResponseEntity<byte[]>> useApiByDelete(
             ServerHttpRequest request,
             @RequestHeader("bssm-dev-token") String token,

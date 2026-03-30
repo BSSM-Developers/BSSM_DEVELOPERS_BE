@@ -50,6 +50,8 @@ public class ApiTokenR2dbc {
 
     public void validateSecretKey(String plainSecretKey, PasswordEncoder passwordEncoder) {
         if (!passwordEncoder.matches(plainSecretKey, this.secretKey)) {
+            log.warn("[SecretKey] 검증 실패 - apiTokenId={}, 입력키={}, 저장키(encoded)={}",
+                    this.apiTokenId, plainSecretKey, this.secretKey);
             throw InvalidSecretKeyException.raise();
         }
     }

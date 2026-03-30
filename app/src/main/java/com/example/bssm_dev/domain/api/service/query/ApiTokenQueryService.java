@@ -58,7 +58,14 @@ public class ApiTokenQueryService {
         // 사용자 권한 확인
         boolean equalsUser = apiToken.isOwner(user);
         if (!equalsUser) throw UnauthorizedApiTokenAccessException.raise();
-        
+
+        return apiTokenMapper.toApiTokenResponse(apiToken);
+    }
+
+    public ApiTokenResponse getApiTokenDetailByClientId(String clientId) {
+        ApiToken apiToken = apiTokenRepository.findByTokenUUID(clientId)
+                .orElseThrow(ApiTokenNotFoundException::raise);
+
         return apiTokenMapper.toApiTokenResponse(apiToken);
     }
 }
