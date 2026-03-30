@@ -1,3 +1,43 @@
+name: Docker Build & Deploy
+
+on:
+  push:
+    branches:
+      - 'release-*'
+      - 'dev-*'
+
+env:
+  APP_IMAGE: donghyunking/bssm-dev-app
+  PROXY_IMAGE: donghyunking/bssm-dev-proxy
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      proxy: ${{ steps.filter.outputs.proxy }}
+      env: ${{ steps.set-env.outputs.env }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set deployment environment
+        id: set-env
+        run: |
+          if [[ "${{ github.ref_name }}" == release-* ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=staging" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            app:
+              - 'app/**'
+            proxy:
+              - 'proxy-service/**'
+
   build-app:
     needs: detect-changes
     if: needs.detect-changes.outputs.app == 'true'
@@ -71,3 +111,43 @@
           tags: ${{ env.PROXY_IMAGE }}:${{ github.sha }}
           cache-from: type=gha,scope=proxy
           cache-to: type=gha,scope=proxy,mode=max
+
+  update-infra:
+    needs:
+      - detect-changes
+      - build-app
+      - build-proxy
+    if: always() && !cancelled() && (needs.build-app.result == 'success' || needs.build-proxy.result == 'success')
+    runs-on: ubuntu-latest
+    env:
+      TARGET: ${{ needs.detect-changes.outputs.env }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: BSSM-Developers/BSSM_DEVELOPERS_INFRA
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
+
+      - name: Update app image
+        if: needs.build-app.result == 'success'
+        env:
+          DIGEST: ${{ needs.build-app.outputs.digest }}
+        run: |
+          sed -i -E "s|donghyunking/bssm-dev-app@sha256:[a-f0-9]+|donghyunking/bssm-dev-app@${DIGEST}|g" \
+            ${TARGET}/app/deployment.yaml
+
+      - name: Update proxy image
+        if: needs.build-proxy.result == 'success'
+        env:
+          DIGEST: ${{ needs.build-proxy.outputs.digest }}
+        run: |
+          sed -i -E "s|donghyunking/bssm-dev-proxy@sha256:[a-f0-9]+|donghyunking/bssm-dev-proxy@${DIGEST}|g" \
+            ${TARGET}/proxy/deployment.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ${TARGET}/app/deployment.yaml ${TARGET}/proxy/deployment.yaml
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore :: [${TARGET}] 이미지 업데이트 (${GITHUB_SHA::7})"
+          git push
