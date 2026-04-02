@@ -7,15 +7,10 @@ import com.example.bssm_dev.domain.api.exception.UnauthorizedDomainException;
 import com.example.bssm_dev.domain.api.model.type.ApiTokenState;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -24,8 +19,9 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-@Builder
 @AllArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "token_type", discriminatorType = DiscriminatorType.STRING)
 public class ApiToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,38 +29,38 @@ public class ApiToken {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    protected User user;
 
     @Column(nullable = false)
-    private String apiTokenName;
+    protected String apiTokenName;
 
     @Column(nullable = false, name = "api_token_uuid")
-    private String apiTokenUUID;
+    protected String apiTokenUUID;
 
     @Column(nullable = false)
-    private String secretKey;
+    protected String secretKey;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
-    private ApiTokenState state = ApiTokenState.NORMAL;
+    protected ApiTokenState state = ApiTokenState.NORMAL;
 
     @OneToMany(mappedBy = "apiToken", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<TokenDomain> tokenDomains = new ArrayList<>();
+    protected List<TokenDomain> tokenDomains = new ArrayList<>();
 
     @OneToMany(mappedBy = "apiToken")
     @BatchSize(size = 30)
-    @Builder.Default
-    List<ApiUsage> apiUsageList = new ArrayList<>();
+    protected List<ApiUsage> apiUsageList = new ArrayList<>();
 
     public static ApiToken of(User user, String secretKey, String apiTokenName, String apiTokenUUID) {
-        return ApiToken.builder()
-                .user(user)
-                .secretKey(secretKey)
-                .apiTokenName(apiTokenName)
-                .apiTokenUUID(apiTokenUUID)
-                .build();
+        ApiToken token = new ApiToken();
+        token.user = user;
+        token.secretKey = secretKey;
+        token.apiTokenName = apiTokenName;
+        token.apiTokenUUID = apiTokenUUID;
+        token.state = ApiTokenState.NORMAL;
+        token.tokenDomains = new ArrayList<>();
+        token.apiUsageList = new ArrayList<>();
+        return token;
     }
 
     public void addTokenOrigin(String origin) {
