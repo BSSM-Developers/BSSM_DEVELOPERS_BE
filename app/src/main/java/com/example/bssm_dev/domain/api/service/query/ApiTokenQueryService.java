@@ -3,12 +3,16 @@ package com.example.bssm_dev.domain.api.service.query;
 import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenListResponse;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
+import com.example.bssm_dev.domain.api.dto.response.ApiTokenWithDocsResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
+import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
+import com.example.bssm_dev.domain.docs.model.DocsPage;
+import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ import java.util.List;
 public class ApiTokenQueryService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
+    private final DocsPageRepository docsPageRepository;
 
     public ApiToken findById(Long apiTokenId) {
         return  apiTokenRepository.findById(apiTokenId)
@@ -62,10 +69,19 @@ public class ApiTokenQueryService {
         return apiTokenMapper.toApiTokenResponse(apiToken);
     }
 
-    public ApiTokenResponse getApiTokenDetailByClientId(String clientId) {
+    public ApiTokenWithDocsResponse getApiTokenDetailByClientId(String clientId) {
         ApiToken apiToken = apiTokenRepository.findByTokenUUID(clientId)
                 .orElseThrow(ApiTokenNotFoundException::raise);
 
-        return apiTokenMapper.toApiTokenResponse(apiToken);
+        List<String> apiIds = apiToken.getApiUsageList().stream()
+                .map(usage -> usage.getApiId())
+                .toList();
+
+        Map<String, ContentDocsPage> pageMap = docsPageRepository.findAllById(apiIds).stream()
+                .filter(p -> p instanceof ContentDocsPage)
+                .map(p -> (ContentDocsPage) p)
+                .collect(Collectors.toMap(DocsPage::getId, p -> p));
+
+        return apiTokenMapper.toApiTokenWithDocsResponse(apiToken, pageMap);
     }
 }
