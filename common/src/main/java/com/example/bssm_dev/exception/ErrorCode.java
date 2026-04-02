@@ -59,7 +59,8 @@ public enum ErrorCode {
     DOCS_TITLE_ALREADY_EXISTS(400, "이미 사용 중인 문서 제목입니다."),
     INVALID_DOMAIN_URL(400, "유효하지 않은 도메인 URL입니다. https:// 로 시작하는 공개 도메인만 허용됩니다."),
     BLOCKED_INTERNAL_DOMAIN(400, "내부 네트워크 주소로의 요청은 허용되지 않습니다."),
-    BLOCKED_CONTENT_TYPE(502, "허용되지 않는 Content-Type의 응답입니다.");
+    BLOCKED_CONTENT_TYPE(502, "허용되지 않는 Content-Type의 응답입니다."),
+    DOCS_NO_API_PAGES(400, "해당 문서에 신청할 수 있는 API 페이지가 없습니다.");
 
 
     private final int statusCode;

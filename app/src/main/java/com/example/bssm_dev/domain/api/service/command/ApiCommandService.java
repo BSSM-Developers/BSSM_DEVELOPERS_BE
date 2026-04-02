@@ -22,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiCommandService {
     private final ApiRepository apiRepository;
+    private final TryItTokenCommandService tryItTokenCommandService;
 
     @Transactional("transactionManager")
     public void createApisFromDocs(
@@ -45,6 +46,8 @@ public class ApiCommandService {
         if (!apis.isEmpty()) {
             apiRepository.saveAll(apis);
             log.info("APIs saved successfully: {}", apis.size());
+            apis.forEach(tryItTokenCommandService::createTryItToken);
+            log.info("TryItTokens created for {} APIs", apis.size());
         } else {
             log.warn("No APIs were extracted from the docs");
         }
