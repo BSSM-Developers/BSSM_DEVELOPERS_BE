@@ -5,6 +5,7 @@ import com.example.bssm_dev.common.dto.CursorPage;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenResponse;
+import com.example.bssm_dev.domain.api.dto.response.ApiTokenWithDocsResponse;
 import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.dto.response.ApiTokenListResponse;
 import com.example.bssm_dev.domain.api.service.query.ApiTokenQueryService;
@@ -52,14 +53,14 @@ public class ApiTokenQueryController {
     }
 
     /**
-     * client-id로 API Token 조회 (인증 불필요)
+     * client-id로 API Token 조회 (인증 불필요) - 요청/응답 형식 포함
      */
     @GetMapping("/client/{clientId}")
-    public ResponseEntity<ResponseDto<ApiTokenResponse>> getApiTokenDetailByClientId(
+    public ResponseEntity<ResponseDto<ApiTokenWithDocsResponse>> getApiTokenDetailByClientId(
             @PathVariable String clientId
     ) {
-        ApiTokenResponse response = apiTokenQueryService.getApiTokenDetailByClientId(clientId);
-        ResponseDto<ApiTokenResponse> responseDto = HttpUtil.success("Successfully retrieved API token detail", response);
+        ApiTokenWithDocsResponse response = apiTokenQueryService.getApiTokenDetailByClientId(clientId);
+        ResponseDto<ApiTokenWithDocsResponse> responseDto = HttpUtil.success("Successfully retrieved API token detail", response);
         return ResponseEntity.ok(responseDto);
     }
 }

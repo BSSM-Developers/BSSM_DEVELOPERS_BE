@@ -91,6 +91,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/*/purpose").permitAll()
                         .requestMatchers("/signup/**").hasRole("ADMIN")
                         .requestMatchers("/docs/**").permitAll()
+                        .requestMatchers("/apis/*/try-it-token").permitAll()
                         .requestMatchers("/api/proxy/**").permitAll()
                         .requestMatchers("/api/proxy-server/**").permitAll()
                         .requestMatchers("/api/proxy-browser/**").permitAll()
