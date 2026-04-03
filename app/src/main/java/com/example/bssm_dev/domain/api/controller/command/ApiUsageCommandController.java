@@ -34,6 +34,20 @@ public class ApiUsageCommandController {
     }
 
     /**
+     * API Usage 삭제 (하드 삭제)
+     */
+    @DeleteMapping
+    public ResponseEntity<ResponseDto<Void>> deleteApiUsage(
+            @PathVariable String apiId,
+            @PathVariable Long apiTokenId,
+            @CurrentUser User user
+    ) {
+        apiUsageCommandService.delete(apiId, apiTokenId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted API usage");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
      * API Usage 이름 변경
      */
     @PatchMapping("/name")
