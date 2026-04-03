@@ -6,7 +6,8 @@ import com.example.bssm_dev.domain.api.exception.InvalidApiUseReasonStateExcepti
 public enum ApiUseState {
     PENDING,
     APPROVED,
-    REJECTED;
+    REJECTED,
+    DELETED;
 
     public static ApiUseState fromString(String stateParam) {
         try {

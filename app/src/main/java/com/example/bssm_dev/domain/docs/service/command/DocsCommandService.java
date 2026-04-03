@@ -12,6 +12,7 @@ import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.SideBar;
 import com.example.bssm_dev.domain.docs.model.event.DocsCreatedEvent;
+import com.example.bssm_dev.domain.docs.model.event.DocsDeletedEvent;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.user.model.User;
@@ -101,9 +102,16 @@ public class DocsCommandService {
 
     public void deleteDocs(String docsId, User user) {
         Docs docs = getMyDocs(docsId, user);
-        docsRepository.delete(docs);
+
+        List<String> apiIds = docsPageCommandService.findAllIdsByDocsId(docsId);
+
+        docs.softDelete();
+        docsRepository.save(docs);
+
         docsSideBarCommandService.delete(docsId);
         docsPageCommandService.delete(docsId);
+
+        applicationEventPublisher.publishEvent(DocsDeletedEvent.from(apiIds));
     }
 
     private void validateTitleUnique(String title) {
@@ -119,7 +127,7 @@ public class DocsCommandService {
     }
 
     private Docs getMyDocs(String docsId, User user) {
-        Docs docs = docsRepository.findById(docsId)
+        Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
 
         DocsValidator.checkIfIsMyDocs(user, docs);

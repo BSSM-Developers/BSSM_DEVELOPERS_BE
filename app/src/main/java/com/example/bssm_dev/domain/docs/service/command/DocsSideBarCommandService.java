@@ -49,7 +49,7 @@ public class DocsSideBarCommandService {
 
     @Transactional("mongoTransactionManager")
     public void update(String docsId, UpdateDocsSideBarRequest request, User user) {
-        Docs docs = docsRepository.findById(docsId)
+        Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
         DocsValidator.checkIfIsMyDocs(user, docs);
 

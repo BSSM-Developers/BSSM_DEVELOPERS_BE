@@ -6,6 +6,8 @@ import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "docs")
 @Builder
 @Getter
@@ -21,6 +23,7 @@ public class Docs {
     private Long writerId;
     @Builder.Default
     private Long tokenCount = 0L;
+    private LocalDateTime deletedAt;
 
     public boolean isMyDocs(User user) {
         return this.writerId.equals(user.getUserId());
@@ -39,5 +42,13 @@ public class Docs {
 
     public void incrementTokenCount() {
         this.tokenCount++;
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface ApiUseReasonRepository extends JpaRepository<ApiUseReason, Long> {
     
@@ -62,6 +65,12 @@ public interface ApiUseReasonRepository extends JpaRepository<ApiUseReason, Long
             @Param("cursor") Long cursor,
             Pageable pageable
     );
+
+    @Query("SELECT aur FROM ApiUseReason aur WHERE aur.api.apiId IN :apiIds")
+    List<ApiUseReason> findAllByApiIdIn(@Param("apiIds") List<String> apiIds);
+
+    @Query("SELECT aur FROM ApiUseReason aur WHERE aur.api.apiId = :apiId AND aur.apiToken.apiTokenId = :apiTokenId")
+    Optional<ApiUseReason> findByApiIdAndApiTokenId(@Param("apiId") String apiId, @Param("apiTokenId") Long apiTokenId);
 }
 
 

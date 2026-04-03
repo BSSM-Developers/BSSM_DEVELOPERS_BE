@@ -5,11 +5,20 @@ import com.example.bssm_dev.domain.docs.model.type.DocumentType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+
+import java.util.Optional;
 
 public interface DocsRepository extends MongoRepository<Docs, String>, DocsQueryRepository{
 
+    @Query(value = "{ 'title': ?0, 'deletedAt': null }", exists = true)
     boolean existsByTitle(String title);
+
+    @Query(value = "{ 'title': ?0, '_id': { '$ne': ?1 }, 'deletedAt': null }", exists = true)
     boolean existsByTitleAndIdNot(String title, String id);
+
+    @Query("{ '_id': ?0, 'deletedAt': null }")
+    Optional<Docs> findByIdAndNotDeleted(String id);
 
     // 모든 문서 조회 (type 필터 없음)
     Slice<Docs> findAllByOrderByIdDesc(Pageable pageable);
