@@ -78,7 +78,7 @@ public class ApiUseReasonQueryService {
     ) {
         return switch (state) {
             case null -> apiUseReasonRepository.findAllWithCursor(cursor, pageable);
-            case PENDING, APPROVED, REJECTED -> apiUseReasonRepository.findByStateWithCursor(state, cursor, pageable);
+            case PENDING, APPROVED, REJECTED, DELETED -> apiUseReasonRepository.findByStateWithCursor(state, cursor, pageable);
         };
     }
 }

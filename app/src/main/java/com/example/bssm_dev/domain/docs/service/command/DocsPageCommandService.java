@@ -41,12 +41,19 @@ public class DocsPageCommandService {
         docsPageRepository.save(docsPage);
     }
 
+    public List<String> findAllIdsByDocsId(String docsId) {
+        return docsPageRepository.findAllByDocsId(docsId)
+                .stream()
+                .map(DocsPage::getId)
+                .toList();
+    }
+
     public void delete(String docsId) {
         docsPageRepository.deleteByDocsId(docsId);
     }
 
     public void update(String docsId, String mappedId, UpdateDocsPageRequest request, User user) {
-        Docs docs = docsRepository.findById(docsId)
+        Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
         DocsValidator.checkIfIsMyDocs(user, docs);
 

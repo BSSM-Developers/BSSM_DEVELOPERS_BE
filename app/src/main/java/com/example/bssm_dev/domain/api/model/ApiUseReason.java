@@ -55,4 +55,8 @@ public class ApiUseReason {
     public void rejected() {
         this.apiUseState = ApiUseState.REJECTED;
     }
+
+    public void markAsDeleted() {
+        this.apiUseState = ApiUseState.DELETED;
+    }
 }

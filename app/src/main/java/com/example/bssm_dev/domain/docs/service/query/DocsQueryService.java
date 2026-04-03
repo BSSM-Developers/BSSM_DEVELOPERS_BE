@@ -98,7 +98,7 @@ public class DocsQueryService {
 
 
     public Docs findById(String docsId) {
-        return docsRepository.findById(docsId)
+        return docsRepository.findByIdAndNotDeleted(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
     }
 }

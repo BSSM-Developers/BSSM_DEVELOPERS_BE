@@ -25,6 +25,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     @Override
     public Slice<Docs> fetchDocs(DocumentType docsType, String cursor, Pageable pageable) {
         Query query = new Query();
+        query.addCriteria(Criteria.where("deletedAt").isNull());
 
         if (docsType != null) {
             query.addCriteria(Criteria.where("type").is(docsType));
@@ -51,6 +52,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     @Override
     public Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, String cursor, Pageable pageable) {
         Query query = new Query();
+        query.addCriteria(Criteria.where("deletedAt").isNull());
 
         // writerId 필터 추가
         query.addCriteria(Criteria.where("writerId").is(writerId));
@@ -81,6 +83,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     @Override
     public Slice<Docs> fetchPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
         Query query = new Query();
+        query.addCriteria(Criteria.where("deletedAt").isNull());
 
         if (docsType != null) {
             query.addCriteria(Criteria.where("type").is(docsType));
@@ -111,6 +114,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     @Override
     public Slice<Docs> fetchMyPopularDocs(Long writerId, DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
         Query query = new Query();
+        query.addCriteria(Criteria.where("deletedAt").isNull());
 
         query.addCriteria(Criteria.where("writerId").is(writerId));
 
