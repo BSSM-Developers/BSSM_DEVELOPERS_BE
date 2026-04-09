@@ -75,7 +75,7 @@ public class AuthController {
     ) {
         TokenResponse tokenResponse = authService.reissue(refreshToken);
 
-        ResponseCookie refreshTokenCookie = cookieUtil.bake("refresh_token", refreshToken);
+        ResponseCookie refreshTokenCookie = cookieUtil.bake("refresh_token", tokenResponse.refreshToken());
         httpServletResponse.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse.accessToken());
