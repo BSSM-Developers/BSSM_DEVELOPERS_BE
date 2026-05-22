@@ -1,6 +1,7 @@
 package com.example.bssm_dev.proxy.error;
 
 import com.example.bssm_dev.domain.api.dto.response.ProxyErrorResponse;
+import com.example.bssm_dev.domain.api.util.TokenMasker;
 import com.example.bssm_dev.exception.ErrorCode;
 import com.example.bssm_dev.exception.GlobalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 @RequiredArgsConstructor
 public class ProxyWebExceptionHandler implements WebExceptionHandler {
+    private static final byte[] FALLBACK_BODY =
+            "{\"statusCode\":500,\"message\":\"Internal server error\"}".getBytes(StandardCharsets.UTF_8);
+
     private final ObjectMapper objectMapper;
 
     @Override
@@ -35,7 +39,7 @@ public class ProxyWebExceptionHandler implements WebExceptionHandler {
                     exchange.getRequest().getMethod(),
                     exchange.getRequest().getPath(),
                     exchange.getRequest().getHeaders().getOrigin(),
-                    maskToken(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
+                    TokenMasker.mask(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
                     ex.getClass().getSimpleName(),
                     ex.getMessage(), ex);
             return Mono.error(ex);
@@ -46,35 +50,19 @@ public class ProxyWebExceptionHandler implements WebExceptionHandler {
                 exchange.getRequest().getMethod(),
                 exchange.getRequest().getPath(),
                 exchange.getRequest().getHeaders().getOrigin(),
-                maskToken(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
+                TokenMasker.mask(exchange.getRequest().getHeaders().getFirst("bssm-dev-token")),
                 globalException.getClass().getSimpleName(),
                 errorCode.getErrorMessage());
-        ProxyErrorResponse response = new ProxyErrorResponse(
-                false,
-                errorCode.getStatusCode(),
-                errorCode.getErrorMessage(),
-                null
-        );
-        ServerHttpResponse httpResponse = exchange.getResponse();
-        httpResponse.setStatusCode(HttpStatus.valueOf(errorCode.getStatusCode()));
-        httpResponse.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        return Mono.fromCallable(() -> objectMapper.writeValueAsBytes(response))
-                .flatMap(bytes -> httpResponse.writeWith(
-                        Mono.just(httpResponse.bufferFactory().wrap(bytes))
-                ))
-                .onErrorResume(writeErr -> {
-                    byte[] fallback = "{\"statusCode\":429,\"message\":\"Too many requests\"}"
-                            .getBytes(StandardCharsets.UTF_8);
-                    return httpResponse.writeWith(
-                            Mono.just(httpResponse.bufferFactory().wrap(fallback))
-                    );
-                });
-    }
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.valueOf(errorCode.getStatusCode()));
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-    private String maskToken(String token) {
-        if (token == null || token.isBlank()) return "null";
-        if (token.length() <= 6) return "***";
-        return token.substring(0, 3) + "***" + token.substring(token.length() - 3);
+        ProxyErrorResponse body = new ProxyErrorResponse(false, errorCode.getStatusCode(), errorCode.getErrorMessage(), null);
+        return Mono.fromCallable(() -> objectMapper.writeValueAsBytes(body))
+                .flatMap(bytes -> response.writeWith(Mono.just(response.bufferFactory().wrap(bytes))))
+                .onErrorResume(writeErr ->
+                        response.writeWith(Mono.just(response.bufferFactory().wrap(FALLBACK_BODY)))
+                );
     }
 }

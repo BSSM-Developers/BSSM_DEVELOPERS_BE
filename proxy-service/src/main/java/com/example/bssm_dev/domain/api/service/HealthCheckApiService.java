@@ -12,12 +12,12 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class HealthCheckApiService {
-    public Mono<ApiHealthCheckResponse> check(String endpoint, String method, String domain, ServerHttpRequest request, byte[] body) {
-        // SSRF 방어: /healthy 엔드포인트는 인증 없이 임의 domain을 지정할 수 있으므로 반드시 검증
-        DomainValidator.validate(domain);
+    private final ApiRequestExecutor apiRequestExecutor;
 
+    public Mono<ApiHealthCheckResponse> check(String endpoint, String method, String domain, ServerHttpRequest request, byte[] body) {
+        DomainValidator.validate(domain);
         RequestInfo requestInfo = RequestInfo.of(request, body);
-        return ApiRequestExecutor.request(endpoint, method, domain, requestInfo)
+        return apiRequestExecutor.request(endpoint, method, domain, requestInfo)
                 .map(response -> {
                     boolean healthy = response != null && !response.getStatusCode().isError();
                     byte[] responseBody = response != null ? response.getBody() : null;

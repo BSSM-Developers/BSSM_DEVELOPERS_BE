@@ -6,39 +6,43 @@ import com.example.bssm_dev.domain.api.model.type.MethodType;
 import com.example.bssm_dev.domain.api.model.vo.RequestInfo;
 import com.example.bssm_dev.domain.api.requester.impl.RestRequester;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+@Component
 public class ApiRequestExecutor {
 
-    public static Mono<ResponseEntity<byte[]>> request(ApiUsageR2dbc apiUsage, RequestInfo requestInfo) {
-
-        String endpoint = requestInfo.endpoint();
-        MethodType methodType = MethodType.valueOf(apiUsage.getMethod());
-        Object body = requestInfo.body();
-        Map<String, String> headers = requestInfo.headers();
-
-        String apiDomain = apiUsage.getDomain();
-
-        return request(endpoint, apiDomain, methodType, body, headers);
+    public Mono<ResponseEntity<byte[]>> request(ApiUsageR2dbc apiUsage, RequestInfo requestInfo) {
+        DomainValidator.validate(apiUsage.getDomain());
+        return dispatch(
+                RestRequester.of(apiUsage.getDomain()),
+                requestInfo.endpoint(),
+                MethodType.valueOf(apiUsage.getMethod()),
+                requestInfo.body(),
+                requestInfo.headers()
+        );
     }
 
-    public static Mono<ResponseEntity<byte[]>> request(String endpoint, String method, String domain, RequestInfo requestInfo) {
-        MethodType methodType = MethodType.valueOf(method);
-
-        Object body = requestInfo.body();
-        Map<String, String> headers = requestInfo.headers();
-
-        return request(endpoint, domain, methodType, body, headers);
+    public Mono<ResponseEntity<byte[]>> request(String endpoint, String method, String domain, RequestInfo requestInfo) {
+        DomainValidator.validate(domain);
+        return dispatch(
+                RestRequester.of(domain),
+                endpoint,
+                MethodType.valueOf(method),
+                requestInfo.body(),
+                requestInfo.headers()
+        );
     }
 
-    private static Mono<ResponseEntity<byte[]>> request(String endpoint, String apiDomain, MethodType methodType, Object body, java.util.Map<String, String> headers) {
-        // SSRF 방어: 프록시 실행 직전 domain 검증 (이중 방어선)
-        // DB에 저장된 값도 신뢰하지 않고 매 요청마다 검증
-        DomainValidator.validate(apiDomain);
-
-        RestRequester requester = RestRequester.of(apiDomain);
+    private Mono<ResponseEntity<byte[]>> dispatch(
+            RestRequester requester,
+            String endpoint,
+            MethodType methodType,
+            Object body,
+            Map<String, String> headers
+    ) {
         return switch (methodType) {
             case GET -> requester.get(endpoint, headers);
             case POST -> requester.post(endpoint, body, headers);
