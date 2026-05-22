@@ -9,4 +9,6 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "proxy.cache")
 public class CacheProperties {
     private Duration ttl = Duration.ofMinutes(5);
+    private int localMaxSize = 1000;
+    private Duration localTtl = Duration.ofSeconds(30);
 }

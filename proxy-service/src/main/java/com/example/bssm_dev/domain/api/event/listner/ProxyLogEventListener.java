@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 @RequiredArgsConstructor
@@ -16,10 +17,11 @@ public class ProxyLogEventListener {
 
     @EventListener
     public void save(ProxyLogEvent event) {
-        try {
-            proxyLogRepository.save(event.log());
-        } catch (Exception e) {
-            log.error("Failed to persist proxy log: {}", e.getMessage(), e);
-        }
+        proxyLogRepository.save(event.log())
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe(
+                        null,
+                        error -> log.error("Failed to persist proxy log: {}", error.getMessage(), error)
+                );
     }
 }

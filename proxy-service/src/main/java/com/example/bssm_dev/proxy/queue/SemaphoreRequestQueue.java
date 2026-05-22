@@ -1,8 +1,9 @@
 package com.example.bssm_dev.proxy.queue;
 
-import reactor.core.publisher.Mono;
 import reactor.core.Disposable;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -49,7 +50,7 @@ public class SemaphoreRequestQueue implements RequestQueue {
 
     @Override
     public Mono<Void> release() {
-        return Mono.fromRunnable(() -> {
+        return Mono.<Void>fromRunnable(() -> {
             while (true) {
                 Waiter waiter = waiters.poll();
                 if (waiter == null) {
@@ -60,7 +61,7 @@ public class SemaphoreRequestQueue implements RequestQueue {
                     return;
                 }
             }
-        });
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private static final class Waiter {

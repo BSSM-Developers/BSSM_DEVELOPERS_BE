@@ -18,9 +18,12 @@ import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class RestRequester implements Requester {
+
+    private static final ConcurrentHashMap<String, RestRequester> POOL = new ConcurrentHashMap<>();
 
     private final WebClient webClient;
 
@@ -51,7 +54,7 @@ public class RestRequester implements Requester {
     }
 
     public static RestRequester of(String domainUrl) {
-        return new RestRequester(domainUrl);
+        return POOL.computeIfAbsent(domainUrl, RestRequester::new);
     }
 
     @Override
