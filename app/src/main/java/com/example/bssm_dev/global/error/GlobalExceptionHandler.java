@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ErrorResponse> globalExceptionHanlder(GlobalException e) {
+    public ResponseEntity<ErrorResponse> globalExceptionHandler(GlobalException e) {
         ErrorCode errorCode = e.getErrorCode();
         int statusCode = errorCode.getStatusCode();
         String errorMessage = errorCode.getErrorMessage();
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExternalApiException.class)
-    public ResponseEntity<?> externalApiExceptionHanlder(ExternalApiException e) {
+    public ResponseEntity<?> externalApiExceptionHandler(ExternalApiException e) {
         if (e.getUpstreamStatusCode() != null) {
             log.error("External API error passthrough status={}, body={}", e.getUpstreamStatusCode(), e.getUpstreamBody());
             ProxyErrorResponse response = new ProxyErrorResponse(
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorResponse> ioExceptionHanlder(IOException e) {
+    public ResponseEntity<ErrorResponse> ioExceptionHandler(IOException e) {
         log.error("IOException occurred: {}", e.getMessage(), e);
         ErrorResponse errorResponse = HttpUtil.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "입출력 오류가 발생했습니다.");
         return ResponseEntity

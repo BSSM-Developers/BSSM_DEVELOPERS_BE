@@ -15,12 +15,12 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtProvider {
     private final JwtProperties jwtProperties;
-    private static final String ACCESS_TOEKN = "ACCESS_TOKEN";
+    private static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
     private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(Long userId, String email, String role) {
-        return generateToken(userId, email, role, jwtProperties.getAccessExp(), ACCESS_TOEKN);
+        return generateToken(userId, email, role, jwtProperties.getAccessExp(), ACCESS_TOKEN);
     }
 
     public String generateRefreshToken(Long userId, String email, String role) {
@@ -47,8 +47,6 @@ public class JwtProvider {
     }
 
     public Claims getClaims(String token) {
-        String secretKey = jwtProperties.getSecretKey();
-        System.out.println("[JWT DEBUG] Secret key loaded: " + (secretKey != null ? secretKey.substring(0, Math.min(10, secretKey.length())) + "... (length: " + secretKey.length() + ")" : "NULL"));
         return Jwts.parser()
                 .setSigningKey(jwtProperties.getSecretKey())
                 .build()
