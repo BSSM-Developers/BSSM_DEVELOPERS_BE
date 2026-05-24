@@ -22,13 +22,8 @@ subprojects {
     }
 }
 
-configure([project(':app'), project(':proxy-service')]) {
+configure(project(':app')) {
     apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
-}
-
-configure(project(':common')) {
-    apply plugin: 'java-library'
     apply plugin: 'io.spring.dependency-management'
 }
 
