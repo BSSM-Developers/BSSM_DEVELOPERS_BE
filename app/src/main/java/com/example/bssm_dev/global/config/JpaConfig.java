@@ -24,7 +24,8 @@ import java.util.Map;
         basePackages = {
                 "com.example.bssm_dev.domain.user.repository",
                 "com.example.bssm_dev.domain.api.repository",
-                "com.example.bssm_dev.domain.signup.repository"
+                "com.example.bssm_dev.domain.signup.repository",
+                "com.example.bssm_dev.domain.github.repository"
         },
         entityManagerFactoryRef = "entityManagerFactory",
         transactionManagerRef = "transactionManager"
