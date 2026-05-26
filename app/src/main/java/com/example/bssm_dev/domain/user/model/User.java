@@ -29,6 +29,12 @@ public class User {
         return UserRole.ROLE_ADMIN.equals(this.role);
     }
 
+    public void upgradeToApiMaker() {
+        if (UserRole.ROLE_USER.equals(this.role)) {
+            this.role = UserRole.ROLE_API_MAKER;
+        }
+    }
+
     public static User of(String email, String name, String profile, UserRole role) {
         return new User(email, name, profile, role);
     }

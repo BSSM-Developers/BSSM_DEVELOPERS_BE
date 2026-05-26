@@ -15,7 +15,8 @@ public record DocsUpdateRequest(
         @NotBlank(message = "문서 설명은 필수입니다.")
         String description,
         String domain,
-        String repositoryUrl,
+        @NotNull(message = "등록된 GitHub 레포지토리 ID는 필수입니다.")
+        Long githubRepositoryId,
 
         @NotNull(message = "sidebar는 null일 수 없습니다")
         @Valid
@@ -24,5 +25,4 @@ public record DocsUpdateRequest(
         @NotNull(message = "docs page는 null일 수 없습니다")
         @Valid
         List<CreateDocsPageRequest> docsPages
-) {
-}
+) {}

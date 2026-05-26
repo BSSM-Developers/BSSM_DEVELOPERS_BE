@@ -8,6 +8,6 @@ public record DocsListResponse(
         String writer,
         String type,
         String repositoryUrl,
+        String branch,
         Boolean autoApproval
-) {
-}
+) {}

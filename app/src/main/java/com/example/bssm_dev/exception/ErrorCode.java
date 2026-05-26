@@ -60,7 +60,14 @@ public enum ErrorCode {
     INVALID_DOMAIN_URL(400, "유효하지 않은 도메인 URL입니다. https:// 로 시작하는 공개 도메인만 허용됩니다."),
     BLOCKED_INTERNAL_DOMAIN(400, "내부 네트워크 주소로의 요청은 허용되지 않습니다."),
     BLOCKED_CONTENT_TYPE(502, "허용되지 않는 Content-Type의 응답입니다."),
-    DOCS_NO_API_PAGES(400, "해당 문서에 신청할 수 있는 API 페이지가 없습니다.");
+    DOCS_NO_API_PAGES(400, "해당 문서에 신청할 수 있는 API 페이지가 없습니다."),
+    GITHUB_TOKEN_EXCHANGE_FAIL(502, "GitHub 토큰 교환에 실패했습니다."),
+    GITHUB_CONNECTION_NOT_FOUND(404, "GitHub 연결 정보를 찾을 수 없습니다."),
+    GITHUB_APP_NOT_INSTALLED(400, "GitHub App이 설치되지 않았습니다."),
+    GITHUB_WEBHOOK_SIGNATURE_INVALID(403, "GitHub 웹훅 서명이 유효하지 않습니다."),
+    GITHUB_INSTALLATION_TOKEN_FAIL(502, "GitHub App 설치 토큰 발급에 실패했습니다."),
+    GITHUB_REPOSITORY_NOT_FOUND(404, "등록된 GitHub 레포지토리를 찾을 수 없습니다."),
+    GITHUB_REPOSITORY_UNAUTHORIZED(403, "해당 GitHub 레포지토리에 접근할 권한이 없습니다.");
 
 
     private final int statusCode;
