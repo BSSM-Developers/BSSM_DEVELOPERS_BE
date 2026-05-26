@@ -5,6 +5,16 @@ on:
     branches:
       - 'release-*'
       - 'dev-*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포 환경'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
 
 env:
   APP_IMAGE: donghyunking/bssm-dev-app
@@ -18,7 +28,9 @@ jobs:
       - name: Set deployment environment
         id: set-env
         run: |
-          if [[ "${{ github.ref_name }}" == release-* ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == release-* ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
           else
             echo "env=staging" >> $GITHUB_OUTPUT
