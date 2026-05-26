@@ -32,7 +32,7 @@ public class GitHubWebhookService {
     private final GitHubAppProperties gitHubAppProperties;
     private final ObjectMapper objectMapper;
 
-    @Transactional
+    @Transactional("transactionManager")
     public void handle(String event, String signature, String payload) {
         verifySignature(payload, signature);
 
@@ -53,9 +53,11 @@ public class GitHubWebhookService {
             gitHubConnectionRepository.findByGithubId(githubUserId).ifPresent(connection -> {
                 if (ACTION_CREATED.equals(action)) {
                     connection.updateInstallationId(installationId);
+                    gitHubConnectionRepository.save(connection);
                     log.info("github app installed - githubLogin={}, installationId={}", connection.getGithubLogin(), installationId);
                 } else if (ACTION_DELETED.equals(action)) {
                     connection.removeInstallation();
+                    gitHubConnectionRepository.save(connection);
                     log.info("github app uninstalled - githubLogin={}", connection.getGithubLogin());
                 }
             });

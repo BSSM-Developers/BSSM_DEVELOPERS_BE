@@ -1,6 +1,8 @@
 package com.example.bssm_dev.domain.github.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record GitHubBranchItem(
         String name,
-        boolean _protected
+        @JsonProperty("protected") boolean isProtected
 ) {}

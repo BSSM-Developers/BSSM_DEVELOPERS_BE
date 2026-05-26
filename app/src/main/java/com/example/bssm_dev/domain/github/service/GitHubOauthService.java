@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.github.service;
 
+import com.example.bssm_dev.domain.auth.repository.RefreshTokenRepository;
 import com.example.bssm_dev.domain.github.dto.response.GitHubTokenResponse;
 import com.example.bssm_dev.domain.github.dto.response.GitHubUserResponse;
 import com.example.bssm_dev.domain.github.model.GitHubConnection;
@@ -26,6 +27,7 @@ public class GitHubOauthService {
     private final GitHubUserFeign gitHubUserFeign;
     private final GitHubConnectionRepository gitHubConnectionRepository;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final GitHubAppProperties gitHubAppProperties;
     private final JwtProvider jwtProvider;
 
@@ -42,6 +44,7 @@ public class GitHubOauthService {
         user.upgradeToApiMaker();
         userRepository.save(user);
 
+        refreshTokenRepository.deleteByUserId(userId);
         String accessToken = jwtProvider.generateAccessToken(userId, user.getEmail(), user.getRole().name());
         String refreshToken = jwtProvider.generateRefreshToken(userId, user.getEmail(), user.getRole().name());
 
@@ -65,7 +68,10 @@ public class GitHubOauthService {
                                          GitHubTokenResponse tokenResponse) {
         gitHubConnectionRepository.findByUserId(userId)
                 .ifPresentOrElse(
-                        conn -> conn.updateTokens(tokenResponse.access_token(), tokenResponse.refresh_token()),
+                        conn -> {
+                            conn.updateTokens(tokenResponse.access_token(), tokenResponse.refresh_token());
+                            gitHubConnectionRepository.save(conn);
+                        },
                         () -> gitHubConnectionRepository.save(GitHubConnection.of(
                                 userId,
                                 gitHubUser.id(),
