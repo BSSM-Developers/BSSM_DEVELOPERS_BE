@@ -18,6 +18,7 @@ public class Docs {
     private Boolean autoApproval;
     private String description;
     private String repositoryUrl;
+    private String branch;
     private DocumentType type;
     private String domain;
     private Long writerId;
@@ -33,11 +34,12 @@ public class Docs {
         this.autoApproval = !this.autoApproval;
     }
 
-    public void updateDocs(String title, String description, String domain, String repositoryUrl) {
+    public void updateDocs(String title, String description, String domain, String repositoryUrl, String branch) {
         this.title = title;
         this.description = description;
         this.domain = domain;
         this.repositoryUrl = repositoryUrl;
+        this.branch = branch;
     }
 
     public void incrementTokenCount() {

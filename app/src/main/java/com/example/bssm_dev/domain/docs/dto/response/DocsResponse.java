@@ -6,6 +6,6 @@ public record DocsResponse(
         String description,
         String domain,
         String repositoryUrl,
+        String branch,
         Boolean autoApproval
-) {
-}
+) {}

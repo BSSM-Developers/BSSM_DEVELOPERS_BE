@@ -16,8 +16,8 @@ public record DocsCreateRequest(
         String description,
         @NotBlank(message = "도메인은 필수입니다.")
         String domain,
-        @NotBlank(message = "깃허브 레포지토리 URL은 필수입니다.")
-        String repositoryUrl,
+        @NotNull(message = "등록된 GitHub 레포지토리 ID는 필수입니다.")
+        Long githubRepositoryId,
         @NotNull(message = "자동 승인 여부는 필수입니다.")
         Boolean autoApproval,
 
@@ -28,5 +28,4 @@ public record DocsCreateRequest(
         @NotNull(message = "docs page는 null일 수 없습니다")
         @Valid
         List<CreateDocsPageRequest> docsPages
-) {
-}
+) {}
