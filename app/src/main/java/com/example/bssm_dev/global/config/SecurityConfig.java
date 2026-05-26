@@ -108,7 +108,6 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/github/authorize-url").permitAll()
                         .requestMatchers("/webhook/github").permitAll()
                         .requestMatchers("/signup/me").permitAll()
                         .requestMatchers("/signup/*/purpose").permitAll()
