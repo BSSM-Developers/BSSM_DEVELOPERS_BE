@@ -81,12 +81,19 @@ public class ApiTokenQueryService {
                 .map(ApiUsage::getApiGroupId)
                 .toList();
 
-        // apiGroupId → 현재 버전 apiId 매핑 (배치 조회)
-        Map<String, String> groupIdToApiId = apiRepository.findByApiGroupApiGroupIdInAndIsCurrentTrue(apiGroupIds)
-                .stream()
+        // apiGroupId → 현재 버전 Api 배치 조회
+        List<Api> currentApis = apiRepository.findByApiGroupApiGroupIdInAndIsCurrentTrue(apiGroupIds);
+
+        Map<String, String> groupIdToApiId = currentApis.stream()
                 .collect(Collectors.toMap(
                         api -> api.getApiGroup().getApiGroupId(),
                         Api::getApiId
+                ));
+
+        Map<String, Integer> groupIdToVersion = currentApis.stream()
+                .collect(Collectors.toMap(
+                        api -> api.getApiGroup().getApiGroupId(),
+                        Api::getVersion
                 ));
 
         List<String> currentApiIds = List.copyOf(groupIdToApiId.values());
@@ -96,6 +103,6 @@ public class ApiTokenQueryService {
                 .map(p -> (ContentDocsPage) p)
                 .collect(Collectors.toMap(DocsPage::getId, p -> p));
 
-        return apiTokenMapper.toApiTokenWithDocsResponse(apiToken, pageMap, groupIdToApiId);
+        return apiTokenMapper.toApiTokenWithDocsResponse(apiToken, pageMap, groupIdToApiId, groupIdToVersion);
     }
 }
