@@ -37,7 +37,7 @@ public class ApiUseReasonCommandService {
 
 
     public void createApiUseReason(CreateApiUseReasonRequest request, User currentUser, Long apiTokenId) {
-        Api api = apiQueryService.findById(request.apiId());
+        Api api = apiQueryService.findCurrentByApiGroupId(request.apiId());
         ApiToken apiToken = apiTokenQueryService.findById(apiTokenId);
 
         boolean equalsUser = currentUser.equals(apiToken.getUser());

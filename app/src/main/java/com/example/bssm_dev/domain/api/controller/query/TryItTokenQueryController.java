@@ -19,12 +19,13 @@ public class TryItTokenQueryController {
 
     /**
      * API Try It 토큰 조회
+     * apiGroupId 기준으로 조회 — 버전 업 후에도 동일한 토큰 반환
      */
-    @GetMapping("/{apiId}/try-it-token")
+    @GetMapping("/{apiGroupId}/try-it-token")
     public ResponseEntity<ResponseDto<TryItTokenResponse>> getTryItToken(
-            @PathVariable String apiId
+            @PathVariable String apiGroupId
     ) {
-        TryItTokenResponse response = tryItTokenQueryService.findByApiId(apiId);
+        TryItTokenResponse response = tryItTokenQueryService.findByApiGroupId(apiGroupId);
         return ResponseEntity.ok(HttpUtil.success("Successfully retrieved try-it token", response));
     }
 }
