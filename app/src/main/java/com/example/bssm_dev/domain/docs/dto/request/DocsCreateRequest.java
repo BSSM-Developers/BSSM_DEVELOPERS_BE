@@ -16,8 +16,10 @@ public record DocsCreateRequest(
         String description,
         @NotBlank(message = "도메인은 필수입니다.")
         String domain,
-        @NotNull(message = "등록된 GitHub 레포지토리 ID는 필수입니다.")
-        Long githubRepositoryId,
+        @NotBlank(message = "레포지토리 전체 이름은 필수입니다.")
+        String repoFullName,
+        @NotBlank(message = "브랜치명은 필수입니다.")
+        String branch,
         @NotNull(message = "자동 승인 여부는 필수입니다.")
         Boolean autoApproval,
 

@@ -15,8 +15,10 @@ public record DocsUpdateRequest(
         @NotBlank(message = "문서 설명은 필수입니다.")
         String description,
         String domain,
-        @NotNull(message = "등록된 GitHub 레포지토리 ID는 필수입니다.")
-        Long githubRepositoryId,
+        @NotBlank(message = "레포지토리 전체 이름은 필수입니다.")
+        String repoFullName,
+        @NotBlank(message = "브랜치명은 필수입니다.")
+        String branch,
 
         @NotNull(message = "sidebar는 null일 수 없습니다")
         @Valid

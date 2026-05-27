@@ -1,8 +1,6 @@
 package com.example.bssm_dev.domain.github.service;
 
-import com.example.bssm_dev.domain.github.dto.request.RegisterGitHubRepoRequest;
 import com.example.bssm_dev.domain.github.dto.response.GitHubRepoItem;
-import com.example.bssm_dev.domain.github.dto.response.RegisteredRepoResponse;
 import com.example.bssm_dev.domain.github.exception.GitHubAppNotInstalledException;
 import com.example.bssm_dev.domain.github.exception.GitHubConnectionNotFoundException;
 import com.example.bssm_dev.domain.github.exception.GitHubRepositoryNotFoundException;
@@ -25,20 +23,22 @@ public class GitHubRepositoryService {
     private final GitHubRepositoryRepository gitHubRepositoryRepository;
     private final GitHubApiService gitHubApiService;
 
+    public record FindOrCreateResult(GitHubRepository repo, boolean created) {}
+
     @Transactional("transactionManager")
-    public RegisteredRepoResponse register(Long userId, RegisterGitHubRepoRequest request) {
-        GitHubConnection connection = getConnectionOrThrow(userId);
-        Long installationId = getInstallationIdOrThrow(connection);
-
-        validateRepoAccessible(installationId, request.repoFullName());
-
-        GitHubRepository repo = GitHubRepository.of(
-                userId,
-                installationId,
-                request.repoFullName(),
-                request.branch()
-        );
-        return RegisteredRepoResponse.from(gitHubRepositoryRepository.save(repo));
+    public FindOrCreateResult findOrCreate(Long userId, String repoFullName, String branch) {
+        return gitHubRepositoryRepository
+                .findByUserIdAndRepoFullNameAndBranch(userId, repoFullName, branch)
+                .map(repo -> new FindOrCreateResult(repo, false))
+                .orElseGet(() -> {
+                    GitHubConnection connection = getConnectionOrThrow(userId);
+                    Long installationId = getInstallationIdOrThrow(connection);
+                    validateRepoAccessible(installationId, repoFullName);
+                    GitHubRepository saved = gitHubRepositoryRepository.save(
+                            GitHubRepository.of(userId, installationId, repoFullName, branch)
+                    );
+                    return new FindOrCreateResult(saved, true);
+                });
     }
 
     @Transactional("transactionManager")
