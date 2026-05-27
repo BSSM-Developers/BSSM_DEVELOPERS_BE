@@ -8,5 +8,6 @@ public record UpdateDocsRequest(
         @NotBlank(message = "문서 설명은 필수입니다.")
         String description,
         String domain,
-        Long githubRepositoryId
+        String repoFullName,
+        String branch
 ) {}
