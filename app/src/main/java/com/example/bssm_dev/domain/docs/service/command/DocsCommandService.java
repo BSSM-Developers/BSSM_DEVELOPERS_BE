@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.DocsCreateRequest;
 import com.example.bssm_dev.domain.docs.dto.request.DocsUpdateRequest;
@@ -35,12 +36,15 @@ public class DocsCommandService {
     private final DocsSideBarCommandService docsSideBarCommandService;
     private final DocsPageCommandService docsPageCommandService;
     private final GitHubRepositoryQueryService gitHubRepositoryQueryService;
+    private final ApiRepository apiRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     public void createOriginalDocs(DocsCreateRequest request, User creator) {
         validateTitleUnique(request.title());
         GitHubRepository gitHubRepository = gitHubRepositoryQueryService
                 .getRepositoryForDocs(creator.getUserId(), request.githubRepositoryId());
+
+        DocsValidator.checkParsedEndpointsExist(request.docsPages(), gitHubRepository.getId(), apiRepository);
 
         Docs docs = docsMapper.toOriginalDocs(request, creator, gitHubRepository);
         Docs newDocs = docsRepository.save(docs);
@@ -89,6 +93,8 @@ public class DocsCommandService {
 
         GitHubRepository gitHubRepository = gitHubRepositoryQueryService
                 .getRepositoryForDocs(user.getUserId(), request.githubRepositoryId());
+
+        DocsValidator.checkParsedEndpointsExist(request.docsPages(), gitHubRepository.getId(), apiRepository);
 
         docs.updateDocs(
                 request.title(),

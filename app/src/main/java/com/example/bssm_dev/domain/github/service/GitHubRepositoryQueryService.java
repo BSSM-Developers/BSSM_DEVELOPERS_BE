@@ -1,7 +1,9 @@
 package com.example.bssm_dev.domain.github.service;
 
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.github.dto.response.GitHubBranchItem;
 import com.example.bssm_dev.domain.github.dto.response.GitHubRepoItem;
+import com.example.bssm_dev.domain.github.dto.response.ParsedEndpointResponse;
 import com.example.bssm_dev.domain.github.dto.response.RegisteredRepoResponse;
 import com.example.bssm_dev.domain.github.exception.GitHubAppNotInstalledException;
 import com.example.bssm_dev.domain.github.exception.GitHubConnectionNotFoundException;
@@ -24,6 +26,7 @@ public class GitHubRepositoryQueryService {
     private final GitHubConnectionRepository gitHubConnectionRepository;
     private final GitHubRepositoryRepository gitHubRepositoryRepository;
     private final GitHubApiService gitHubApiService;
+    private final ApiRepository apiRepository;
 
     @Transactional(readOnly = true)
     public List<RegisteredRepoResponse> getRegisteredRepositories(Long userId) {
@@ -52,6 +55,20 @@ public class GitHubRepositoryQueryService {
         }
 
         return repo;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParsedEndpointResponse> getParsedEndpoints(Long userId, Long repoId) {
+        GitHubRepository repo = gitHubRepositoryRepository.findById(repoId)
+                .orElseThrow(GitHubRepositoryNotFoundException::raise);
+
+        if (!repo.isOwnedBy(userId)) {
+            throw GitHubRepositoryUnauthorizedException.raise();
+        }
+
+        return apiRepository.findAllByGithubRepositoryIdAndIsCurrentTrue(repoId).stream()
+                .map(ParsedEndpointResponse::from)
+                .toList();
     }
 
     private Long getInstallationIdOrThrow(Long userId) {

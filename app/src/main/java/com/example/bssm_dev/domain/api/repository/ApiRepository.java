@@ -26,4 +26,9 @@ public interface ApiRepository extends JpaRepository<Api, String>, QuerydslPredi
             @Param("endpoint") String endpoint,
             @Param("method") String method
     );
+
+    List<Api> findAllByGithubRepositoryIdAndIsCurrentTrue(Long githubRepositoryId);
+
+    boolean existsByGithubRepositoryIdAndEndpointAndMethodAndIsCurrentTrue(
+            Long githubRepositoryId, String endpoint, String method);
 }

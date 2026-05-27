@@ -6,6 +6,7 @@ import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.github.dto.request.RegisterGitHubRepoRequest;
 import com.example.bssm_dev.domain.github.dto.response.GitHubBranchItem;
 import com.example.bssm_dev.domain.github.dto.response.GitHubRepoItem;
+import com.example.bssm_dev.domain.github.dto.response.ParsedEndpointResponse;
 import com.example.bssm_dev.domain.github.dto.response.RegisteredRepoResponse;
 import com.example.bssm_dev.domain.github.service.GitHubRepositoryQueryService;
 import com.example.bssm_dev.domain.github.service.GitHubRepositoryService;
@@ -83,5 +84,17 @@ public class GitHubRepositoryController {
     ) {
         gitHubRepositoryService.delete(user.getUserId(), repoId);
         return ResponseEntity.ok(HttpUtil.success("repository unregistered"));
+    }
+
+    /**
+     * 레포지토리에서 AST 파싱된 엔드포인트 목록 조회
+     */
+    @GetMapping("/{repoId}/parsed-endpoints")
+    public ResponseEntity<ResponseDto<List<ParsedEndpointResponse>>> getParsedEndpoints(
+            @CurrentUser User user,
+            @PathVariable Long repoId
+    ) {
+        List<ParsedEndpointResponse> endpoints = gitHubRepositoryQueryService.getParsedEndpoints(user.getUserId(), repoId);
+        return ResponseEntity.ok(HttpUtil.success("parsed endpoints", endpoints));
     }
 }
