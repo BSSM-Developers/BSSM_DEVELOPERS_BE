@@ -10,6 +10,7 @@ public record ApiUsageWithDocsResponse(
         String endpoint,
         String apiMethod,
         String apiUseState,
+        Integer version,
         List<DocsPageBlockResponse> docsBlocks
 ) {
 }

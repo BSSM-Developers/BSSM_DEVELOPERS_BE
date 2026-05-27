@@ -44,7 +44,7 @@ public class DocsPageMapper {
                 .toList();
     }
 
-    public DocsPageResponse toDocsPageResponse(ContentDocsPage docsPage) {
+    public DocsPageResponse toDocsPageResponse(ContentDocsPage docsPage, Integer version) {
         List<DocsPageBlockResponse> blockResponses = docsPage.getDocsBlocks().stream()
                 .map(this::toBlockResponse)
                 .toList();
@@ -54,6 +54,7 @@ public class DocsPageMapper {
                 docsPage.getMappedId(),
                 docsPage.getDocsId(),
                 docsPage.getEndpoint(),
+                version,
                 blockResponses
         );
     }

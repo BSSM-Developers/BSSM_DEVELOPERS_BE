@@ -74,7 +74,8 @@ public class ApiTokenMapper {
     public ApiTokenWithDocsResponse toApiTokenWithDocsResponse(
             ApiToken apiToken,
             Map<String, ContentDocsPage> pageMap,
-            Map<String, String> groupIdToApiId
+            Map<String, String> groupIdToApiId,
+            Map<String, Integer> groupIdToVersion
     ) {
         List<String> origins = apiToken.getTokenDomains().stream()
                 .map(tokenDomain -> tokenDomain.getOrigin())
@@ -83,7 +84,8 @@ public class ApiTokenMapper {
         List<ApiUsageWithDocsResponse> registeredApis = apiToken.getApiUsageList().stream()
                 .map(usage -> {
                     String apiId = groupIdToApiId.get(usage.getApiGroupId());
-                    return toApiUsageWithDocsResponse(usage, apiId != null ? pageMap.get(apiId) : null);
+                    Integer version = groupIdToVersion.get(usage.getApiGroupId());
+                    return toApiUsageWithDocsResponse(usage, apiId != null ? pageMap.get(apiId) : null, version);
                 })
                 .toList();
 
@@ -99,7 +101,8 @@ public class ApiTokenMapper {
 
     private ApiUsageWithDocsResponse toApiUsageWithDocsResponse(
             ApiUsage usage,
-            ContentDocsPage page
+            ContentDocsPage page,
+            Integer version
     ) {
         List<DocsPageBlockResponse> docsBlocks = page != null
                 ? page.getDocsBlocks().stream().map(this::toBlockResponse).toList()
@@ -111,6 +114,7 @@ public class ApiTokenMapper {
                 usage.getEndpoint(),
                 usage.getMethod(),
                 usage.getApiUseState().name(),
+                version,
                 docsBlocks
         );
     }
