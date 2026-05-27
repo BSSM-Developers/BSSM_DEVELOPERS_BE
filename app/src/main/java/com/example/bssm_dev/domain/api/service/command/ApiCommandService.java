@@ -84,7 +84,7 @@ public class ApiCommandService {
                 if (docsPage != null && docsPage.getEndpoint() != null) {
                     log.info("DocsPage found for mappedId={}: id={}, endpoint={}",
                             block.getMappedId(), docsPage.getId(), docsPage.getEndpoint());
-                    ApiGroup apiGroup = apiGroupRepository.save(ApiGroup.of(UUID.randomUUID().toString()));
+                    ApiGroup apiGroup = apiGroupRepository.save(ApiGroup.of(docsPage.getId()));
                     Api api = Api.createNew(
                             docsPage.getId(),  // DocsPage의 id를 apiId로 사용 (v1)
                             apiGroup,
