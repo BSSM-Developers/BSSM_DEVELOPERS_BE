@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface ApiTokenRepository extends JpaRepository<ApiToken, Long> {
 
-    @EntityGraph(attributePaths = {"apiUsageList", "apiUsageList.api", "apiUsageList.apiUseReason"})
+    @EntityGraph(attributePaths = {"apiUsageList", "apiUsageList.apiGroup", "apiUsageList.apiUseReason"})
     @Query("SELECT at FROM ApiToken at WHERE at.user.userId = :userId AND at.apiTokenId < COALESCE(:cursor, 9223372036854775807) ORDER BY at.apiTokenId DESC")
     Slice<ApiToken> findAllByUserIdWithCursorOrderByApiTokenIdDesc(@Param("userId") Long userId, @Param("cursor") Long cursor, Pageable pageable);
 

@@ -35,6 +35,7 @@ public class DocsPageMapper {
                         ? docsPageBlockMapper.toDocsPageBlocks(request.blocks())
                         : List.of())
                 .endpoint(request.endpoint())
+                .method(request.method())
                 .build();
     }
 

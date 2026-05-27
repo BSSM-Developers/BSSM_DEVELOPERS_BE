@@ -1,5 +1,7 @@
 package com.example.bssm_dev.domain.docs.validator;
 
+import com.example.bssm_dev.domain.api.exception.EndpointNotFoundException;
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsCustomApiPageMustBeReferenceException;
 import com.example.bssm_dev.domain.docs.exception.DocsNotCustomTypeException;
@@ -26,6 +28,19 @@ public class DocsValidator {
                 throw DocsCustomApiPageMustBeReferenceException.raise();
             }
         });
+    }
+
+    public static void checkParsedEndpointsExist(List<CreateDocsPageRequest> requests, Long repoId, ApiRepository apiRepository) {
+        requests.stream()
+                .filter(r -> r.endpoint() != null && r.sourceDocsId() == null)
+                .forEach(r -> {
+                    boolean exists = apiRepository.existsByGithubRepositoryIdAndEndpointAndMethodAndIsCurrentTrue(
+                            repoId, r.endpoint(), r.method()
+                    );
+                    if (!exists) {
+                        throw EndpointNotFoundException.raise();
+                    }
+                });
     }
 //
 //    public static void checkIfIsMyDocs(User user, DocsSection section) {

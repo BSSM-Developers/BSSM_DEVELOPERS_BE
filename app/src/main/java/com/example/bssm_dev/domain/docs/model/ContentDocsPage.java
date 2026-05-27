@@ -16,6 +16,7 @@ import java.util.List;
 public class ContentDocsPage extends DocsPage {
     private List<DocsPageBlock> docsBlocks;
     private String endpoint;
+    private String method;
 
     public void updateDocsBlocks(List<DocsPageBlock> docsBlocks) {
         this.docsBlocks = docsBlocks;
