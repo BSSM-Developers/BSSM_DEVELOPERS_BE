@@ -27,7 +27,7 @@ public class ApiUsageMapper {
     public ApiUsageResponse toResponse(ApiUsage apiUsage) {
         return new ApiUsageResponse(
                 apiUsage.getApiTokenId(),
-                apiUsage.getApiId(),
+                apiUsage.getApiGroupId(),
                 apiUsage.getName(),
                 apiUsage.getEndpoint(),
                 apiUsage.getName(),
@@ -45,7 +45,7 @@ public class ApiUsageMapper {
     
     public ApiUsageSummaryResponse toSummaryResponse(ApiUsage apiUsage) {
         return new ApiUsageSummaryResponse(
-                apiUsage.getApiId(),
+                apiUsage.getApiGroupId(),
                 apiUsage.getName(),
                 apiUsage.getEndpoint(),
                 apiUsage.getMethod(),

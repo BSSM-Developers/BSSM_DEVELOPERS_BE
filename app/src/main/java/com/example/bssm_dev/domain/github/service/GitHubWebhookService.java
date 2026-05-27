@@ -31,6 +31,7 @@ public class GitHubWebhookService {
     private final GitHubConnectionRepository gitHubConnectionRepository;
     private final GitHubAppProperties gitHubAppProperties;
     private final ObjectMapper objectMapper;
+    private final EndpointSyncService endpointSyncService;
 
     @Transactional("transactionManager")
     public void handle(String event, String signature, String payload) {
@@ -84,7 +85,7 @@ public class GitHubWebhookService {
 
             log.info("github push event - repo={}, branch={}, githubLogin={}", repoFullName, branch, connection.getGithubLogin());
 
-            // TODO: 브랜치별 비즈니스 로직 추가
+            endpointSyncService.syncOnPush(repoFullName, branch, installationId);
         } catch (GitHubConnectionNotFoundException e) {
             log.warn("received push event but no matching github connection found for installationId");
         } catch (Exception e) {

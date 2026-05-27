@@ -73,14 +73,18 @@ public class ApiTokenMapper {
 
     public ApiTokenWithDocsResponse toApiTokenWithDocsResponse(
             ApiToken apiToken,
-            Map<String, ContentDocsPage> pageMap
+            Map<String, ContentDocsPage> pageMap,
+            Map<String, String> groupIdToApiId
     ) {
         List<String> origins = apiToken.getTokenDomains().stream()
                 .map(tokenDomain -> tokenDomain.getOrigin())
                 .toList();
 
         List<ApiUsageWithDocsResponse> registeredApis = apiToken.getApiUsageList().stream()
-                .map(usage -> toApiUsageWithDocsResponse(usage, pageMap.get(usage.getApiId())))
+                .map(usage -> {
+                    String apiId = groupIdToApiId.get(usage.getApiGroupId());
+                    return toApiUsageWithDocsResponse(usage, apiId != null ? pageMap.get(apiId) : null);
+                })
                 .toList();
 
         return new ApiTokenWithDocsResponse(
@@ -102,7 +106,7 @@ public class ApiTokenMapper {
                 : List.of();
 
         return new ApiUsageWithDocsResponse(
-                usage.getApiId(),
+                usage.getApiGroupId(),
                 usage.getName(),
                 usage.getEndpoint(),
                 usage.getMethod(),
