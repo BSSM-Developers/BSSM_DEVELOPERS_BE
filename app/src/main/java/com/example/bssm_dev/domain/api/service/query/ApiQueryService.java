@@ -15,4 +15,9 @@ public class ApiQueryService {
         return apiRepository.findById(apiId)
                 .orElseThrow(ApiNotFoundException::raise);
     }
+
+    public Api findCurrentByApiGroupId(String apiGroupId) {
+        return apiRepository.findByApiGroupApiGroupIdAndIsCurrentTrue(apiGroupId)
+                .orElseThrow(ApiNotFoundException::raise);
+    }
 }

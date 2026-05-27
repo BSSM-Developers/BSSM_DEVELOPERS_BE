@@ -10,4 +10,5 @@ public interface GitHubRepositoryRepository extends JpaRepository<GitHubReposito
     List<GitHubRepository> findAllByUserId(Long userId);
     Optional<GitHubRepository> findByIdAndUserId(Long id, Long userId);
     boolean existsByUserIdAndRepoFullNameAndBranch(Long userId, String repoFullName, String branch);
+    List<GitHubRepository> findAllByRepoFullNameAndBranch(String repoFullName, String branch);
 }
