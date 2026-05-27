@@ -5,7 +5,6 @@ on:
     branches:
       - 'release-*'
       - 'dev-*'
-      - 'prod-*'
   workflow_dispatch:
     inputs:
       environment:
@@ -31,7 +30,7 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref_name }}" == release-* || "${{ github.ref_name }}" == prod-* ]]; then
+          elif [[ "${{ github.ref_name }}" == release-* ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
           else
             echo "env=staging" >> $GITHUB_OUTPUT
