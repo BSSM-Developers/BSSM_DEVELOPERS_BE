@@ -58,6 +58,10 @@ public class ApiUsage {
         this.endpoint = endpoint;
     }
 
+    public void updateMethod(String method) {
+        this.method = method;
+    }
+
     public String getApiGroupId() {
         return apiGroup.getApiGroupId();
     }

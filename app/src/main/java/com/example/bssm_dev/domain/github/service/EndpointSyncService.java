@@ -2,8 +2,13 @@ package com.example.bssm_dev.domain.github.service;
 
 import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiGroup;
+import com.example.bssm_dev.domain.api.model.ApiUsage;
+import com.example.bssm_dev.domain.api.model.TryItToken;
+import com.example.bssm_dev.domain.api.model.key.ApiUsageId;
 import com.example.bssm_dev.domain.api.repository.ApiGroupRepository;
 import com.example.bssm_dev.domain.api.repository.ApiRepository;
+import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
+import com.example.bssm_dev.domain.api.repository.TryItTokenRepository;
 import com.example.bssm_dev.domain.github.dto.request.EndpointParseRequest;
 import com.example.bssm_dev.domain.github.dto.response.EndpointParseResponse;
 import com.example.bssm_dev.domain.github.model.GitHubConnection;
@@ -36,6 +41,8 @@ public class EndpointSyncService {
     private final ApiRepository apiRepository;
     private final ApiGroupRepository apiGroupRepository;
     private final UserRepository userRepository;
+    private final TryItTokenRepository tryItTokenRepository;
+    private final ApiUsageRepository apiUsageRepository;
 
     @Transactional("transactionManager")
     public void syncOnPush(String repoFullName, String branch, Long installationId) {
@@ -104,6 +111,9 @@ public class EndpointSyncService {
                 apiRepository.save(next);
                 log.info("api version bumped: group={} v{} -> v{}", existing.getApiGroup().getApiGroupId(),
                         existing.getVersion(), next.getVersion());
+
+                // TryItToken ApiUsage endpoint/method 동기화
+                syncTryItTokenUsage(existing.getApiGroup().getApiGroupId(), next);
             } else {
                 // 신규 엔드포인트
                 ApiGroup group = apiGroupRepository.save(ApiGroup.of(UUID.randomUUID().toString()));
@@ -124,5 +134,17 @@ public class EndpointSyncService {
                 log.info("new api registered: {} {}", parsed.method(), parsed.path());
             }
         }
+    }
+
+    private void syncTryItTokenUsage(String apiGroupId, Api next) {
+        tryItTokenRepository.findByApiApiGroupApiGroupId(apiGroupId).ifPresent(tryItToken -> {
+            ApiUsageId usageId = ApiUsageId.create(apiGroupId, tryItToken.getApiTokenId());
+            apiUsageRepository.findById(usageId).ifPresent(usage -> {
+                usage.updateEndpoint(next.getEndpoint());
+                usage.updateMethod(next.getMethod());
+                log.info("TryItToken usage synced: group={} endpoint={} method={}",
+                        apiGroupId, next.getEndpoint(), next.getMethod());
+            });
+        });
     }
 }
