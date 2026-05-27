@@ -27,15 +27,15 @@ public class DocsPageQueryService {
             ContentDocsPage sourcePage = (ContentDocsPage) docsPageRepository
                     .findByDocsIdAndMappedId(ref.getSourceDocsId(), ref.getSourceMappedId())
                     .orElseThrow(DocsPageNotFoundException::raise);
-            return docsPageMapper.toDocsPageResponse(sourcePage, resolveVersion(sourcePage.getId()));
+            return docsPageMapper.toDocsPageResponse(sourcePage, resolveVersion(sourcePage.getMappedId()));
         }
 
         ContentDocsPage contentPage = (ContentDocsPage) docsPage;
-        return docsPageMapper.toDocsPageResponse(contentPage, resolveVersion(contentPage.getId()));
+        return docsPageMapper.toDocsPageResponse(contentPage, resolveVersion(contentPage.getMappedId()));
     }
 
-    private Integer resolveVersion(String apiId) {
-        return apiRepository.findById(apiId)
+    private Integer resolveVersion(String apiGroupId) {
+        return apiRepository.findByApiGroupApiGroupIdAndIsCurrentTrue(apiGroupId)
                 .map(Api::getVersion)
                 .orElse(null);
     }
