@@ -1,8 +1,11 @@
 package com.example.bssm_dev.domain.docs.mapper;
-import com.example.bssm_dev.domain.docs.dto.request.*;
+
+import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
+import com.example.bssm_dev.domain.docs.dto.request.DocsCreateRequest;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.github.model.GitHubRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import org.springframework.stereotype.Component;
 
@@ -12,30 +15,30 @@ import java.util.Map;
 @Component
 public class DocsMapper {
 
-    public Docs toOriginalDocs(DocsCreateRequest request, User creator) {
-        Docs docs = Docs.builder()
+    public Docs toOriginalDocs(DocsCreateRequest request, User creator, GitHubRepository gitHubRepository) {
+        return Docs.builder()
                 .title(request.title())
-                .repositoryUrl(request.repositoryUrl())
+                .repositoryUrl(gitHubRepository.toRepositoryUrl())
+                .branch(gitHubRepository.getBranch())
                 .description(request.description())
                 .domain(request.domain())
                 .type(DocumentType.ORIGINAL)
                 .autoApproval(request.autoApproval())
                 .writerId(creator.getUserId())
                 .build();
-        return docs;
     }
 
     public Docs toCustomDocs(CreateCustomDocsRequest request, User creator) {
-        Docs docs = Docs.builder()
+        return Docs.builder()
                 .title(request.title())
                 .description(request.description())
                 .repositoryUrl("")
+                .branch("")
                 .domain("")
                 .type(DocumentType.CUSTOMIZE)
                 .autoApproval(false)
                 .writerId(creator.getUserId())
                 .build();
-        return docs;
     }
 
     public DocsListResponse toListResponse(Docs docs, String writerName) {
@@ -47,6 +50,7 @@ public class DocsMapper {
                 writerName,
                 docs.getType().name(),
                 docs.getRepositoryUrl(),
+                docs.getBranch(),
                 docs.getAutoApproval()
         );
     }
@@ -61,7 +65,7 @@ public class DocsMapper {
                 .toList();
     }
 
-    public List<DocsListResponse> toDocsListResponse(String writerName,  List<Docs> content) {
+    public List<DocsListResponse> toDocsListResponse(String writerName, List<Docs> content) {
         return content.stream()
                 .map(docs -> this.toListResponse(docs, writerName))
                 .toList();

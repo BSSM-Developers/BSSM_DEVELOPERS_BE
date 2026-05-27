@@ -8,11 +8,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +28,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
@@ -35,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         boolean shouldSkip = path.startsWith("/api/proxy") || path.startsWith("/api/proxy-browser") || path.startsWith("/api/proxy-server");
-        System.out.println("[JWT DEBUG] shouldNotFilter - path: " + path + ", shouldSkip: " + shouldSkip);
+        log.debug("shouldNotFilter - path: {}, shouldSkip: {}", path, shouldSkip);
         return shouldSkip;
     }
 
@@ -49,7 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String userId = claims.getSubject();
                 String email = claims.get("email", String.class);
                 String role = claims.get("role", String.class);
-                System.out.println("[JWT DEBUG] Role from token: " + role);
+                log.debug("Role from token: {}", role);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userId,
@@ -59,13 +63,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (ExpiredJwtException e) {
-                System.out.println("[JWT DEBUG] Token expired: " + e.getMessage());
+                log.debug("Token expired: {}", e.getMessage());
                 handleException(response, 401, "만료된 토큰입니다.");
-                return;
+            } catch (MalformedJwtException e) {
+                log.debug("Malformed token: {}", e.getMessage());
+                handleException(response, 401, "토큰 형식이 올바르지 않습니다.");
+            } catch (UnsupportedJwtException e) {
+                log.debug("Unsupported token: {}", e.getMessage());
+                handleException(response, 401, "지원되지 않는 토큰 형식입니다.");
             } catch (JwtException e) {
-                System.out.println("[JWT DEBUG] Invalid token: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                log.debug("Invalid token: {} - {}", e.getClass().getSimpleName(), e.getMessage());
                 handleException(response, 401, "유효하지 않은 토큰입니다.");
-                return;
             }
         }
 
@@ -74,9 +82,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(jwtProperties.getHeader());
-        System.out.println("[JWT DEBUG] Header name: " + jwtProperties.getHeader());
-        System.out.println("[JWT DEBUG] Header value: " + bearerToken);
-        System.out.println("[JWT DEBUG] Expected prefix: '" + jwtProperties.getPrefix() + "'");
+        log.debug("Header name: {}, Header value: {}, Expected prefix: '{}'",
+                jwtProperties.getHeader(), bearerToken, jwtProperties.getPrefix());
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getPrefix())) {
             return bearerToken.substring(jwtProperties.getPrefix().length()).trim();

@@ -5,45 +5,58 @@ on:
     branches:
       - 'release-*'
       - 'dev-*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포 환경'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
 
 env:
   APP_IMAGE: donghyunking/bssm-dev-app
-  PROXY_IMAGE: donghyunking/bssm-dev-proxy
 
 jobs:
-  detect-changes:
+  check-duplicate:
     runs-on: ubuntu-latest
     outputs:
-      app: ${{ steps.filter.outputs.app }}
-      proxy: ${{ steps.filter.outputs.proxy }}
       env: ${{ steps.set-env.outputs.env }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Set deployment environment
         id: set-env
         run: |
-          if [[ "${{ github.ref_name }}" == release-* ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == release-* ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
           else
             echo "env=staging" >> $GITHUB_OUTPUT
           fi
 
-      - uses: dorny/paths-filter@v3
-        id: filter
+      - uses: actions/checkout@v4
         with:
-          filters: |
-            app:
-              - 'app/**'
-            proxy:
-              - 'proxy-service/**'
+          repository: BSSM-Developers/BSSM_DEVELOPERS_INFRA
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
 
-  build-app:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.app == 'true'
+      - name: Fail if branch already deployed
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          TARGET="${{ steps.set-env.outputs.env }}"
+          MARKER_FILE="${TARGET}/app/.deployed-branches"
+          if [ -f "$MARKER_FILE" ] && grep -qxF "$BRANCH" "$MARKER_FILE"; then
+            echo "::error::Branch '${BRANCH}'은(는) ${TARGET} 환경에 이미 배포되었습니다. 중복 배포를 방지하기 위해 워크플로우를 종료합니다."
+            exit 1
+          fi
+
+  build:
+    needs: check-duplicate
     runs-on: ubuntu-latest
     outputs:
       digest: ${{ steps.push.outputs.digest }}
+      env: ${{ needs.check-duplicate.outputs.env }}
     steps:
       - uses: actions/checkout@v4
 
@@ -75,79 +88,32 @@ jobs:
           cache-from: type=gha,scope=app
           cache-to: type=gha,scope=app,mode=max
 
-  build-proxy:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.proxy == 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      digest: ${{ steps.push.outputs.digest }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: gradle
-
-      - name: Build JAR
-        run: |
-          chmod +x gradlew
-          ./gradlew :proxy-service:bootJar --no-daemon
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - id: push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: proxy-service/Dockerfile
-          push: true
-          tags: ${{ env.PROXY_IMAGE }}:${{ github.sha }}
-          cache-from: type=gha,scope=proxy
-          cache-to: type=gha,scope=proxy,mode=max
-
   update-infra:
-    needs:
-      - detect-changes
-      - build-app
-      - build-proxy
-    if: always() && !cancelled() && (needs.build-app.result == 'success' || needs.build-proxy.result == 'success')
+    needs: build
     runs-on: ubuntu-latest
     env:
-      TARGET: ${{ needs.detect-changes.outputs.env }}
+      TARGET: ${{ needs.build.outputs.env }}
     steps:
       - uses: actions/checkout@v4
         with:
           repository: BSSM-Developers/BSSM_DEVELOPERS_INFRA
           token: ${{ secrets.INFRA_REPO_TOKEN }}
 
-      - name: Update app image
-        if: needs.build-app.result == 'success'
+      - name: Update app image digest
         env:
-          DIGEST: ${{ needs.build-app.outputs.digest }}
+          DIGEST: ${{ needs.build.outputs.digest }}
         run: |
           sed -i -E "s|donghyunking/bssm-dev-app@sha256:[a-f0-9]+|donghyunking/bssm-dev-app@${DIGEST}|g" \
             ${TARGET}/app/deployment.yaml
 
-      - name: Update proxy image
-        if: needs.build-proxy.result == 'success'
-        env:
-          DIGEST: ${{ needs.build-proxy.outputs.digest }}
-        run: |
-          sed -i -E "s|donghyunking/bssm-dev-proxy@sha256:[a-f0-9]+|donghyunking/bssm-dev-proxy@${DIGEST}|g" \
-            ${TARGET}/proxy/deployment.yaml
-
       - name: Commit and push
         run: |
+          BRANCH="${{ github.ref_name }}"
+          MARKER_FILE="${TARGET}/app/.deployed-branches"
+          echo "$BRANCH" >> "$MARKER_FILE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ${TARGET}/app/deployment.yaml ${TARGET}/proxy/deployment.yaml
+          git add ${TARGET}/app/deployment.yaml "$MARKER_FILE"
           git diff --staged --quiet && echo "변경 없음" && exit 0
-          git commit -m "chore :: [${TARGET}] 이미지 업데이트 (${GITHUB_SHA::7})"
+          git commit -m "chore :: [${TARGET}] app 이미지 업데이트 (${GITHUB_SHA::7})"
           git push
