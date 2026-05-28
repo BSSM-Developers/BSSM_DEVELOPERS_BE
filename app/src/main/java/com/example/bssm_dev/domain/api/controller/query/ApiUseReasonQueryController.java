@@ -41,10 +41,11 @@ public class ApiUseReasonQueryController {
     @GetMapping("/my-docs")
     public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonsByMyDocs(
             @CurrentUser User user,
+            @RequestParam(required = false) String docsId,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
-        CursorPage<ApiUseReasonResponse> response = apiUseReasonQueryService.getApiUseReasonsByMyDocs(user, cursor, size);
+        CursorPage<ApiUseReasonResponse> response = apiUseReasonQueryService.getApiUseReasonsByMyDocs(user, docsId, cursor, size);
         ResponseDto<CursorPage<ApiUseReasonResponse>> responseDto = HttpUtil.success("Successfully retrieved API use reasons for my docs", response);
         return ResponseEntity.ok(responseDto);
     }
