@@ -114,6 +114,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**").access(requiresAdmin)
                         // docs CUD → API_MAKER 이상 (api-use-requests는 일반 인증 사용자 허용)
                         .requestMatchers(HttpMethod.POST, "/docs/original", "/docs/custom").access(requiresApiMaker)
+                        .requestMatchers(HttpMethod.POST, "/docs/**/page").access(requiresApiMaker)
                         .requestMatchers(HttpMethod.POST, "/docs/**/api-use-requests").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/docs/**").access(requiresApiMaker)
                         .requestMatchers(HttpMethod.PUT, "/docs/**").access(requiresApiMaker)
