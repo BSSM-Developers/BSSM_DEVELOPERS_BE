@@ -69,8 +69,8 @@ public class DocsPageCommandService {
         DocsValidator.checkCustomDocsPages(List.of(pageRequest));
 
         if (pageRequest.sourceDocsId() != null &&
-                docsPageRepository.existsByDocsIdAndSourceDocsIdAndSourceMappedId(
-                        docsId, pageRequest.sourceDocsId(), pageRequest.sourceMappedId())) {
+                docsPageRepository.findByDocsIdAndSourceDocsIdAndSourceMappedId(
+                        docsId, pageRequest.sourceDocsId(), pageRequest.sourceMappedId()).isPresent()) {
             throw DocsReferencePageAlreadyExistsException.raise();
         }
 
