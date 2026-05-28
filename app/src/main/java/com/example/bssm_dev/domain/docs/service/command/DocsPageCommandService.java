@@ -8,6 +8,7 @@ import com.example.bssm_dev.domain.docs.mapper.DocsSideBarBlockMapper;
 import com.example.bssm_dev.domain.docs.model.SideBarBlock;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsNotCustomTypeException;
+import com.example.bssm_dev.domain.docs.exception.DocsReferencePageAlreadyExistsException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsReferencePageNotEditableException;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageBlockMapper;
@@ -66,6 +67,13 @@ public class DocsPageCommandService {
 
         CreateDocsPageRequest pageRequest = request.page();
         DocsValidator.checkCustomDocsPages(List.of(pageRequest));
+
+        if (pageRequest.sourceDocsId() != null &&
+                docsPageRepository.existsByDocsIdAndSourceDocsIdAndSourceMappedId(
+                        docsId, pageRequest.sourceDocsId(), pageRequest.sourceMappedId())) {
+            throw DocsReferencePageAlreadyExistsException.raise();
+        }
+
         DocsPage docsPage = docsPageMapper.toDocsPage(pageRequest, docs);
         docsPageRepository.save(docsPage);
 

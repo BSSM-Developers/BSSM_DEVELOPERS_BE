@@ -55,6 +55,7 @@ public enum ErrorCode {
     API_TOKEN_NOT_BLOCKED(400, "차단되지 않은 API 토큰입니다."),
     UNAUTHORIZED_ACCESS(403, "권한이 없습니다."),
     DOCS_REFERENCE_PAGE_NOT_EDITABLE(400, "참조 페이지는 직접 수정할 수 없습니다."),
+    DOCS_REFERENCE_PAGE_ALREADY_EXISTS(409, "이미 추가된 레퍼런스 페이지입니다."),
     DOCS_CUSTOM_API_PAGE_MUST_BE_REFERENCE(400, "커스텀 문서의 API 페이지는 참조 페이지여야 합니다."),
     DOCS_TITLE_ALREADY_EXISTS(400, "이미 사용 중인 문서 제목입니다."),
     INVALID_DOMAIN_URL(400, "유효하지 않은 도메인 URL입니다. https:// 로 시작하는 공개 도메인만 허용됩니다."),
