@@ -3,7 +3,7 @@ package com.example.bssm_dev.domain.docs.controller.command;
 import com.example.bssm_dev.common.annotation.CurrentUser;
 import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
-import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.AddCustomDocsPageRequest;
 import com.example.bssm_dev.domain.docs.service.command.DocsPageCommandService;
 import com.example.bssm_dev.domain.user.model.User;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class DocsCustomPageCommandController {
     @PostMapping
     public ResponseEntity<ResponseDto<Void>> addPage(
             @PathVariable String docsId,
-            @Valid @RequestBody CreateDocsPageRequest request,
+            @Valid @RequestBody AddCustomDocsPageRequest request,
             @CurrentUser User user
     ) {
         docsPageCommandService.addPage(docsId, request, user);
