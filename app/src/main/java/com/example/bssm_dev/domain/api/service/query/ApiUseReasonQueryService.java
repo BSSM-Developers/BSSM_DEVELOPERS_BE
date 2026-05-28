@@ -56,6 +56,17 @@ public class ApiUseReasonQueryService {
         return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
     }
     
+    public CursorPage<ApiUseReasonResponse> getApiUseReasonsByMyDocs(User user, Long cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size);
+        Slice<ApiUseReason> apiUseReasonSlice = apiUseReasonRepository.findAllByCreatorUserIdWithCursor(
+                user.getUserId(),
+                cursor,
+                pageable
+        );
+        List<ApiUseReasonResponse> responses = apiUseReasonMapper.toListResponse(apiUseReasonSlice);
+        return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
+    }
+
     public CursorPage<ApiUseReasonResponse> getApiUseReasonsByApiId(User user, String apiId, Long cursor, Integer size) {
         Api api = apiQueryService.findById(apiId);
 
