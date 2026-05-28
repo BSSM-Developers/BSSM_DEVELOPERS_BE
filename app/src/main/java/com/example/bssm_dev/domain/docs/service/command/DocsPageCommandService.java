@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.docs.service.command;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
+import com.example.bssm_dev.domain.docs.exception.DocsNotCustomTypeException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsReferencePageNotEditableException;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageBlockMapper;
@@ -46,6 +47,34 @@ public class DocsPageCommandService {
                 .stream()
                 .map(DocsPage::getId)
                 .toList();
+    }
+
+    public void addPage(String docsId, CreateDocsPageRequest request, User user) {
+        Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+        DocsValidator.checkIfIsMyDocs(user, docs);
+
+        if (docs.getType() != DocumentType.CUSTOMIZE) {
+            throw DocsNotCustomTypeException.raise();
+        }
+
+        DocsValidator.checkCustomDocsPages(List.of(request));
+        DocsPage docsPage = docsPageMapper.toDocsPage(request, docs);
+        docsPageRepository.save(docsPage);
+    }
+
+    public void deletePage(String docsId, String mappedId, User user) {
+        Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
+                .orElseThrow(DocsNotFoundException::raise);
+        DocsValidator.checkIfIsMyDocs(user, docs);
+
+        if (docs.getType() != DocumentType.CUSTOMIZE) {
+            throw DocsNotCustomTypeException.raise();
+        }
+
+        DocsPage docsPage = docsPageRepository.findByDocsIdAndMappedId(docsId, mappedId)
+                .orElseThrow(DocsPageNotFoundException::raise);
+        docsPageRepository.delete(docsPage);
     }
 
     public void delete(String docsId) {
