@@ -1,7 +1,11 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
+import com.example.bssm_dev.domain.docs.dto.request.AddCustomDocsPageRequest;
 import com.example.bssm_dev.domain.docs.dto.request.CreateDocsPageRequest;
+import com.example.bssm_dev.domain.docs.dto.request.SideBarBlockRequest;
 import com.example.bssm_dev.domain.docs.dto.request.UpdateDocsPageRequest;
+import com.example.bssm_dev.domain.docs.mapper.DocsSideBarBlockMapper;
+import com.example.bssm_dev.domain.docs.model.SideBarBlock;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.docs.exception.DocsNotCustomTypeException;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
@@ -29,6 +33,8 @@ public class DocsPageCommandService {
     private final DocsPageMapper docsPageMapper;
     private final DocsPageBlockMapper docsPageBlockMapper;
     private final DocsRepository docsRepository;
+    private final DocsSideBarCommandService docsSideBarCommandService;
+    private final DocsSideBarBlockMapper docsSideBarBlockMapper;
 
     public List<DocsPage> save(List<CreateDocsPageRequest> requests, Docs docs) {
         if (docs.getType() == DocumentType.CUSTOMIZE) {
@@ -49,7 +55,7 @@ public class DocsPageCommandService {
                 .toList();
     }
 
-    public void addPage(String docsId, CreateDocsPageRequest request, User user) {
+    public void addPage(String docsId, AddCustomDocsPageRequest request, User user) {
         Docs docs = docsRepository.findByIdAndNotDeleted(docsId)
                 .orElseThrow(DocsNotFoundException::raise);
         DocsValidator.checkIfIsMyDocs(user, docs);
@@ -58,9 +64,13 @@ public class DocsPageCommandService {
             throw DocsNotCustomTypeException.raise();
         }
 
-        DocsValidator.checkCustomDocsPages(List.of(request));
-        DocsPage docsPage = docsPageMapper.toDocsPage(request, docs);
+        CreateDocsPageRequest pageRequest = request.page();
+        DocsValidator.checkCustomDocsPages(List.of(pageRequest));
+        DocsPage docsPage = docsPageMapper.toDocsPage(pageRequest, docs);
         docsPageRepository.save(docsPage);
+
+        SideBarBlock block = docsSideBarBlockMapper.toSideBarBlock(request.sidebarBlock());
+        docsSideBarCommandService.addBlock(docsId, block);
     }
 
     public void deletePage(String docsId, String mappedId, User user) {
