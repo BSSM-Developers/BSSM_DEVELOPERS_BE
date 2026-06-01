@@ -8,6 +8,11 @@ import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPageBlock;
 import com.example.bssm_dev.domain.docs.model.ReferenceDocsPage;
+import com.example.bssm_dev.domain.docs.model.type.DocsModule;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocsPageMapper {
     private final DocsPageBlockMapper docsPageBlockMapper;
+    private final ObjectMapper objectMapper;
 
     public DocsPage toDocsPage(CreateDocsPageRequest request, Docs docs) {
         if (request.sourceDocsId() != null) {
@@ -61,11 +67,46 @@ public class DocsPageMapper {
     }
 
     private DocsPageBlockResponse toBlockResponse(DocsPageBlock block) {
+        String content = block.getContent();
+        if (block.getModule() == DocsModule.API && content != null) {
+            content = maskApiContent(content);
+        }
         return new DocsPageBlockResponse(
                 block.getId(),
                 block.getMappedId(),
                 block.getModuleName(),
-                block.getContent()
+                content
         );
+    }
+
+    private String maskApiContent(String content) {
+        try {
+            JsonNode root = objectMapper.readTree(content);
+            String[] paramFields = {"headerParams", "cookieParams", "pathParams", "queryParams", "bodyParams", "responseParams"};
+            for (String field : paramFields) {
+                JsonNode params = root.get(field);
+                if (params != null && params.isArray()) {
+                    maskParams((ArrayNode) params);
+                }
+            }
+            return objectMapper.writeValueAsString(root);
+        } catch (Exception e) {
+            return content;
+        }
+    }
+
+    private void maskParams(ArrayNode params) {
+        for (JsonNode param : params) {
+            if (!param.isObject()) continue;
+            ObjectNode obj = (ObjectNode) param;
+            JsonNode maskNode = obj.get("mask");
+            if (maskNode != null && maskNode.asBoolean()) {
+                obj.put("example", "****");
+            }
+            JsonNode children = obj.get("children");
+            if (children != null && children.isArray()) {
+                maskParams((ArrayNode) children);
+            }
+        }
     }
 }
