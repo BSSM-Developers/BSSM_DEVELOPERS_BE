@@ -3,6 +3,7 @@ package com.example.bssm_dev.global.config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityManagerFactory;
 @Configuration
 public class TransactionConfig {
 
+    @Primary
     @Bean(name = "transactionManager")
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
