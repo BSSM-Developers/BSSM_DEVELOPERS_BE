@@ -50,8 +50,17 @@ public class GitHubWebhookService {
             String action = root.path("action").asText();
             Long installationId = root.path("installation").path("id").asLong();
             Long githubUserId = root.path("installation").path("account").path("id").asLong();
+            String accountLogin = root.path("installation").path("account").path("login").asText();
+            String accountType = root.path("installation").path("account").path("type").asText();
+            Long senderGithubId = root.path("sender").path("id").asLong();
 
-            gitHubConnectionRepository.findByGithubId(githubUserId).ifPresent(connection -> {
+            log.info("github installation event - action={}, installationId={}, accountId={}, accountLogin={}, accountType={}, senderGithubId={}",
+                    action, installationId, githubUserId, accountLogin, accountType, senderGithubId);
+
+            Long lookupId = "Organization".equals(accountType) ? senderGithubId : githubUserId;
+            log.info("github installation lookup - lookupId={}", lookupId);
+
+            gitHubConnectionRepository.findByGithubId(lookupId).ifPresentOrElse(connection -> {
                 if (ACTION_CREATED.equals(action)) {
                     connection.updateInstallationId(installationId);
                     gitHubConnectionRepository.save(connection);
@@ -61,7 +70,7 @@ public class GitHubWebhookService {
                     gitHubConnectionRepository.save(connection);
                     log.info("github app uninstalled - githubLogin={}", connection.getGithubLogin());
                 }
-            });
+            }, () -> log.warn("github installation event - no connection found for githubId={}", lookupId));
         } catch (Exception e) {
             log.error("failed to handle github installation event", e);
         }
