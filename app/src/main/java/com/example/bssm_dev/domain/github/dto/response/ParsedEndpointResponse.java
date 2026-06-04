@@ -14,4 +14,8 @@ public record ParsedEndpointResponse(
     public static ParsedEndpointResponse from(Api api) {
         return new ParsedEndpointResponse(api.getMethod(), api.getEndpoint());
     }
+
+    public static ParsedEndpointResponse from(EndpointParseResponse.ParsedEndpoint parsed) {
+        return new ParsedEndpointResponse(parsed.method(), parsed.path());
+    }
 }
