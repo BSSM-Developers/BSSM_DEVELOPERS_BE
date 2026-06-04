@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +65,19 @@ public class GitHubRepositoryQueryService {
     }
 
     public List<ParsedEndpointResponse> getParsedEndpoints(Long userId, String repoFullName, String branch) {
+        Optional<GitHubRepository> repoOpt = gitHubRepositoryRepository
+                .findByUserIdAndRepoFullNameAndBranch(userId, repoFullName, branch);
+
+        if (repoOpt.isPresent()) {
+            List<ParsedEndpointResponse> cached = apiRepository
+                    .findAllByGithubRepositoryIdAndIsCurrentTrue(repoOpt.get().getId()).stream()
+                    .map(ParsedEndpointResponse::from)
+                    .toList();
+            if (!cached.isEmpty()) {
+                return cached;
+            }
+        }
+
         Long installationId = getInstallationIdOrThrow(userId);
         String installationToken = installationTokenProvider.getInstallationToken(installationId);
         EndpointParseResponse parsed = endpointParserFeign.parse(
