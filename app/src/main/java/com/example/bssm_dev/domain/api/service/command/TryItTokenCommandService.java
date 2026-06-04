@@ -31,7 +31,10 @@ public class TryItTokenCommandService {
 
         TryItToken tryItToken = TryItToken.of(api, encodedSecretKey);
 
-        tryItToken.addTokenOrigin(tryItProperties.getOrigin());
+        String origin = tryItProperties.getOrigin();
+        if (origin != null && !origin.isBlank()) {
+            tryItToken.addTokenOrigin(origin);
+        }
 
         TryItToken savedToken = tryItTokenRepository.save(tryItToken);
 

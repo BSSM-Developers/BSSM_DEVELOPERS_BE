@@ -21,9 +21,9 @@ public class ApiUsage {
     private ApiToken apiToken;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("apiId")
-    @JoinColumn(name = "api_id", nullable = false)
-    private Api api;
+    @MapsId("apiGroupId")
+    @JoinColumn(name = "api_group_id", nullable = false)
+    private ApiGroup apiGroup;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "api_use_reason_id", nullable = false)
@@ -35,14 +35,18 @@ public class ApiUsage {
     @Column(nullable = false)
     private String endpoint;
 
+    @Column(length = 15, nullable = false)
+    private String method;
+
     public static ApiUsage of(ApiToken apiToken, Api api, ApiUseReason apiUseReason, String name, String endpoint) {
         return ApiUsage.builder()
-                .id(new ApiUsageId(apiToken.getApiTokenId(), api.getApiId()))
+                .id(new ApiUsageId(apiToken.getApiTokenId(), api.getApiGroup().getApiGroupId()))
                 .apiToken(apiToken)
-                .api(api)
+                .apiGroup(api.getApiGroup())
                 .apiUseReason(apiUseReason)
                 .name(name)
                 .endpoint(endpoint)
+                .method(api.getMethod())
                 .build();
     }
 
@@ -54,12 +58,12 @@ public class ApiUsage {
         this.endpoint = endpoint;
     }
 
-    public String getApiId() {
-        return api.getApiId();
+    public void updateMethod(String method) {
+        this.method = method;
     }
 
-    public String getMethod() {
-        return api.getMethod();
+    public String getApiGroupId() {
+        return apiGroup.getApiGroupId();
     }
 
     public Long getApiTokenId() {
@@ -74,7 +78,7 @@ public class ApiUsage {
         return apiUseReason.getApiUseState();
     }
 
-    public boolean equalsApi(Api api) {
-        return this.api.equals(api);
+    public boolean equalsApiGroup(ApiGroup apiGroup) {
+        return this.apiGroup.equals(apiGroup);
     }
 }

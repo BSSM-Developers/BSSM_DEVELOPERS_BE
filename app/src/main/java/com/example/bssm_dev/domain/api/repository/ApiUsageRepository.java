@@ -18,28 +18,28 @@ public interface ApiUsageRepository extends JpaRepository<ApiUsage, ApiUsageId> 
 
     Optional<ApiUsage> findByApiTokenAndEndpoint(ApiToken apiToken, String endpoint);
     
-    @Query("SELECT au FROM ApiUsage au JOIN FETCH au.api a WHERE au.apiToken = :apiToken AND au.endpoint LIKE CONCAT(:endpointPrefix, '%') AND a.method = :method")
+    @Query("SELECT au FROM ApiUsage au WHERE au.apiToken = :apiToken AND au.endpoint LIKE CONCAT(:endpointPrefix, '%') AND au.method = :method")
     List<ApiUsage> findCandidatesByPrefixAndMethod(
-            @Param("apiToken") ApiToken apiToken, 
-            @Param("endpointPrefix") String endpointPrefix, 
+            @Param("apiToken") ApiToken apiToken,
+            @Param("endpointPrefix") String endpointPrefix,
             @Param("method") String method
     );
-    
+
     @Query("SELECT au FROM ApiUsage au " +
            "JOIN FETCH au.apiToken at " +
-           "JOIN FETCH au.api a " +
+           "JOIN FETCH au.apiGroup ag " +
            "JOIN FETCH au.apiUseReason aur " +
            "WHERE at.user.userId = :userId " +
            "AND au.id.apiTokenId < COALESCE(:cursor, 9223372036854775807) " +
-           "ORDER BY au.id.apiTokenId DESC, au.id.apiId DESC")
+           "ORDER BY au.id.apiTokenId DESC, au.id.apiGroupId DESC")
     Slice<ApiUsage> findAllByUserIdWithCursor(
-            @Param("userId") Long userId, 
-            @Param("cursor") Long cursor, 
+            @Param("userId") Long userId,
+            @Param("cursor") Long cursor,
             Pageable pageable
     );
-    
+
     @Query("SELECT au FROM ApiUsage au " +
-           "JOIN FETCH au.api a " +
+           "JOIN FETCH au.apiGroup ag " +
            "JOIN FETCH au.apiUseReason aur " +
            "WHERE au.apiToken = :apiToken")
     List<ApiUsage> findAllByApiToken(@Param("apiToken") ApiToken apiToken);
@@ -48,11 +48,11 @@ public interface ApiUsageRepository extends JpaRepository<ApiUsage, ApiUsageId> 
            "JOIN FETCH au.apiToken at " +
            "JOIN FETCH at.user u " +
            "JOIN FETCH au.apiUseReason aur " +
-           "WHERE au.api.apiId = :apiId " +
+           "WHERE au.apiGroup.apiGroupId = :apiGroupId " +
            "AND au.id.apiTokenId < COALESCE(:cursor, 9223372036854775807) " +
            "ORDER BY au.id.apiTokenId DESC")
-    Slice<ApiUsage> findAllByApiIdWithCursor(
-            @Param("apiId") String apiId,
+    Slice<ApiUsage> findAllByApiGroupIdWithCursor(
+            @Param("apiGroupId") String apiGroupId,
             @Param("cursor") Long cursor,
             Pageable pageable
     );

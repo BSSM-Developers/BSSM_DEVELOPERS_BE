@@ -1,5 +1,7 @@
 package com.example.bssm_dev.domain.docs.service.query;
 
+import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.dto.response.DocsPageResponse;
 import com.example.bssm_dev.domain.docs.exception.DocsPageNotFoundException;
 import com.example.bssm_dev.domain.docs.mapper.DocsPageMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class DocsPageQueryService {
     private final DocsPageRepository docsPageRepository;
     private final DocsPageMapper docsPageMapper;
+    private final ApiRepository apiRepository;
 
     public DocsPageResponse getPage(String docsId, String mappedId) {
         DocsPage docsPage = docsPageRepository.findByDocsIdAndMappedId(docsId, mappedId)
@@ -24,10 +27,17 @@ public class DocsPageQueryService {
             ContentDocsPage sourcePage = (ContentDocsPage) docsPageRepository
                     .findByDocsIdAndMappedId(ref.getSourceDocsId(), ref.getSourceMappedId())
                     .orElseThrow(DocsPageNotFoundException::raise);
-            return docsPageMapper.toDocsPageResponse(sourcePage);
+            return docsPageMapper.toDocsPageResponse(sourcePage, resolveVersion(sourcePage.getMappedId()));
         }
 
-        return docsPageMapper.toDocsPageResponse((ContentDocsPage) docsPage);
+        ContentDocsPage contentPage = (ContentDocsPage) docsPage;
+        return docsPageMapper.toDocsPageResponse(contentPage, resolveVersion(contentPage.getMappedId()));
+    }
+
+    private Integer resolveVersion(String apiGroupId) {
+        return apiRepository.findByApiGroupApiGroupIdAndIsCurrentTrue(apiGroupId)
+                .map(Api::getVersion)
+                .orElse(null);
     }
 
     public DocsPage findById(String apiId) {

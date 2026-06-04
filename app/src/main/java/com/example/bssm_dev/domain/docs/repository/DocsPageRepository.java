@@ -17,5 +17,8 @@ public interface DocsPageRepository extends MongoRepository<DocsPage, String> {
     @Query("{ 'endpoint': ?0 }")
     Optional<DocsPage> findByEndpoint(String endpoint);
 
+    @Query("{ 'docsId': ?0, 'sourceDocsId': ?1, 'sourceMappedId': ?2 }")
+    Optional<DocsPage> findByDocsIdAndSourceDocsIdAndSourceMappedId(String docsId, String sourceDocsId, String sourceMappedId);
+
     void deleteByDocsId(String docsId);
 }

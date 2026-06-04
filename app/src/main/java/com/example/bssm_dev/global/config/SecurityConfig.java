@@ -114,6 +114,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**").access(requiresAdmin)
                         // docs CUD → API_MAKER 이상 (api-use-requests는 일반 인증 사용자 허용)
                         .requestMatchers(HttpMethod.POST, "/docs/original", "/docs/custom").access(requiresApiMaker)
+                        .requestMatchers(HttpMethod.POST, "/docs/**/page").access(requiresApiMaker)
                         .requestMatchers(HttpMethod.POST, "/docs/**/api-use-requests").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/docs/**").access(requiresApiMaker)
                         .requestMatchers(HttpMethod.PUT, "/docs/**").access(requiresApiMaker)
@@ -125,7 +126,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/proxy-browser/**").permitAll()
                         .requestMatchers("/api/healthy/**").permitAll()
                         .requestMatchers("/api/token/client/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

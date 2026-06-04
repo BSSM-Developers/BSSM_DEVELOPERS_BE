@@ -9,6 +9,8 @@ import com.example.bssm_dev.domain.api.mapper.ApiUseReasonMapper;
 import com.example.bssm_dev.domain.api.model.ApiUseReason;
 import com.example.bssm_dev.domain.api.model.type.ApiUseState;
 import com.example.bssm_dev.domain.api.repository.ApiUseReasonRepository;
+import com.example.bssm_dev.domain.docs.model.DocsPage;
+import com.example.bssm_dev.domain.docs.repository.DocsPageRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ public class ApiUseReasonQueryService {
     private final ApiUseReasonRepository apiUseReasonRepository;
     private final ApiUseReasonMapper apiUseReasonMapper;
     private final ApiQueryService apiQueryService;
+    private final DocsPageRepository docsPageRepository;
 
     public ApiUseReason findById(Long apiUseReasonId) {
         return apiUseReasonRepository.findById(apiUseReasonId)
@@ -56,6 +59,23 @@ public class ApiUseReasonQueryService {
         return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
     }
     
+    public CursorPage<ApiUseReasonResponse> getApiUseReasonsByMyDocs(User user, String docsId, Long cursor, Integer size) {
+        Pageable pageable = PageRequest.of(0, size);
+        Slice<ApiUseReason> apiUseReasonSlice;
+        if (docsId != null) {
+            List<String> apiIds = docsPageRepository.findAllByDocsId(docsId).stream()
+                    .map(DocsPage::getId)
+                    .toList();
+            apiUseReasonSlice = apiUseReasonRepository.findAllByCreatorUserIdAndApiIdsWithCursor(
+                    user.getUserId(), apiIds, cursor, pageable);
+        } else {
+            apiUseReasonSlice = apiUseReasonRepository.findAllByCreatorUserIdWithCursor(
+                    user.getUserId(), cursor, pageable);
+        }
+        List<ApiUseReasonResponse> responses = apiUseReasonMapper.toListResponse(apiUseReasonSlice);
+        return new CursorPage<>(responses, apiUseReasonSlice.hasNext());
+    }
+
     public CursorPage<ApiUseReasonResponse> getApiUseReasonsByApiId(User user, String apiId, Long cursor, Integer size) {
         Api api = apiQueryService.findById(apiId);
 

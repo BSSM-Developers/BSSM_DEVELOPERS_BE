@@ -8,7 +8,10 @@ import com.example.bssm_dev.domain.api.dto.response.SecretApiTokenResponse;
 import com.example.bssm_dev.domain.api.exception.UnauthorizedApiTokenAccessException;
 import com.example.bssm_dev.domain.api.exception.ApiTokenNotFoundException;
 import com.example.bssm_dev.domain.api.mapper.ApiTokenMapper;
+import com.example.bssm_dev.domain.api.model.Api;
 import com.example.bssm_dev.domain.api.model.ApiToken;
+import com.example.bssm_dev.domain.api.model.ApiUsage;
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.api.repository.ApiTokenRepository;
 import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class ApiTokenQueryService {
     private final ApiTokenRepository apiTokenRepository;
     private final ApiTokenMapper apiTokenMapper;
+    private final ApiRepository apiRepository;
     private final DocsPageRepository docsPageRepository;
 
     public ApiToken findById(Long apiTokenId) {
@@ -73,15 +77,25 @@ public class ApiTokenQueryService {
         ApiToken apiToken = apiTokenRepository.findByTokenUUID(clientId)
                 .orElseThrow(ApiTokenNotFoundException::raise);
 
-        List<String> apiIds = apiToken.getApiUsageList().stream()
-                .map(usage -> usage.getApiId())
+        List<String> apiGroupIds = apiToken.getApiUsageList().stream()
+                .map(ApiUsage::getApiGroupId)
                 .toList();
 
-        Map<String, ContentDocsPage> pageMap = docsPageRepository.findAllById(apiIds).stream()
+        // apiGroupId → 현재 버전 Api 배치 조회
+        List<Api> currentApis = apiRepository.findByApiGroupApiGroupIdInAndIsCurrentTrue(apiGroupIds);
+
+        Map<String, Integer> groupIdToVersion = currentApis.stream()
+                .collect(Collectors.toMap(
+                        api -> api.getApiGroup().getApiGroupId(),
+                        Api::getVersion
+                ));
+
+        // apiGroupId == docsPage.id이므로 apiGroupIds로 직접 조회 가능
+        Map<String, ContentDocsPage> pageMap = docsPageRepository.findAllById(apiGroupIds).stream()
                 .filter(p -> p instanceof ContentDocsPage)
                 .map(p -> (ContentDocsPage) p)
                 .collect(Collectors.toMap(DocsPage::getId, p -> p));
 
-        return apiTokenMapper.toApiTokenWithDocsResponse(apiToken, pageMap);
+        return apiTokenMapper.toApiTokenWithDocsResponse(apiToken, pageMap, groupIdToVersion);
     }
 }

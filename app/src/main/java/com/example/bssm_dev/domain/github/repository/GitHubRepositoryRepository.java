@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface GitHubRepositoryRepository extends JpaRepository<GitHubRepository, Long> {
     List<GitHubRepository> findAllByUserId(Long userId);
     Optional<GitHubRepository> findByIdAndUserId(Long id, Long userId);
+    Optional<GitHubRepository> findByUserIdAndRepoFullNameAndBranch(Long userId, String repoFullName, String branch);
     boolean existsByUserIdAndRepoFullNameAndBranch(Long userId, String repoFullName, String branch);
+    List<GitHubRepository> findAllByRepoFullNameAndBranch(String repoFullName, String branch);
 }

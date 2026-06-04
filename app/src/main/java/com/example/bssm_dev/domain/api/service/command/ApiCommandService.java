@@ -2,6 +2,8 @@ package com.example.bssm_dev.domain.api.service.command;
 
 import com.example.bssm_dev.common.util.DomainValidator;
 import com.example.bssm_dev.domain.api.model.Api;
+import com.example.bssm_dev.domain.api.model.ApiGroup;
+import com.example.bssm_dev.domain.api.repository.ApiGroupRepository;
 import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.model.ContentDocsPage;
 import com.example.bssm_dev.domain.docs.model.DocsPage;
@@ -16,12 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApiCommandService {
     private final ApiRepository apiRepository;
+    private final ApiGroupRepository apiGroupRepository;
     private final TryItTokenCommandService tryItTokenCommandService;
 
     @Transactional("transactionManager")
@@ -80,8 +84,10 @@ public class ApiCommandService {
                 if (docsPage != null && docsPage.getEndpoint() != null) {
                     log.info("DocsPage found for mappedId={}: id={}, endpoint={}",
                             block.getMappedId(), docsPage.getId(), docsPage.getEndpoint());
-                    Api api = Api.of(
-                            docsPage.getId(),  // DocsPage의 id를 apiId로 사용
+                    ApiGroup apiGroup = apiGroupRepository.save(ApiGroup.of(docsPage.getId()));
+                    Api api = Api.createNew(
+                            docsPage.getId(),  // DocsPage의 id를 apiId로 사용 (v1)
+                            apiGroup,
                             creator,
                             docsPage.getEndpoint(),
                             block.getMethod(),

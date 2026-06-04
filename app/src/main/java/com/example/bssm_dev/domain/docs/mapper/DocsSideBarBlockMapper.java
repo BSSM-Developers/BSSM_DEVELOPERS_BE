@@ -18,7 +18,7 @@ public class DocsSideBarBlockMapper {
                 .toList();
     }
 
-    private SideBarBlock toSideBarBlock(SideBarBlockRequest request) {
+    public SideBarBlock toSideBarBlock(SideBarBlockRequest request) {
         SideBarBlock sideBarBlock = SideBarBlock.builder()
                 .id(RandomNumberGenerateUtil.generate(5))
                 .mappedId(request.id())

@@ -10,6 +10,7 @@ public record DocsPageResponse(
      String mappedId,
      String docsId,
      String endpoint,
+     Integer version,
      List<DocsPageBlockResponse> docsBlocks
 ) {
 

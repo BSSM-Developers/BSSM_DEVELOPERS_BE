@@ -24,14 +24,14 @@ public class ApiUsageQueryController {
     /**
      * 본인이 등록한 API에 대한 사용 목록 조회
      */
-    @GetMapping("/by-api/{apiId}")
-    public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsagesByApiId(
+    @GetMapping("/by-api/{apiGroupId}")
+    public ResponseEntity<ResponseDto<CursorPage<ApiUsageResponse>>> getApiUsagesByApiGroupId(
             @CurrentUser User user,
-            @PathVariable String apiId,
+            @PathVariable String apiGroupId,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
-        CursorPage<ApiUsageResponse> response = apiUsageQueryService.getApiUsagesByApiId(user, apiId, cursor, size);
+        CursorPage<ApiUsageResponse> response = apiUsageQueryService.getApiUsagesByApiGroupId(user, apiGroupId, cursor, size);
         ResponseDto<CursorPage<ApiUsageResponse>> responseDto = HttpUtil.success("Successfully retrieved API usage requests", response);
         return ResponseEntity.ok(responseDto);
     }

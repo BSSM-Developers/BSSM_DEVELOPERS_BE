@@ -26,7 +26,7 @@ public class DocsTokenIncreaseEventListener {
         
         log.info("ApiUseReasonApprovedEvent received for api id: {}", api.getApiId());
 
-        DocsPage docsPage = docsPageQueryService.findById(api.getApiId());
+        DocsPage docsPage = docsPageQueryService.findById(api.getApiGroup().getApiGroupId());
         log.info("DocsPage found: docsId={}", docsPage.getDocsId());
         
         Docs docs = docsQueryService.findById(docsPage.getDocsId());

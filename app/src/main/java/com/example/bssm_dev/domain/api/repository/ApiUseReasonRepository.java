@@ -66,6 +66,34 @@ public interface ApiUseReasonRepository extends JpaRepository<ApiUseReason, Long
             Pageable pageable
     );
 
+    @Query("SELECT aur FROM ApiUseReason aur " +
+           "JOIN FETCH aur.writer w " +
+           "JOIN FETCH aur.api a " +
+           "JOIN FETCH aur.apiToken at " +
+           "WHERE a.creator.userId = :creatorId " +
+           "AND aur.apiUseReasonId < COALESCE(:cursor, 9223372036854775807) " +
+           "ORDER BY aur.apiUseReasonId DESC")
+    Slice<ApiUseReason> findAllByCreatorUserIdWithCursor(
+            @Param("creatorId") Long creatorId,
+            @Param("cursor") Long cursor,
+            Pageable pageable
+    );
+
+    @Query("SELECT aur FROM ApiUseReason aur " +
+           "JOIN FETCH aur.writer w " +
+           "JOIN FETCH aur.api a " +
+           "JOIN FETCH aur.apiToken at " +
+           "WHERE a.creator.userId = :creatorId " +
+           "AND a.apiId IN :apiIds " +
+           "AND aur.apiUseReasonId < COALESCE(:cursor, 9223372036854775807) " +
+           "ORDER BY aur.apiUseReasonId DESC")
+    Slice<ApiUseReason> findAllByCreatorUserIdAndApiIdsWithCursor(
+            @Param("creatorId") Long creatorId,
+            @Param("apiIds") List<String> apiIds,
+            @Param("cursor") Long cursor,
+            Pageable pageable
+    );
+
     @Query("SELECT aur FROM ApiUseReason aur WHERE aur.api.apiId IN :apiIds")
     List<ApiUseReason> findAllByApiIdIn(@Param("apiIds") List<String> apiIds);
 

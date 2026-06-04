@@ -43,6 +43,16 @@ public class DocsSideBarCommandService {
         docsSideBarRepository.save(sideBar);
     }
 
+    public void addBlock(String docsId, SideBarBlock block) {
+        SideBar sideBar = docsSideBarRepository.findByDocsId(docsId)
+                .orElseThrow(DocsSideBarNotFoundException::raise);
+
+        List<SideBarBlock> blocks = new ArrayList<>(sideBar.getSideBarBlocks());
+        blocks.add(block);
+        sideBar.updateSideBarBlocks(blocks);
+        docsSideBarRepository.save(sideBar);
+    }
+
     public void delete(String docsId) {
         docsSideBarRepository.deleteByDocsId(docsId);
     }

@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TryItTokenRepository extends JpaRepository<TryItToken, Long> {
     Optional<TryItToken> findByApi(Api api);
+
+    Optional<TryItToken> findByApiApiGroupApiGroupId(String apiGroupId);
 }

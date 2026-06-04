@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.service.command;
 
+import com.example.bssm_dev.domain.api.repository.ApiRepository;
 import com.example.bssm_dev.domain.docs.dto.request.CreateCustomDocsRequest;
 import com.example.bssm_dev.domain.docs.dto.request.DocsCreateRequest;
 import com.example.bssm_dev.domain.docs.dto.request.DocsUpdateRequest;
@@ -16,7 +17,8 @@ import com.example.bssm_dev.domain.docs.model.event.DocsDeletedEvent;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.validator.DocsValidator;
 import com.example.bssm_dev.domain.github.model.GitHubRepository;
-import com.example.bssm_dev.domain.github.service.GitHubRepositoryQueryService;
+import com.example.bssm_dev.domain.github.service.EndpointSyncService;
+import com.example.bssm_dev.domain.github.service.GitHubRepositoryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,13 +36,27 @@ public class DocsCommandService {
     private final DocsMapper docsMapper;
     private final DocsSideBarCommandService docsSideBarCommandService;
     private final DocsPageCommandService docsPageCommandService;
-    private final GitHubRepositoryQueryService gitHubRepositoryQueryService;
+    private final GitHubRepositoryService gitHubRepositoryService;
+    private final EndpointSyncService endpointSyncService;
+    private final ApiRepository apiRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     public void createOriginalDocs(DocsCreateRequest request, User creator) {
         validateTitleUnique(request.title());
-        GitHubRepository gitHubRepository = gitHubRepositoryQueryService
-                .getRepositoryForDocs(creator.getUserId(), request.githubRepositoryId());
+
+        GitHubRepositoryService.FindOrCreateResult result = gitHubRepositoryService
+                .findOrCreate(creator.getUserId(), request.repoFullName(), request.branch());
+        GitHubRepository gitHubRepository = result.repo();
+
+        if (result.created()) {
+            endpointSyncService.syncOnPush(
+                    gitHubRepository.getRepoFullName(),
+                    gitHubRepository.getBranch(),
+                    gitHubRepository.getInstallationId()
+            );
+        }
+
+        DocsValidator.checkParsedEndpointsExist(request.docsPages(), gitHubRepository.getId(), apiRepository);
 
         Docs docs = docsMapper.toOriginalDocs(request, creator, gitHubRepository);
         Docs newDocs = docsRepository.save(docs);
@@ -66,9 +82,17 @@ public class DocsCommandService {
         String repositoryUrl = docs.getRepositoryUrl();
         String branch = docs.getBranch();
 
-        if (request.githubRepositoryId() != null) {
-            GitHubRepository gitHubRepository = gitHubRepositoryQueryService
-                    .getRepositoryForDocs(user.getUserId(), request.githubRepositoryId());
+        if (request.repoFullName() != null && request.branch() != null) {
+            GitHubRepositoryService.FindOrCreateResult result = gitHubRepositoryService
+                    .findOrCreate(user.getUserId(), request.repoFullName(), request.branch());
+            GitHubRepository gitHubRepository = result.repo();
+            if (result.created()) {
+                endpointSyncService.syncOnPush(
+                        gitHubRepository.getRepoFullName(),
+                        gitHubRepository.getBranch(),
+                        gitHubRepository.getInstallationId()
+                );
+            }
             repositoryUrl = gitHubRepository.toRepositoryUrl();
             branch = gitHubRepository.getBranch();
         }
@@ -87,8 +111,19 @@ public class DocsCommandService {
         Docs docs = getMyDocs(docsId, user);
         validateTitleUniqueExcluding(request.title(), docsId);
 
-        GitHubRepository gitHubRepository = gitHubRepositoryQueryService
-                .getRepositoryForDocs(user.getUserId(), request.githubRepositoryId());
+        GitHubRepositoryService.FindOrCreateResult result = gitHubRepositoryService
+                .findOrCreate(user.getUserId(), request.repoFullName(), request.branch());
+        GitHubRepository gitHubRepository = result.repo();
+
+        if (result.created()) {
+            endpointSyncService.syncOnPush(
+                    gitHubRepository.getRepoFullName(),
+                    gitHubRepository.getBranch(),
+                    gitHubRepository.getInstallationId()
+            );
+        }
+
+        DocsValidator.checkParsedEndpointsExist(request.docsPages(), gitHubRepository.getId(), apiRepository);
 
         docs.updateDocs(
                 request.title(),

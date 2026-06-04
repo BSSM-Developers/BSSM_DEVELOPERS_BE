@@ -36,6 +36,21 @@ public class ApiUseReasonQueryController {
     }
     
     /**
+     * 내 문서 전체 사용 신청 조회
+     */
+    @GetMapping("/my-docs")
+    public ResponseEntity<ResponseDto<CursorPage<ApiUseReasonResponse>>> getApiUseReasonsByMyDocs(
+            @CurrentUser User user,
+            @RequestParam(required = false) String docsId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer size
+    ) {
+        CursorPage<ApiUseReasonResponse> response = apiUseReasonQueryService.getApiUseReasonsByMyDocs(user, docsId, cursor, size);
+        ResponseDto<CursorPage<ApiUseReasonResponse>> responseDto = HttpUtil.success("Successfully retrieved API use reasons for my docs", response);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
      * 본인이 등록한 API에 대한 사용 신청 목록 조회
      */
     @GetMapping("/by-api/{apiId}")

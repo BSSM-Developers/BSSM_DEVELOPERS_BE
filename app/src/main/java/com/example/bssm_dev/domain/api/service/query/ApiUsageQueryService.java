@@ -22,19 +22,19 @@ public class ApiUsageQueryService {
     private final ApiUsageRepository apiUsageRepository;
     private final ApiUsageMapper apiUsageMapper;
     private final ApiQueryService apiQueryService;
-    public CursorPage<ApiUsageResponse> getApiUsagesByApiId(User user, String apiId, Long cursor, Integer size) {
-        Api api = apiQueryService.findById(apiId);
+    public CursorPage<ApiUsageResponse> getApiUsagesByApiGroupId(User user, String apiGroupId, Long cursor, Integer size) {
+        Api api = apiQueryService.findCurrentByApiGroupId(apiGroupId);
 
         boolean isApiCreator = api.isCreator(user);
         if (!isApiCreator) {
             throw UnauthorizedApiUsageAccessException.raise();
         }
-        
+
         Pageable pageable = PageRequest.of(0, size);
-        Slice<ApiUsage> apiUsageSlice = apiUsageRepository.findAllByApiIdWithCursor(apiId, cursor, pageable);
-        
+        Slice<ApiUsage> apiUsageSlice = apiUsageRepository.findAllByApiGroupIdWithCursor(apiGroupId, cursor, pageable);
+
         List<ApiUsageResponse> responses = apiUsageMapper.toListResponse(apiUsageSlice);
-        
+
         return new CursorPage<>(responses, apiUsageSlice.hasNext());
     }
 }

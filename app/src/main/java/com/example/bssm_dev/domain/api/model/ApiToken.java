@@ -110,7 +110,7 @@ public class ApiToken {
 
     public boolean checkApiUsage(Api api) {
         return this.apiUsageList.stream()
-                .anyMatch(apiUsage -> apiUsage.equalsApi(api));
+                .anyMatch(apiUsage -> apiUsage.equalsApiGroup(api.getApiGroup()));
     }
 
     public boolean isOwner(User user) {
