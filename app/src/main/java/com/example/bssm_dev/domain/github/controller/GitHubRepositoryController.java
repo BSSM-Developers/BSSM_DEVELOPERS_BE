@@ -110,21 +110,26 @@ public class GitHubRepositoryController {
 
     @Operation(
             summary = "레포지토리 AST 파싱 엔드포인트 목록 조회",
-            description = "등록된 레포지토리에서 AST로 분석된 현재 유효한 엔드포인트 목록을 조회합니다.",
+            description = "GitHub 레포지토리를 AST로 실시간 분석해 엔드포인트 목록을 반환합니다. " +
+                          "githubRepoId는 /github/repositories/available 응답의 id 필드를 사용하세요.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "파싱된 엔드포인트 목록 조회 성공"),
-            @ApiResponse(responseCode = "403", description = "본인 레포지토리가 아님"),
-            @ApiResponse(responseCode = "404", description = "등록된 레포지토리를 찾을 수 없음")
+            @ApiResponse(responseCode = "400", description = "GitHub App 미설치"),
+            @ApiResponse(responseCode = "404", description = "GitHub 연동 내역 없음")
     })
-    @GetMapping("/{repoId}/parsed-endpoints")
+    @GetMapping("/{githubRepoId}/parsed-endpoints")
     public ResponseEntity<ResponseDto<List<ParsedEndpointResponse>>> getParsedEndpoints(
             @CurrentUser User user,
-            @Parameter(description = "등록된 레포지토리 ID", example = "1")
-            @PathVariable Long repoId
+            @Parameter(description = "GitHub 레포지토리 ID (available 응답의 id)", example = "1132804732")
+            @PathVariable Long githubRepoId,
+            @Parameter(description = "브랜치명", example = "main")
+            @RequestParam String repoFullName,
+            @Parameter(description = "레포지토리 full_name (owner/repo)", example = "Denormalization/FE")
+            @RequestParam String branch
     ) {
-        List<ParsedEndpointResponse> endpoints = gitHubRepositoryQueryService.getParsedEndpoints(user.getUserId(), repoId);
+        List<ParsedEndpointResponse> endpoints = gitHubRepositoryQueryService.getParsedEndpoints(user.getUserId(), repoFullName, branch);
         return ResponseEntity.ok(HttpUtil.success("parsed endpoints", endpoints));
     }
 }
