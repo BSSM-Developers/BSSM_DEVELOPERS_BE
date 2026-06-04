@@ -1,0 +1,64 @@
+package com.example.bssm_dev.domain.api.controller.command;
+
+import com.example.bssm_dev.common.annotation.CurrentUser;
+import com.example.bssm_dev.common.dto.ResponseDto;
+import com.example.bssm_dev.common.util.HttpUtil;
+import com.example.bssm_dev.domain.api.dto.request.ApiUsageEndpointUpdateRequest;
+import com.example.bssm_dev.domain.api.dto.request.ApiUsageNameUpdateRequest;
+import com.example.bssm_dev.domain.api.service.command.ApiUsageCommandService;
+import com.example.bssm_dev.domain.user.model.User;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/{apiId}/{apiTokenId}/usage")
+public class ApiUsageCommandController {
+    private final ApiUsageCommandService apiUsageCommandService;
+
+    /**
+     * API Usage Endpoint 변경
+     */
+    @PatchMapping("/endpoint")
+    public ResponseEntity<ResponseDto<Void>> changeEndpoint(
+            @PathVariable String apiId,
+            @PathVariable Long apiTokenId,
+            @CurrentUser User user,
+            @Valid @RequestBody ApiUsageEndpointUpdateRequest apiUsageEndpointUpdateRequest
+    ) {
+        apiUsageCommandService.changeEndpoint(apiId, apiTokenId, user, apiUsageEndpointUpdateRequest);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use endpoint");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * API Usage 삭제 (하드 삭제)
+     */
+    @DeleteMapping
+    public ResponseEntity<ResponseDto<Void>> deleteApiUsage(
+            @PathVariable String apiId,
+            @PathVariable Long apiTokenId,
+            @CurrentUser User user
+    ) {
+        apiUsageCommandService.delete(apiId, apiTokenId, user);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully deleted API usage");
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * API Usage 이름 변경
+     */
+    @PatchMapping("/name")
+    public ResponseEntity<ResponseDto<Void>> changeName(
+            @PathVariable String apiId,
+            @PathVariable Long apiTokenId,
+            @CurrentUser User user,
+            @Valid @RequestBody ApiUsageNameUpdateRequest apiUsageNameUpdateRequest
+    ) {
+        apiUsageCommandService.changeName(apiId, apiTokenId, user, apiUsageNameUpdateRequest);
+        ResponseDto<Void> responseDto = HttpUtil.success("Successfully changed API use Name");
+        return ResponseEntity.ok(responseDto);
+    }
+}

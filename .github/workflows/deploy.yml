@@ -1,88 +1,119 @@
-name: Deploy BDV (proxmox-minimal)
+name: Docker Build & Deploy
 
 on:
   push:
-    branches: [ 'master' ]     
+    branches:
+      - 'release-*'
+      - 'dev-*'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포 환경'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
 
-concurrency:
-  group: deploy-${{ vars.SVC }}-dev
-  cancel-in-progress: false
-
-permissions:
-  contents: read
+env:
+  APP_IMAGE: donghyunking/bssm-dev-app
 
 jobs:
-  deploy:
-    runs-on: [ self-hosted ]   
+  check-duplicate:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.set-env.outputs.env }}
+    steps:
+      - name: Set deployment environment
+        id: set-env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == release-* ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          else
+            echo "env=staging" >> $GITHUB_OUTPUT
+          fi
 
-    env:
-      CTID:     ${{ vars.PROD_CTID }}        
-      SVC:      ${{ vars.SVC }}         
-      APP_DIR:  ${{ vars.APP_DIR }}     
-      JAR_NAME: ${{ vars.JAR_NAME || 'bdv.jar' }}   
+      - uses: actions/checkout@v4
+        with:
+          repository: BSSM-Developers/BSSM_DEVELOPERS_INFRA
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
 
+      - name: Fail if branch already deployed
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          TARGET="${{ steps.set-env.outputs.env }}"
+          MARKER_FILE="${TARGET}/app/.deployed-branches"
+          if [ -f "$MARKER_FILE" ] && grep -qxF "$BRANCH" "$MARKER_FILE"; then
+            echo "::error::Branch '${BRANCH}'은(는) ${TARGET} 환경에 이미 배포되었습니다. 중복 배포를 방지하기 위해 워크플로우를 종료합니다."
+            exit 1
+          fi
+
+  build:
+    needs: check-duplicate
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+      env: ${{ needs.check-duplicate.outputs.env }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify inputs (fail fast)
-        run: |
-          : "${CTID:?CTID is empty}"
-          : "${SVC:?SVC is empty}"
-          : "${APP_DIR:?APP_DIR is empty}"
-          : "${JAR_NAME:?JAR_NAME is empty}"
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: gradle
 
+      - name: Build JAR
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:bootJar --no-daemon
 
-      - name: Build (Gradle bootJar)
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean bootJar --no-daemon
+      - uses: docker/setup-buildx-action@v3
 
-      - name: Locate built JAR
-        id: jar
-        run: |
-          JAR_PATH=$(find . -type f -name "*.jar" -path "*/build/libs/*" | sort | tail -n 1)
-          if [ -z "$JAR_PATH" ]; then
-            echo "No JAR found under */build/libs/*"
-            exit 1
-          fi
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-          echo "Using: $JAR_PATH"
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push artifact to CT (only JAR)
+      - id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: app/Dockerfile
+          push: true
+          tags: ${{ env.APP_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+
+  update-infra:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      TARGET: ${{ needs.build.outputs.env }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: BSSM-Developers/BSSM_DEVELOPERS_INFRA
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
+
+      - name: Update app image digest
+        env:
+          DIGEST: ${{ needs.build.outputs.digest }}
         run: |
-          sudo /usr/sbin/pct push "$CTID" "${{ steps.jar.outputs.jar_path }}" "/tmp/${JAR_NAME}"
-          
-      - name: Deploy inside CT & restart
+          sed -i -E "s|donghyunking/bssm-dev-app@sha256:[a-f0-9]+|donghyunking/bssm-dev-app@${DIGEST}|g" \
+            ${TARGET}/app/deployment.yaml
+
+      - name: Commit and push
         run: |
-          sudo /usr/sbin/pct exec "$CTID" -- bash -lc "
-            set -euo pipefail
-      
-            APP_DIR='${APP_DIR}'
-            JAR_NAME='${JAR_NAME}'
-            SRC=\"/tmp/\$JAR_NAME\"
-            DST=\"\$APP_DIR/\$JAR_NAME\"
-      
-            install -d -m 755 \"\$APP_DIR\"
-      
-            if [ -f \"\$DST\" ]; then
-              cp -f \"\$DST\" \"\$DST.bak\" || true
-            fi
-      
-            cp \"\$SRC\" \"\$DST.tmp\"
-            mv -f \"\$DST.tmp\" \"\$DST\"
-            rm -f \"\$SRC\"
-      
-            chown bssm-dev:bssm-dev \"\$DST\"
-            chmod 640 \"\$DST\"
-      
-            systemctl daemon-reload
-            systemctl restart \"${SVC}.service\"
-          "
+          BRANCH="${{ github.ref_name }}"
+          MARKER_FILE="${TARGET}/app/.deployed-branches"
+          echo "$BRANCH" >> "$MARKER_FILE"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ${TARGET}/app/deployment.yaml "$MARKER_FILE"
+          git diff --staged --quiet && echo "변경 없음" && exit 0
+          git commit -m "chore :: [${TARGET}] app 이미지 업데이트 (${GITHUB_SHA::7})"
+          git push
