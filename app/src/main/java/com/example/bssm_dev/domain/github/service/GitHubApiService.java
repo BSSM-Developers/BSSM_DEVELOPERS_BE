@@ -7,6 +7,7 @@ import com.example.bssm_dev.global.feign.GitHubInstallationApiFeign;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ import java.util.List;
 public class GitHubApiService {
 
     private static final String GITHUB_API_ACCEPT = "application/vnd.github+json";
+    private static final int BRANCHES_PER_PAGE = 100;
 
     private final GitHubInstallationTokenProvider installationTokenProvider;
     private final GitHubInstallationApiFeign gitHubInstallationApiFeign;
@@ -31,7 +33,21 @@ public class GitHubApiService {
 
     public List<GitHubBranchItem> getBranches(Long installationId, String owner, String repo) {
         String token = bearerToken(installationTokenProvider.getInstallationToken(installationId));
-        return gitHubInstallationApiFeign.getBranches(token, GITHUB_API_ACCEPT, owner, repo);
+        List<GitHubBranchItem> all = new ArrayList<>();
+        int page = 1;
+        while (true) {
+            List<GitHubBranchItem> batch = gitHubInstallationApiFeign
+                    .getBranches(token, GITHUB_API_ACCEPT, owner, repo, BRANCHES_PER_PAGE, page);
+            if (batch == null || batch.isEmpty()) {
+                break;
+            }
+            all.addAll(batch);
+            if (batch.size() < BRANCHES_PER_PAGE) {
+                break;
+            }
+            page++;
+        }
+        return all;
     }
 
     private String bearerToken(String token) {
