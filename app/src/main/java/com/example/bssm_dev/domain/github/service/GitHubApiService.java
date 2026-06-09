@@ -65,6 +65,20 @@ public class GitHubApiService {
         return all;
     }
 
+    public List<GitHubRepoItem> getAllInstallationRepositories(List<Long> installationIds) {
+        return installationIds.stream()
+                .flatMap(id -> getInstallationRepositories(id).stream())
+                .toList();
+    }
+
+    public Long findInstallationIdForRepo(List<Long> installationIds, String repoFullName) {
+        return installationIds.stream()
+                .filter(id -> getInstallationRepositories(id).stream()
+                        .anyMatch(repo -> repo.full_name().equals(repoFullName)))
+                .findFirst()
+                .orElseThrow(com.example.bssm_dev.domain.github.exception.GitHubRepositoryUnauthorizedException::raise);
+    }
+
     private String bearerToken(String token) {
         return "Bearer " + token;
     }
