@@ -5,9 +5,8 @@ import com.example.bssm_dev.domain.github.exception.GitHubAppNotInstalledExcepti
 import com.example.bssm_dev.domain.github.exception.GitHubConnectionNotFoundException;
 import com.example.bssm_dev.domain.github.exception.GitHubRepositoryNotFoundException;
 import com.example.bssm_dev.domain.github.exception.GitHubRepositoryUnauthorizedException;
-import com.example.bssm_dev.domain.github.model.GitHubConnection;
 import com.example.bssm_dev.domain.github.model.GitHubRepository;
-import com.example.bssm_dev.domain.github.repository.GitHubConnectionRepository;
+import com.example.bssm_dev.domain.github.repository.GitHubInstallationRepository;
 import com.example.bssm_dev.domain.github.repository.GitHubRepositoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GitHubRepositoryService {
 
-    private final GitHubConnectionRepository gitHubConnectionRepository;
+    private final GitHubInstallationRepository gitHubInstallationRepository;
     private final GitHubRepositoryRepository gitHubRepositoryRepository;
     private final GitHubApiService gitHubApiService;
 
@@ -31,9 +30,8 @@ public class GitHubRepositoryService {
                 .findByUserIdAndRepoFullNameAndBranch(userId, repoFullName, branch)
                 .map(repo -> new FindOrCreateResult(repo, false))
                 .orElseGet(() -> {
-                    GitHubConnection connection = getConnectionOrThrow(userId);
-                    Long installationId = getInstallationIdOrThrow(connection);
-                    validateRepoAccessible(installationId, repoFullName);
+                    List<Long> installationIds = getInstallationIdsOrThrow(userId);
+                    Long installationId = gitHubApiService.findInstallationIdForRepo(installationIds, repoFullName);
                     GitHubRepository saved = gitHubRepositoryRepository.save(
                             GitHubRepository.of(userId, installationId, repoFullName, branch)
                     );
@@ -53,25 +51,13 @@ public class GitHubRepositoryService {
         gitHubRepositoryRepository.delete(repo);
     }
 
-    private GitHubConnection getConnectionOrThrow(Long userId) {
-        return gitHubConnectionRepository.findByUserId(userId)
-                .orElseThrow(GitHubConnectionNotFoundException::raise);
-    }
-
-    private Long getInstallationIdOrThrow(GitHubConnection connection) {
-        if (connection.getInstallationId() == null) {
+    private List<Long> getInstallationIdsOrThrow(Long userId) {
+        List<Long> ids = gitHubInstallationRepository.findAllByUserId(userId).stream()
+                .map(installation -> installation.getInstallationId())
+                .toList();
+        if (ids.isEmpty()) {
             throw GitHubAppNotInstalledException.raise();
         }
-        return connection.getInstallationId();
-    }
-
-    private void validateRepoAccessible(Long installationId, String repoFullName) {
-        List<GitHubRepoItem> accessibleRepos = gitHubApiService.getInstallationRepositories(installationId);
-        boolean isAccessible = accessibleRepos.stream()
-                .anyMatch(repo -> repo.full_name().equals(repoFullName));
-
-        if (!isAccessible) {
-            throw GitHubRepositoryUnauthorizedException.raise();
-        }
+        return ids;
     }
 }

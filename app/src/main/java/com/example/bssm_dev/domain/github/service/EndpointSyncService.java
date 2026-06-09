@@ -11,9 +11,8 @@ import com.example.bssm_dev.domain.api.repository.ApiUsageRepository;
 import com.example.bssm_dev.domain.api.repository.TryItTokenRepository;
 import com.example.bssm_dev.domain.github.dto.request.EndpointParseRequest;
 import com.example.bssm_dev.domain.github.dto.response.EndpointParseResponse;
-import com.example.bssm_dev.domain.github.model.GitHubConnection;
 import com.example.bssm_dev.domain.github.model.GitHubRepository;
-import com.example.bssm_dev.domain.github.repository.GitHubConnectionRepository;
+import com.example.bssm_dev.domain.github.repository.GitHubInstallationRepository;
 import com.example.bssm_dev.domain.github.repository.GitHubRepositoryRepository;
 import com.example.bssm_dev.domain.user.model.User;
 import com.example.bssm_dev.domain.user.repository.UserRepository;
@@ -37,7 +36,7 @@ public class EndpointSyncService {
     private final EndpointParserFeign endpointParserFeign;
     private final GitHubInstallationTokenProvider installationTokenProvider;
     private final GitHubRepositoryRepository gitHubRepositoryRepository;
-    private final GitHubConnectionRepository gitHubConnectionRepository;
+    private final GitHubInstallationRepository gitHubInstallationRepository;
     private final ApiRepository apiRepository;
     private final ApiGroupRepository apiGroupRepository;
     private final UserRepository userRepository;
@@ -83,9 +82,7 @@ public class EndpointSyncService {
     }
 
     private void syncApiVersions(GitHubRepository repo, List<EndpointParseResponse.ParsedEndpoint> parsedEndpoints) {
-        GitHubConnection connection = gitHubConnectionRepository.findByInstallationId(repo.getInstallationId())
-                .orElse(null);
-        if (connection == null) {
+        if (gitHubInstallationRepository.findByInstallationId(repo.getInstallationId()).isEmpty()) {
             return;
         }
 

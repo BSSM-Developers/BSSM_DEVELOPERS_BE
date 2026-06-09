@@ -10,6 +10,7 @@ public interface GitHubRepositoryRepository extends JpaRepository<GitHubReposito
     List<GitHubRepository> findAllByUserId(Long userId);
     Optional<GitHubRepository> findByIdAndUserId(Long id, Long userId);
     Optional<GitHubRepository> findByUserIdAndRepoFullNameAndBranch(Long userId, String repoFullName, String branch);
+    Optional<GitHubRepository> findFirstByUserIdAndRepoFullName(Long userId, String repoFullName);
     boolean existsByUserIdAndRepoFullNameAndBranch(Long userId, String repoFullName, String branch);
     List<GitHubRepository> findAllByRepoFullNameAndBranch(String repoFullName, String branch);
 }

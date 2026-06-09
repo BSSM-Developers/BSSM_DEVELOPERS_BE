@@ -3,7 +3,9 @@ package com.example.bssm_dev.domain.github.service;
 import com.example.bssm_dev.domain.github.exception.GitHubConnectionNotFoundException;
 import com.example.bssm_dev.domain.github.exception.GitHubWebhookSignatureInvalidException;
 import com.example.bssm_dev.domain.github.model.GitHubConnection;
+import com.example.bssm_dev.domain.github.model.GitHubInstallation;
 import com.example.bssm_dev.domain.github.repository.GitHubConnectionRepository;
+import com.example.bssm_dev.domain.github.repository.GitHubInstallationRepository;
 import com.example.bssm_dev.global.config.properties.GitHubAppProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +31,7 @@ public class GitHubWebhookService {
     private static final String REFS_HEADS_PREFIX = "refs/heads/";
 
     private final GitHubConnectionRepository gitHubConnectionRepository;
+    private final GitHubInstallationRepository gitHubInstallationRepository;
     private final GitHubAppProperties gitHubAppProperties;
     private final ObjectMapper objectMapper;
     private final EndpointSyncService endpointSyncService;
@@ -62,13 +65,14 @@ public class GitHubWebhookService {
 
             gitHubConnectionRepository.findByGithubId(lookupId).ifPresentOrElse(connection -> {
                 if (ACTION_CREATED.equals(action)) {
-                    connection.updateInstallationId(installationId);
-                    gitHubConnectionRepository.save(connection);
+                    gitHubInstallationRepository.findByInstallationId(installationId)
+                            .orElseGet(() -> gitHubInstallationRepository.save(
+                                    GitHubInstallation.of(connection.getUserId(), installationId)
+                            ));
                     log.info("github app installed - githubLogin={}, installationId={}", connection.getGithubLogin(), installationId);
                 } else if (ACTION_DELETED.equals(action)) {
-                    connection.removeInstallation();
-                    gitHubConnectionRepository.save(connection);
-                    log.info("github app uninstalled - githubLogin={}", connection.getGithubLogin());
+                    gitHubInstallationRepository.deleteByInstallationId(installationId);
+                    log.info("github app uninstalled - githubLogin={}, installationId={}", connection.getGithubLogin(), installationId);
                 }
             }, () -> log.warn("github installation event - no connection found for githubId={}", lookupId));
         } catch (Exception e) {
@@ -89,7 +93,9 @@ public class GitHubWebhookService {
             String branch = ref.substring(REFS_HEADS_PREFIX.length());
             String repoFullName = root.path("repository").path("full_name").asText();
 
-            GitHubConnection connection = gitHubConnectionRepository.findByInstallationId(installationId)
+            GitHubInstallation installation = gitHubInstallationRepository.findByInstallationId(installationId)
+                    .orElseThrow(GitHubConnectionNotFoundException::raise);
+            GitHubConnection connection = gitHubConnectionRepository.findByUserId(installation.getUserId())
                     .orElseThrow(GitHubConnectionNotFoundException::raise);
 
             log.info("github push event - repo={}, branch={}, githubLogin={}", repoFullName, branch, connection.getGithubLogin());

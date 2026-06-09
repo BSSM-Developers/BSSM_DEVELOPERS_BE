@@ -6,6 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -15,7 +16,9 @@ public interface GitHubInstallationApiFeign {
     @GetMapping("/installation/repositories")
     GitHubRepoListApiResponse getInstallationRepositories(
             @RequestHeader("Authorization") String installationToken,
-            @RequestHeader("Accept") String accept
+            @RequestHeader("Accept") String accept,
+            @RequestParam("per_page") int perPage,
+            @RequestParam("page") int page
     );
 
     @GetMapping("/repos/{owner}/{repo}/branches")
@@ -23,6 +26,8 @@ public interface GitHubInstallationApiFeign {
             @RequestHeader("Authorization") String installationToken,
             @RequestHeader("Accept") String accept,
             @PathVariable String owner,
-            @PathVariable String repo
+            @PathVariable String repo,
+            @RequestParam("per_page") int perPage,
+            @RequestParam("page") int page
     );
 }
