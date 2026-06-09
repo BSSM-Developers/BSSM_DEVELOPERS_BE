@@ -31,8 +31,6 @@ public class GitHubConnection {
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
 
-    private Long installationId;
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -61,11 +59,4 @@ public class GitHubConnection {
         this.refreshToken = refreshToken;
     }
 
-    public void updateInstallationId(Long installationId) {
-        this.installationId = installationId;
-    }
-
-    public void removeInstallation() {
-        this.installationId = null;
-    }
 }
