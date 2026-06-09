@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.github.service;
 
 import com.example.bssm_dev.domain.github.dto.response.GitHubBranchItem;
 import com.example.bssm_dev.domain.github.dto.response.GitHubRepoItem;
+import com.example.bssm_dev.domain.github.dto.response.GitHubRepoListApiResponse;
 import com.example.bssm_dev.global.component.GitHubInstallationTokenProvider;
 import com.example.bssm_dev.global.feign.GitHubInstallationApiFeign;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 public class GitHubApiService {
 
     private static final String GITHUB_API_ACCEPT = "application/vnd.github+json";
+    private static final int REPOS_PER_PAGE = 100;
     private static final int BRANCHES_PER_PAGE = 100;
 
     private final GitHubInstallationTokenProvider installationTokenProvider;
@@ -26,9 +28,22 @@ public class GitHubApiService {
 
     public List<GitHubRepoItem> getInstallationRepositories(Long installationId) {
         String token = bearerToken(installationTokenProvider.getInstallationToken(installationId));
-        return gitHubInstallationApiFeign
-                .getInstallationRepositories(token, GITHUB_API_ACCEPT)
-                .repositories();
+        List<GitHubRepoItem> all = new ArrayList<>();
+        int page = 1;
+        while (true) {
+            GitHubRepoListApiResponse response = gitHubInstallationApiFeign
+                    .getInstallationRepositories(token, GITHUB_API_ACCEPT, REPOS_PER_PAGE, page);
+            List<GitHubRepoItem> batch = response.repositories();
+            if (batch == null || batch.isEmpty()) {
+                break;
+            }
+            all.addAll(batch);
+            if (all.size() >= response.total_count()) {
+                break;
+            }
+            page++;
+        }
+        return all;
     }
 
     public List<GitHubBranchItem> getBranches(Long installationId, String owner, String repo) {

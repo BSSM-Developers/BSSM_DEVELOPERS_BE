@@ -16,7 +16,9 @@ public interface GitHubInstallationApiFeign {
     @GetMapping("/installation/repositories")
     GitHubRepoListApiResponse getInstallationRepositories(
             @RequestHeader("Authorization") String installationToken,
-            @RequestHeader("Accept") String accept
+            @RequestHeader("Accept") String accept,
+            @RequestParam("per_page") int perPage,
+            @RequestParam("page") int page
     );
 
     @GetMapping("/repos/{owner}/{repo}/branches")
