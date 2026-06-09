@@ -8,6 +8,5 @@ import java.util.Optional;
 public interface GitHubConnectionRepository extends JpaRepository<GitHubConnection, Long> {
     Optional<GitHubConnection> findByUserId(Long userId);
     Optional<GitHubConnection> findByGithubId(Long githubId);
-    Optional<GitHubConnection> findByInstallationId(Long installationId);
     boolean existsByUserId(Long userId);
 }
