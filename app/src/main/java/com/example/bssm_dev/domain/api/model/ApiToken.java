@@ -126,4 +126,8 @@ public class ApiToken {
     public void unblock() {
         this.state = ApiTokenState.NORMAL;
     }
+
+    public void block() {
+        this.state = ApiTokenState.BLOCKED;
+    }
 }

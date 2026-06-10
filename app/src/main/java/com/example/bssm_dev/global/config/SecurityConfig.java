@@ -109,6 +109,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/webhook/github").permitAll()
+                        .requestMatchers("/webhook/api/**").permitAll()
                         .requestMatchers("/signup/me").permitAll()
                         .requestMatchers("/signup/*/purpose").permitAll()
                         .requestMatchers("/signup/**").access(requiresAdmin)
