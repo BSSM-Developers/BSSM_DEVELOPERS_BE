@@ -25,43 +25,57 @@ public class DocsHealthCheckCommandService {
     private final DocsRepository docsRepository;
     private final WebClient healthCheckWebClient;
 
-    @Transactional("mongoTransactionManager")
     public void checkAll() {
         List<Docs> docsList = docsRepository.findAllActiveWithDomain();
 
-        List<Docs> updated = Flux.fromIterable(docsList)
-                .flatMap(docs -> checkDocs(docs), CONCURRENCY)
+        List<Docs> changed = Flux.fromIterable(docsList)
+                .flatMap(docs -> checkAndUpdateIfChanged(docs), CONCURRENCY)
                 .collectList()
                 .block(TOTAL_TIMEOUT);
 
-        if (updated != null) {
-            docsRepository.saveAll(updated);
+        if (changed != null && !changed.isEmpty()) {
+            saveAll(changed);
         }
     }
 
-    private Mono<Docs> checkDocs(Docs docs) {
+    @Transactional("mongoTransactionManager")
+    public void saveAll(List<Docs> docs) {
+        docsRepository.saveAll(docs);
+    }
+
+    private Mono<Docs> checkAndUpdateIfChanged(Docs docs) {
+        ServerStatus previousStatus = docs.getServerStatus();
         String baseUrl = normalizeBaseUrl(docs.getDomain());
-        return isHealthy(baseUrl + "/")
-                .flatMap(rootOk -> {
-                    if (rootOk) return Mono.just(ServerStatus.RUNNING);
-                    return isHealthy(baseUrl + "/health")
-                            .map(healthOk -> healthOk ? ServerStatus.RUNNING : ServerStatus.STOP);
-                })
-                .map(status -> {
-                    docs.updateServerStatus(status);
-                    log.info("Health check: docsId={}, domain={}, status={}", docs.getId(), docs.getDomain(), status);
+
+        return determineStatus(baseUrl)
+                .filter(newStatus -> newStatus != previousStatus)
+                .map(newStatus -> {
+                    docs.updateServerStatus(newStatus);
+                    log.info("Health check status changed: docsId={}, domain={}, {} -> {}",
+                            docs.getId(), docs.getDomain(), previousStatus, newStatus);
                     return docs;
                 });
     }
 
-    private Mono<Boolean> isHealthy(String url) {
+    private Mono<ServerStatus> determineStatus(String baseUrl) {
+        return isReachable(baseUrl + "/")
+                .flatMap(rootOk -> {
+                    if (rootOk) return Mono.just(ServerStatus.RUNNING);
+                    return isReachable(baseUrl + "/health")
+                            .map(healthOk -> healthOk ? ServerStatus.RUNNING : ServerStatus.STOP);
+                });
+    }
+
+    private Mono<Boolean> isReachable(String url) {
         return healthCheckWebClient.get()
                 .uri(url)
-                .retrieve()
-                .toBodilessEntity()
-                .map(response -> response.getStatusCode().is2xxSuccessful())
+                .exchangeToMono(response -> {
+                    boolean reachable = !response.statusCode().isError()
+                            || response.statusCode().is4xxClientError();
+                    return Mono.just(reachable);
+                })
                 .onErrorResume(e -> {
-                    log.warn("Health check failed for url={}: {}", url, e.getMessage());
+                    log.warn("Health check unreachable: url={}, cause={}", url, e.getMessage());
                     return Mono.just(false);
                 });
     }
