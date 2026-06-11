@@ -77,6 +77,9 @@ public class DocsHealthCheckCommandService {
     }
 
     private String normalizeBaseUrl(String domain) {
+        if (domain == null || domain.isBlank()) {
+            throw new IllegalArgumentException("domain is blank");
+        }
         String trimmed = domain.endsWith("/") ? domain.substring(0, domain.length() - 1) : domain;
         if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
             return trimmed;
