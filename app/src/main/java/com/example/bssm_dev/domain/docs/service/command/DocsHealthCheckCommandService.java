@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
@@ -18,6 +19,7 @@ import java.util.List;
 public class DocsHealthCheckCommandService {
 
     private static final int CONCURRENCY = 10;
+    private static final Duration TOTAL_TIMEOUT = Duration.ofMinutes(2);
 
     private final DocsRepository docsRepository;
     private final WebClient healthCheckWebClient;
@@ -28,11 +30,9 @@ public class DocsHealthCheckCommandService {
         List<Docs> updated = Flux.fromIterable(docsList)
                 .flatMap(docs -> checkDocs(docs), CONCURRENCY)
                 .collectList()
-                .block();
+                .block(TOTAL_TIMEOUT);
 
-        if (updated != null) {
-            docsRepository.saveAll(updated);
-        }
+        docsRepository.saveAll(updated);
     }
 
     private Mono<Docs> checkDocs(Docs docs) {
