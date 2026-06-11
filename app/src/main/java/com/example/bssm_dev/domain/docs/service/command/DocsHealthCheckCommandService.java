@@ -63,9 +63,10 @@ public class DocsHealthCheckCommandService {
     }
 
     private String normalizeBaseUrl(String domain) {
-        if (domain.startsWith("http://") || domain.startsWith("https://")) {
-            return domain.endsWith("/") ? domain.substring(0, domain.length() - 1) : domain;
+        String trimmed = domain.endsWith("/") ? domain.substring(0, domain.length() - 1) : domain;
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+            return trimmed;
         }
-        return "https://" + domain;
+        return "https://" + trimmed;
     }
 }
