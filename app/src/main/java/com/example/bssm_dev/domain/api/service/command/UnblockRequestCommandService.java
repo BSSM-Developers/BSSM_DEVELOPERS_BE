@@ -1,6 +1,7 @@
 package com.example.bssm_dev.domain.api.service.command;
 
-import com.example.bssm_dev.domain.api.dto.response.UnblockRequestResponse;
+import com.example.bssm_dev.domain.api.event.UnblockRequestApprovedEvent;
+import com.example.bssm_dev.domain.api.event.UnblockRequestRejectedEvent;
 import com.example.bssm_dev.domain.api.exception.*;
 import com.example.bssm_dev.domain.api.mapper.UnblockRequestMapper;
 import com.example.bssm_dev.domain.api.model.ApiToken;
@@ -13,6 +14,7 @@ import com.example.bssm_dev.domain.user.exception.UnauthorizedException;
 import com.example.bssm_dev.domain.user.model.User;
 import com.example.bssm_dev.domain.user.model.type.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class UnblockRequestCommandService {
     private final UnblockRequestRepository unblockRequestRepository;
     private final ApiTokenRepository apiTokenRepository;
     private final UnblockRequestMapper unblockRequestMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void createUnblockRequest(User user, Long apiTokenId, String reason) {
         ApiToken apiToken = apiTokenRepository.findById(apiTokenId)
@@ -65,6 +68,8 @@ public class UnblockRequestCommandService {
         ApiToken apiToken = unblockRequest.getApiToken();
         apiToken.unblock();
         apiTokenRepository.save(apiToken);
+
+        eventPublisher.publishEvent(new UnblockRequestApprovedEvent(unblockRequest));
     }
 
     public void rejectUnblockRequest(User admin, Long unblockRequestId, String rejectReason) {
@@ -78,6 +83,8 @@ public class UnblockRequestCommandService {
         }
 
         unblockRequest.reject(admin, rejectReason);
+
+        eventPublisher.publishEvent(new UnblockRequestRejectedEvent(unblockRequest));
     }
 
     private void validateAdmin(User user) {
