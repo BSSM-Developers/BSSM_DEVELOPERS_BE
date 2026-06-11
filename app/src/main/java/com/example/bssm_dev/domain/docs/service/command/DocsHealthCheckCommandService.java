@@ -58,12 +58,8 @@ public class DocsHealthCheckCommandService {
     }
 
     private Mono<ServerStatus> determineStatus(String baseUrl) {
-        return isReachable(baseUrl + "/")
-                .flatMap(rootOk -> {
-                    if (rootOk) return Mono.just(ServerStatus.RUNNING);
-                    return isReachable(baseUrl + "/health")
-                            .map(healthOk -> healthOk ? ServerStatus.RUNNING : ServerStatus.STOP);
-                });
+        return Mono.zip(isReachable(baseUrl + "/"), isReachable(baseUrl + "/health"))
+                .map(tuple -> (tuple.getT1() || tuple.getT2()) ? ServerStatus.RUNNING : ServerStatus.STOP);
     }
 
     private Mono<Boolean> isReachable(String url) {
