@@ -1,5 +1,6 @@
 package com.example.bssm_dev.domain.docs.model;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.docs.model.type.ServerStatus;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,8 @@ public class Docs {
     private Long writerId;
     @Builder.Default
     private Long tokenCount = 0L;
+    @Builder.Default
+    private ServerStatus serverStatus = ServerStatus.RUNNING;
     private LocalDateTime deletedAt;
 
     public boolean isMyDocs(User user) {
@@ -52,5 +55,9 @@ public class Docs {
 
     public boolean isDeleted() {
         return this.deletedAt != null;
+    }
+
+    public void updateServerStatus(ServerStatus status) {
+        this.serverStatus = status;
     }
 }

@@ -48,3 +48,5 @@ docker-compose.yaml
 
 build-and-push-latest.sh
 build-and-push.sh
+
+docs/superpowers/
