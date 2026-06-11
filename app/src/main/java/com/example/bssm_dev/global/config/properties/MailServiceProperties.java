@@ -4,8 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties("infobip")
-public class InfobipProperties {
+@ConfigurationProperties("mail-service")
+public class MailServiceProperties {
     private String url;
-    private String apiKey;
 }
