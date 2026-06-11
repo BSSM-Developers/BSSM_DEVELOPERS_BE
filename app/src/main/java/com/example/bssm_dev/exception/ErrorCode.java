@@ -68,7 +68,8 @@ public enum ErrorCode {
     GITHUB_WEBHOOK_SIGNATURE_INVALID(403, "GitHub 웹훅 서명이 유효하지 않습니다."),
     GITHUB_INSTALLATION_TOKEN_FAIL(502, "GitHub App 설치 토큰 발급에 실패했습니다."),
     GITHUB_REPOSITORY_NOT_FOUND(404, "등록된 GitHub 레포지토리를 찾을 수 없습니다."),
-    GITHUB_REPOSITORY_UNAUTHORIZED(403, "해당 GitHub 레포지토리에 접근할 권한이 없습니다.");
+    GITHUB_REPOSITORY_UNAUTHORIZED(403, "해당 GitHub 레포지토리에 접근할 권한이 없습니다."),
+    INVALID_WEBHOOK_SECRET(401, "유효하지 않은 웹훅 시크릿입니다.");
 
 
     private final int statusCode;
