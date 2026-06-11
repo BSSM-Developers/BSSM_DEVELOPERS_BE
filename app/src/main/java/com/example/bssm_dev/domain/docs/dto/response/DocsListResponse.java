@@ -9,5 +9,6 @@ public record DocsListResponse(
         String type,
         String repositoryUrl,
         String branch,
-        Boolean autoApproval
+        Boolean autoApproval,
+        String serverStatus
 ) {}
