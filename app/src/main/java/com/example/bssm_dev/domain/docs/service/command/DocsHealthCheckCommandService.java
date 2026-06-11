@@ -29,7 +29,11 @@ public class DocsHealthCheckCommandService {
         List<Docs> docsList = docsRepository.findAllActiveWithDomain();
 
         List<Docs> changed = Flux.fromIterable(docsList)
-                .flatMap(docs -> checkAndUpdateIfChanged(docs), CONCURRENCY)
+                .flatMap(docs -> Mono.defer(() -> checkAndUpdateIfChanged(docs))
+                        .onErrorResume(e -> {
+                            log.warn("Health check skipped: docsId={}, domain={}, cause={}", docs.getId(), docs.getDomain(), e.getMessage());
+                            return Mono.empty();
+                        }), CONCURRENCY)
                 .collectList()
                 .block(TOTAL_TIMEOUT);
 
@@ -63,17 +67,22 @@ public class DocsHealthCheckCommandService {
     }
 
     private Mono<Boolean> isReachable(String url) {
-        return healthCheckWebClient.get()
-                .uri(url)
-                .exchangeToMono(response -> {
-                    boolean reachable = !response.statusCode().isError()
-                            || response.statusCode().is4xxClientError();
-                    return Mono.just(reachable);
-                })
-                .onErrorResume(e -> {
-                    log.warn("Health check unreachable: url={}, cause={}", url, e.getMessage());
-                    return Mono.just(false);
-                });
+        try {
+            return healthCheckWebClient.get()
+                    .uri(url)
+                    .exchangeToMono(response -> {
+                        boolean reachable = !response.statusCode().isError()
+                                || response.statusCode().is4xxClientError();
+                        return Mono.just(reachable);
+                    })
+                    .onErrorResume(e -> {
+                        log.warn("Health check unreachable: url={}, cause={}", url, e.getMessage());
+                        return Mono.just(false);
+                    });
+        } catch (Exception e) {
+            log.warn("Health check invalid URL: url={}, cause={}", url, e.getMessage());
+            return Mono.just(false);
+        }
     }
 
     private String normalizeBaseUrl(String domain) {
