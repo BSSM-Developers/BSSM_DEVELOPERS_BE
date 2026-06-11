@@ -6,6 +6,7 @@ import com.example.bssm_dev.common.dto.ResponseDto;
 import com.example.bssm_dev.common.util.HttpUtil;
 import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.docs.model.type.ServerStatus;
 import com.example.bssm_dev.domain.docs.service.query.DocsQueryService;
 import com.example.bssm_dev.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,12 @@ public class DocsQueryController {
     @GetMapping
     public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getAllDocs(
             @RequestParam(required = false) String type,
+            @RequestParam(required = false) ServerStatus serverStatus,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
         DocumentType docsType = DocumentType.fromString(type);
-        CursorPage<DocsListResponse> response = docsQueryService.getAllDocs(docsType, cursor, size);
+        CursorPage<DocsListResponse> response = docsQueryService.getAllDocs(docsType, serverStatus, cursor, size);
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved all docs", response);
         return ResponseEntity.ok(responseDto);
     }
@@ -39,12 +41,13 @@ public class DocsQueryController {
     @GetMapping("/my")
     public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getMyDocs(
             @RequestParam(required = false) String type,
+            @RequestParam(required = false) ServerStatus serverStatus,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @CurrentUser User currentUser
     ) {
         DocumentType docsType = DocumentType.fromString(type);
-        CursorPage<DocsListResponse> response = docsQueryService.getMyDocs(currentUser, docsType, cursor, size);
+        CursorPage<DocsListResponse> response = docsQueryService.getMyDocs(currentUser, docsType, serverStatus, cursor, size);
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved my docs", response);
         return ResponseEntity.ok(responseDto);
     }
@@ -56,12 +59,13 @@ public class DocsQueryController {
     @GetMapping("/popular")
     public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getPopularDocs(
             @RequestParam(required = false) String type,
+            @RequestParam(required = false) ServerStatus serverStatus,
             @RequestParam(required = false) Long tokenCount,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size
     ) {
         DocumentType docsType = DocumentType.fromString(type);
-        CursorPage<DocsListResponse> response = docsQueryService.getPopularDocs(docsType, tokenCount, cursor, size);
+        CursorPage<DocsListResponse> response = docsQueryService.getPopularDocs(docsType, serverStatus, tokenCount, cursor, size);
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved popular docs", response);
         return ResponseEntity.ok(responseDto);
     }
@@ -72,13 +76,14 @@ public class DocsQueryController {
     @GetMapping("/my/popular")
     public ResponseEntity<ResponseDto<CursorPage<DocsListResponse>>> getMyPopularDocs(
             @RequestParam(required = false) String type,
+            @RequestParam(required = false) ServerStatus serverStatus,
             @RequestParam(required = false) Long tokenCount,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @CurrentUser User currentUser
     ) {
         DocumentType docsType = DocumentType.fromString(type);
-        CursorPage<DocsListResponse> response = docsQueryService.getMyPopularDocs(currentUser, docsType, tokenCount, cursor, size);
+        CursorPage<DocsListResponse> response = docsQueryService.getMyPopularDocs(currentUser, docsType, serverStatus, tokenCount, cursor, size);
         ResponseDto<CursorPage<DocsListResponse>> responseDto = HttpUtil.success("Successfully retrieved my popular docs", response);
         return ResponseEntity.ok(responseDto);
     }

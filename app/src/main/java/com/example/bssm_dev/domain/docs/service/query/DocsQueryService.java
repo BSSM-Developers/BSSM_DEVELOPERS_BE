@@ -5,6 +5,7 @@ import com.example.bssm_dev.domain.docs.dto.response.DocsListResponse;
 import com.example.bssm_dev.domain.docs.mapper.DocsMapper;
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.docs.model.type.ServerStatus;
 import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import com.example.bssm_dev.domain.docs.exception.DocsNotFoundException;
 import com.example.bssm_dev.domain.user.model.User;
@@ -29,10 +30,10 @@ public class DocsQueryService {
     private final DocsMapper docsMapper;
     private final UserRepository userRepository;
 
-    public CursorPage<DocsListResponse> getAllDocs(DocumentType docsType, String cursor, Integer size) {
+    public CursorPage<DocsListResponse> getAllDocs(DocumentType docsType, ServerStatus serverStatus, String cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size + 1);
-        
-        Slice<Docs> docsSlice = docsRepository.fetchDocs(docsType, cursor, pageable);
+
+        Slice<Docs> docsSlice = docsRepository.fetchDocs(docsType, serverStatus, cursor, pageable);
         List<Docs> content = docsSlice.getContent();
         boolean hasNext = docsSlice.hasNext();
 
@@ -43,10 +44,10 @@ public class DocsQueryService {
         return new CursorPage<>(responses, hasNext);
     }
 
-    public CursorPage<DocsListResponse> getMyDocs(User currentUser, DocumentType docsType, String cursor, Integer size) {
+    public CursorPage<DocsListResponse> getMyDocs(User currentUser, DocumentType docsType, ServerStatus serverStatus, String cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size);
-        
-        Slice<Docs> docsSlice = docsRepository.fetchMyDocs(currentUser.getUserId(), docsType, cursor, pageable);
+
+        Slice<Docs> docsSlice = docsRepository.fetchMyDocs(currentUser.getUserId(), docsType, serverStatus, cursor, pageable);
         List<Docs> content = docsSlice.getContent();
         boolean hasNext = docsSlice.hasNext();
 
@@ -56,10 +57,10 @@ public class DocsQueryService {
     }
 
 
-    public CursorPage<DocsListResponse> getPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Integer size) {
+    public CursorPage<DocsListResponse> getPopularDocs(DocumentType docsType, ServerStatus serverStatus, Long tokenCount, String cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Docs> docsSlice = docsRepository.fetchPopularDocs(docsType, tokenCount, cursor, pageable);
+        Slice<Docs> docsSlice = docsRepository.fetchPopularDocs(docsType, serverStatus, tokenCount, cursor, pageable);
         List<Docs> content = docsSlice.getContent();
 
         boolean hasNext = docsSlice.hasNext();
@@ -71,10 +72,10 @@ public class DocsQueryService {
         return new CursorPage<>(responses, hasNext);
     }
 
-    public CursorPage<DocsListResponse> getMyPopularDocs(User currentUser, DocumentType docsType, Long tokenCount, String cursor, Integer size) {
+    public CursorPage<DocsListResponse> getMyPopularDocs(User currentUser, DocumentType docsType, ServerStatus serverStatus, Long tokenCount, String cursor, Integer size) {
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Docs> docsSlice = docsRepository.fetchMyPopularDocs(currentUser.getUserId(), docsType, tokenCount, cursor, pageable);
+        Slice<Docs> docsSlice = docsRepository.fetchMyPopularDocs(currentUser.getUserId(), docsType, serverStatus, tokenCount, cursor, pageable);
         List<Docs> content = docsSlice.getContent();
         boolean hasNext = docsSlice.hasNext();
 
