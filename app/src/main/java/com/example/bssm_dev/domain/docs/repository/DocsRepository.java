@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DocsRepository extends MongoRepository<Docs, String>, DocsQueryRepository{
@@ -35,4 +36,7 @@ public interface DocsRepository extends MongoRepository<Docs, String>, DocsQuery
     // writerId + type별 문서 조회
     Slice<Docs> findByWriterIdAndTypeOrderByIdDesc(Long writerId, DocumentType type, Pageable pageable);
     Slice<Docs> findByWriterIdAndTypeAndIdLessThanOrderByIdDesc(Long writerId, DocumentType type, String cursor, Pageable pageable);
+
+    @Query("{ 'deletedAt': null, 'domain': { '$ne': '' } }")
+    List<Docs> findAllActiveWithDomain();
 }
