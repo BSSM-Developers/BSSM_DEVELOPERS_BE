@@ -51,7 +51,8 @@ public class DocsMapper {
                 docs.getType().name(),
                 docs.getRepositoryUrl(),
                 docs.getBranch(),
-                docs.getAutoApproval()
+                docs.getAutoApproval(),
+                docs.getServerStatus() != null ? docs.getServerStatus().name() : null
         );
     }
 
