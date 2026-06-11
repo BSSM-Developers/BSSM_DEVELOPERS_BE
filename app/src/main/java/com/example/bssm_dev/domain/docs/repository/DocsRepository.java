@@ -37,6 +37,6 @@ public interface DocsRepository extends MongoRepository<Docs, String>, DocsQuery
     Slice<Docs> findByWriterIdAndTypeOrderByIdDesc(Long writerId, DocumentType type, Pageable pageable);
     Slice<Docs> findByWriterIdAndTypeAndIdLessThanOrderByIdDesc(Long writerId, DocumentType type, String cursor, Pageable pageable);
 
-    @Query("{ 'deletedAt': null, 'domain': { '$ne': '' } }")
+    @Query("{ 'deletedAt': null, 'domain': { '$exists': true, '$ne': null, '$nin': ['', null] } }")
     List<Docs> findAllActiveWithDomain();
 }
