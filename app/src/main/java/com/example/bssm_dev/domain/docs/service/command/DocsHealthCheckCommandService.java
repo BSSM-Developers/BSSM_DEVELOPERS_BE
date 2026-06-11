@@ -6,6 +6,7 @@ import com.example.bssm_dev.domain.docs.repository.DocsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,6 +25,7 @@ public class DocsHealthCheckCommandService {
     private final DocsRepository docsRepository;
     private final WebClient healthCheckWebClient;
 
+    @Transactional("mongoTransactionManager")
     public void checkAll() {
         List<Docs> docsList = docsRepository.findAllActiveWithDomain();
 
@@ -32,7 +34,9 @@ public class DocsHealthCheckCommandService {
                 .collectList()
                 .block(TOTAL_TIMEOUT);
 
-        docsRepository.saveAll(updated);
+        if (updated != null) {
+            docsRepository.saveAll(updated);
+        }
     }
 
     private Mono<Docs> checkDocs(Docs docs) {
