@@ -2,6 +2,7 @@ package com.example.bssm_dev.domain.docs.repository.impl;
 
 import com.example.bssm_dev.domain.docs.model.Docs;
 import com.example.bssm_dev.domain.docs.model.type.DocumentType;
+import com.example.bssm_dev.domain.docs.model.type.ServerStatus;
 import com.example.bssm_dev.domain.docs.repository.DocsQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -23,7 +24,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public Slice<Docs> fetchDocs(DocumentType docsType, String cursor, Pageable pageable) {
+    public Slice<Docs> fetchDocs(DocumentType docsType, ServerStatus serverStatus, String cursor, Pageable pageable) {
         Query query = new Query();
         query.addCriteria(Criteria.where("deletedAt").isNull());
 
@@ -31,8 +32,11 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
             query.addCriteria(Criteria.where("type").is(docsType));
         }
 
+        if (serverStatus != null) {
+            query.addCriteria(Criteria.where("serverStatus").is(serverStatus));
+        }
+
         if (cursor != null) {
-            // ObjectId 기반 커서
             query.addCriteria(Criteria.where("_id").lt(new ObjectId(cursor)));
         }
 
@@ -50,19 +54,20 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     }
 
     @Override
-    public Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, String cursor, Pageable pageable) {
+    public Slice<Docs> fetchMyDocs(Long writerId, DocumentType docsType, ServerStatus serverStatus, String cursor, Pageable pageable) {
         Query query = new Query();
         query.addCriteria(Criteria.where("deletedAt").isNull());
-
-        // writerId 필터 추가
         query.addCriteria(Criteria.where("writerId").is(writerId));
 
         if (docsType != null) {
             query.addCriteria(Criteria.where("type").is(docsType));
         }
 
+        if (serverStatus != null) {
+            query.addCriteria(Criteria.where("serverStatus").is(serverStatus));
+        }
+
         if (cursor != null) {
-            // ObjectId 기반 커서
             query.addCriteria(Criteria.where("_id").lt(new ObjectId(cursor)));
         }
 
@@ -81,7 +86,7 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
 
 
     @Override
-    public Slice<Docs> fetchPopularDocs(DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
+    public Slice<Docs> fetchPopularDocs(DocumentType docsType, ServerStatus serverStatus, Long tokenCount, String cursor, Pageable pageable) {
         Query query = new Query();
         query.addCriteria(Criteria.where("deletedAt").isNull());
 
@@ -89,8 +94,11 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
             query.addCriteria(Criteria.where("type").is(docsType));
         }
 
+        if (serverStatus != null) {
+            query.addCriteria(Criteria.where("serverStatus").is(serverStatus));
+        }
+
         if (tokenCount != null && cursor != null) {
-            // tokenCount가 같으면 _id로 비교
             Criteria cursorCriteria = new Criteria().orOperator(
                     Criteria.where("tokenCount").lt(tokenCount),
                     Criteria.where("tokenCount").is(tokenCount).and("_id").lt(new ObjectId(cursor))
@@ -112,18 +120,20 @@ public class DocsQueryRepositoryImpl implements DocsQueryRepository {
     }
 
     @Override
-    public Slice<Docs> fetchMyPopularDocs(Long writerId, DocumentType docsType, Long tokenCount, String cursor, Pageable pageable) {
+    public Slice<Docs> fetchMyPopularDocs(Long writerId, DocumentType docsType, ServerStatus serverStatus, Long tokenCount, String cursor, Pageable pageable) {
         Query query = new Query();
         query.addCriteria(Criteria.where("deletedAt").isNull());
-
         query.addCriteria(Criteria.where("writerId").is(writerId));
 
         if (docsType != null) {
             query.addCriteria(Criteria.where("type").is(docsType));
         }
 
+        if (serverStatus != null) {
+            query.addCriteria(Criteria.where("serverStatus").is(serverStatus));
+        }
+
         if (tokenCount != null && cursor != null) {
-            // tokenCount가 같으면 _id로 비교
             Criteria cursorCriteria = new Criteria().orOperator(
                     Criteria.where("tokenCount").lt(tokenCount),
                     Criteria.where("tokenCount").is(tokenCount).and("_id").lt(new ObjectId(cursor))
