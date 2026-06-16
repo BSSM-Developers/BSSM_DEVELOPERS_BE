@@ -3,6 +3,7 @@ package com.example.bssm_dev.domain.github.service;
 import com.example.bssm_dev.domain.auth.repository.RefreshTokenRepository;
 import com.example.bssm_dev.domain.github.dto.response.GitHubTokenResponse;
 import com.example.bssm_dev.domain.github.dto.response.GitHubUserResponse;
+import com.example.bssm_dev.domain.github.exception.GitHubTokenExchangeFailedException;
 import com.example.bssm_dev.domain.github.model.GitHubConnection;
 import com.example.bssm_dev.domain.github.repository.GitHubConnectionRepository;
 import com.example.bssm_dev.domain.user.exception.UserNotFoundException;
@@ -57,7 +58,11 @@ public class GitHubOauthService {
                 + "&code=" + enc(code)
                 + "&redirect_uri=" + enc(gitHubAppProperties.getRedirectUri());
 
-        return gitHubTokenFeign.getToken("application/json", body);
+        GitHubTokenResponse response = gitHubTokenFeign.getToken("application/json", body);
+        if (response.access_token() == null || response.access_token().isBlank()) {
+            throw GitHubTokenExchangeFailedException.raise();
+        }
+        return response;
     }
 
     private GitHubUserResponse fetchGitHubUser(String accessToken) {
@@ -66,20 +71,23 @@ public class GitHubOauthService {
 
     private void saveOrUpdateConnection(Long userId, GitHubUserResponse gitHubUser,
                                          GitHubTokenResponse tokenResponse) {
-        gitHubConnectionRepository.findByUserId(userId)
-                .ifPresentOrElse(
-                        conn -> {
-                            conn.updateTokens(tokenResponse.access_token(), tokenResponse.refresh_token());
-                            gitHubConnectionRepository.save(conn);
-                        },
-                        () -> gitHubConnectionRepository.save(GitHubConnection.of(
-                                userId,
-                                gitHubUser.id(),
-                                gitHubUser.login(),
-                                tokenResponse.access_token(),
-                                tokenResponse.refresh_token()
-                        ))
-                );
+        GitHubConnection existing = gitHubConnectionRepository.findByUserId(userId)
+                .or(() -> gitHubConnectionRepository.findByGithubId(gitHubUser.id()))
+                .orElse(null);
+
+        if (existing != null) {
+            existing.updateConnection(userId, gitHubUser.id(), gitHubUser.login(),
+                    tokenResponse.access_token(), tokenResponse.refresh_token());
+            gitHubConnectionRepository.save(existing);
+        } else {
+            gitHubConnectionRepository.save(GitHubConnection.of(
+                    userId,
+                    gitHubUser.id(),
+                    gitHubUser.login(),
+                    tokenResponse.access_token(),
+                    tokenResponse.refresh_token()
+            ));
+        }
     }
 
     private String buildInstallUrl() {

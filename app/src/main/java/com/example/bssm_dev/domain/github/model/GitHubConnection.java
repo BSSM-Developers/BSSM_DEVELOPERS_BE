@@ -59,4 +59,13 @@ public class GitHubConnection {
         this.refreshToken = refreshToken;
     }
 
+    public void updateConnection(Long userId, Long githubId, String githubLogin,
+                                  String accessToken, String refreshToken) {
+        this.userId = userId;
+        this.githubId = githubId;
+        this.githubLogin = githubLogin;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
 }
